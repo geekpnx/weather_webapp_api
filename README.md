@@ -6,48 +6,48 @@ These steps below is only when you have cloned the repo.
 
 - After, you need to go to  **weather_webapp** folder.
 
-	- With the command:
+- With the command:
 
 ```bash
-    cd weather_webapp
+cd weather_webapp
 ```
 
 ## **STEP 2**
 
 - Create virtual environment with **venv**.
 
-	- With the command:
+- With the command:
 ```bash
-	python3 -m venv .venv --prompt your_project_name
+python3 -m venv .venv --prompt your_project_name
 ```
 
-- Activate **venv**
+Activate **venv**
 
-	- With the command:
+- With the command:
 
 ```bash
-	source .venv/bin/activate
+source .venv/bin/activate
 ```
 
 ## **STEP 3**
 
 - Install requirements.
 
-	- With the command:
+- With the command:
 
 ```bash
-	make dev-install
+make dev-install
 ```
 
 
-## **STEP 4** 
+## **STEP 4**
 
 Create **.env** file
 
-	- With the command
+- With the command
 
 ```bash
-	nano .env
+nano .env
 ```
 Copy and paste the information below inside the file `.env`.
 

@@ -86,25 +86,29 @@ Run the django server by running the command below in terminal.
 make
 ```
 
-## **STEP 6**
+## **STEP 7**
 
 Check if all the API endpoints are working correctly, such as **`current`**, **`forecast`** and **`location`**, by going to your browser
 
 
 - For **`current`** Weather API, type in:
+```
 	127.0.0.1:8000/api/v1/weather/current/
-
+```
 <a href="https://ibb.co/Kztshdh"><img src="https://i.ibb.co/dJNpMFM/Smart-Select-20240825-013220-Chrome.jpg" alt="Smart-Select-20240825-013220-Chrome" border="0"></a>
 
 - For **`forecast`** Weather API, type in:
+```
 	127.0.0.1:8000/api/v1/weather/forcast/
-
+```
 <a href="https://ibb.co/18XLTHc"><img src="https://i.ibb.co/HnPVqmZ/Smart-Select-20240825-013441-Chrome.jpg" alt="Smart-Select-20240825-013441-Chrome" border="0"></a>
 
 - For **`location`** Weather API, type in:
+```
 	127.0.0.1:8000/api/v1/weather/location/ 
-
+```
 <a href="https://ibb.co/vj7N98Q"><img src="https://i.ibb.co/qrtH6wW/Smart-Select-20240825-013518-Chrome.jpg" alt="Smart-Select-20240825-013518-Chrome" border="0"></a>	
 
 
-You will see that no data on all of them, because we need to add them ourself. For this steps it will come ...
+You will see that no data on all of these APIs, because we need to add them ourself. 
+For this steps it will come ...

@@ -99,7 +99,7 @@ Check if all the API endpoints are working correctly, such as **`current`**, **`
 
 - For **`forecast`** Weather API, type in:
 ```
-	127.0.0.1:8000/api/v1/weather/forcast/
+	127.0.0.1:8000/api/v1/weather/forecast/
 ```
 <a href="https://ibb.co/18XLTHc"><img src="https://i.ibb.co/HnPVqmZ/Smart-Select-20240825-013441-Chrome.jpg" alt="Smart-Select-20240825-013441-Chrome" border="0"></a>
 

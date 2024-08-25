@@ -125,7 +125,7 @@ location_data_a = LocationSerializer(data=location_data)
 location_data_a.is_valid()
 
 # Output:
-	 True
+	# True
 
 location_data_a.validated_data
 

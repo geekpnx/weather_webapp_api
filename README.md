@@ -110,5 +110,113 @@ Check if all the API endpoints are working correctly, such as **`current`**, **`
 <a href="https://ibb.co/vj7N98Q"><img src="https://i.ibb.co/qrtH6wW/Smart-Select-20240825-013518-Chrome.jpg" alt="Smart-Select-20240825-013518-Chrome" border="0"></a>	
 
 
-You will see that no data on all of these APIs, because we need to add them ourself. 
-For this steps it will come ...
+**NOTE**: You will see that no data in all of these APIs, we will  add some samples.
+
+# **Below is how to add data to the `Weather Webapp APIs` endpoint**
+
+### **Example for Weather `Location` endpoint**
+```py
+from apps.weather.serializers.location import LocationSerializer
+
+location_data = {"city_name":"Cologne", "country_code":"de", "latitude":50.935173, "longitude":6.953101}
+
+location_data_a = LocationSerializer(data=location_data)
+
+location_data_a.is_valid()
+
+# Output:
+	 True
+
+location_data_a.validated_data
+
+# Output:
+	
+	#{'city_name': 'Cologne',
+ 	#'country_code': 'de',
+ 	#'latitude': 50.935173,
+ 	#'longitude': 6.953101}
+
+location_data_a.save()
+
+# Output:
+	
+	# <Location: Location object (1)>
+
+```	
+# **Example for Weather `Current` endpoint**
+
+```py
+from apps.weather.serializers.current import CurrentSerializer
+
+current_data = {
+    "location": 1,
+     "timestamp": "2024-08-21T14:30:00Z",
+     "temperature": 25.5,
+     "humidity": 60,
+     "wind_speed": 15.2
+     }
+     
+current_data_a = CurrentSerializer(data=current_data)
+
+current_data_a.is_valid()
+
+# Output: 
+	# True
+
+current_data_a.validated_data
+
+# Output:
+
+	#{'timestamp': datetime.datetime(2024, 8, 25, 14, 30, tzinfo=zoneinfo.ZoneInfo(key='UTC')),
+ 	#'temperature': 25.5,
+ 	#'humidity': 60,
+ 	#'wind_speed': 15.2,
+ 	#'location': <Location: Location object (1)>}
+
+current_data_a.save()
+
+# Output:
+	
+	# <Current: Current object (1)>
+```
+
+# **Example for Weather `forecast` endpoint**
+
+```py
+from apps.weather.serializers.forecast import ForecastSerializer
+
+forecast_data = {
+    "location": 1,
+    "timestamp": "2024-08-21T14:30:00Z",
+    "temperature": 25.5,
+    "max_temperature": 28.0,
+    "min_temperature": 18.0,
+    "humidity": 60,
+    "weather_description": "Partly_cloudy" ,
+    }
+    
+forecast_data_a = ForecastSerializer(data=forecast_data)
+
+forecast_data_a.is_valid()
+
+# Output: 
+	# True
+
+forecast_data_a.validated_data
+
+# Output:
+
+	#{'timestamp': datetime.datetime(2024, 8, 21, 14, 30, tzinfo=zoneinfo.ZoneInfo(key='UTC')),
+ 	#'temperature': 25.5,
+ 	#'max_temperature': 28.0,
+ 	#'min_temperature': 18.0,
+ 	#'humidity': 60,
+ 	#'weather_description': 'Partly_cloudy',
+ 	#'location': <Location: Location object (1)>}
+	
+forecast_data_a.save()
+
+# Output: 
+	# <Forecast: Forecast object (1)>
+```	
+	

@@ -32,15 +32,12 @@ OpenWeatherAPI =
 
 # example Current
 current_data = {
-    "location":[{
-        "city_name":"Cologne",
-        "country_code":"de", 
-        "latitude":50.935173, 
-        "longitude":6.953101}],
+    "location": 1,
      "timestamp": "2024-08-21T14:30:00Z", 
      "temperature": 25.5,
      "humidity": 60,
-     "wind_speed": 15.2}
+     "wind_speed": 15.2
+     }
 
 
 # Example Forecast
@@ -53,4 +50,13 @@ forecast_data = {
     "min_temperature": 18.0,
     "humidity": 60,
     "weather_description": "Partly cloudy"
-}
+    }
+
+# Example Location
+
+location_data = {
+    "city_name":"Cologne", 
+    "country_code":"de", 
+    "latitude":50.935173, 
+    "longitude":6.953101
+    }

@@ -143,7 +143,7 @@ location_data_a.save()
 	# <Location: Location object (1)>
 
 ```	
-# **Example for Weather `Current` endpoint**
+### **Example for Weather `Current` endpoint**
 
 ```py
 from apps.weather.serializers.current import CurrentSerializer
@@ -180,7 +180,7 @@ current_data_a.save()
 	# <Current: Current object (1)>
 ```
 
-# **Example for Weather `forecast` endpoint**
+### **Example for Weather `forecast` endpoint**
 
 ```py
 from apps.weather.serializers.forecast import ForecastSerializer
@@ -220,3 +220,4 @@ forecast_data_a.save()
 	# <Forecast: Forecast object (1)>
 ```	
 	
+You can check the data by running the Django server again, like in **`STEP 6`**.

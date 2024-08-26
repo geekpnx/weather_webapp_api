@@ -148,6 +148,16 @@ Check if all the API endpoints are working correctly, such as **`current`**, **`
 
 # **Below is how to add data to the `Weather Webapp APIs` endpoint**
 
+These process will be done in **`ìPython`**, with DJANGO ORM syntx.
+
+To start the shell,
+
+- With the command
+
+```bash
+make dev-shell-plus
+```
+
 ### **Example for Weather `location` endpoint**
 ```py
 from apps.weather.serializers.location import LocationSerializer

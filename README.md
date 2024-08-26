@@ -52,23 +52,56 @@ nano .env
 Copy and paste the information below inside the file **`.env`**.
 
 ```bash
-SECRET_KEY=@jjc%0^2$1n*e@%(mo4$^42@kqvrg9a2^yt@8-fy*(slm*nh0f
-DB_NAME=weather_webapp        
-DB_USER=postgres
-DB_PWD=postgres
+SECRET_KEY=      # <-- Django SECRET_KEY goes here
+DB_NAME=        # <-- PorsgreSQL DB_NAME (database name) goes here
+DB_USER=postgres     # <-- PorsgreSQL default username (you can change it however you want) 
+DB_PWD=postgres       # <-- PorsgreSQL default password (you can change it however you want) 
 DB_PORT=5432
 DB_HOST=localhost
 ```
-If you want to generate your own `SECRET_KEY` you can run below command in **`iPython`**
+Your may  want to generate your own `SECRET_KEY` you can either run below command in **`iPython`**
 
 ```py
-import secrets
+import secrets--
 secrets.token_urlsafe(50)
 ```
 
-For the `DB_NAME` I will presume you have created one in your PostgreSQL with the name `weather_webapp`.
+or by running the script in **`generateSKEY.py`** file.
+
+- With the command 
+
+```bash
+python3 -m generateSKEY
+```
 
 ## **STEP 5**
+
+For the **`DB_NAME`**, I you haven't create database in your PostgreSQL with the name `weather_webapp_db` (or something else you desire ).
+your can do so,
+
+- With the command
+
+```bash
+python3 -m createDB.py
+```
+
+or by going to PostgreSQL shell directly
+
+- With the command
+
+```bash
+psql -U postgres
+```
+
+ and enter the query below
+
+```sql
+CREATE DATABASE weather_webapp_db
+```
+
+And add this information into the **`.env`** file.
+
+## **STEP 6**
 
 After **`.env`** file been setup with the required data, you can migrate the django  project `weather_webapp`.
 
@@ -78,7 +111,7 @@ After **`.env`** file been setup with the required data, you can migrate the dja
 make dev-m
 ```
 
-## **STEP 6**
+## **STEP 7**
 
 Run the django server by running the command below in terminal.
 
@@ -86,7 +119,7 @@ Run the django server by running the command below in terminal.
 make
 ```
 
-## **STEP 7**
+## **STEP 8**
 
 Check if all the API endpoints are working correctly, such as **`current`**, **`forecast`** and **`location`**, by going to your browser
 

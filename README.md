@@ -254,4 +254,4 @@ forecast_data_a.save()
 	# <Forecast: Forecast object (1)>
 ```	
 	
-You can check the data by running the Django server again, like in **`STEP 6`**.
+You can check the data by running the Django server again, like in **`STEP 7`**.

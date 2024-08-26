@@ -148,7 +148,7 @@ Check if all the API endpoints are working correctly, such as **`current`**, **`
 
 # **Below is how to add data to the `Weather Webapp APIs` endpoint**
 
-### **Example for Weather `Location` endpoint**
+### **Example for Weather `location` endpoint**
 ```py
 from apps.weather.serializers.location import LocationSerializer
 
@@ -177,7 +177,7 @@ location_data_a.save()
 	# <Location: Location object (1)>
 
 ```	
-### **Example for Weather `Current` endpoint**
+### **Example for Weather `current` endpoint**
 
 ```py
 from apps.weather.serializers.current import CurrentSerializer

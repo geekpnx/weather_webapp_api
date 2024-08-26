@@ -62,7 +62,8 @@ DB_HOST=localhost
 Your may  want to generate your own `SECRET_KEY` you can either run below command in **`iPython`**
 
 ```py
-import secrets--
+import secrets
+
 secrets.token_urlsafe(50)
 ```
 
@@ -82,7 +83,7 @@ your can do so,
 - With the command
 
 ```bash
-python3 -m createDB.py
+python3 -m createDB
 ```
 
 or by going to PostgreSQL shell directly
@@ -96,7 +97,7 @@ psql -U postgres
  and enter the query below
 
 ```sql
-CREATE DATABASE weather_webapp_db
+CREATE DATABASE weather_webapp_db;
 ```
 
 And add this information into the **`.env`** file.

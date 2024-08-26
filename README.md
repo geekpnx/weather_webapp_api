@@ -148,7 +148,7 @@ Check if all the API endpoints are working correctly, such as **`current`**, **`
 
 # **Below is how to add data to the `Weather Webapp APIs` endpoint**
 
-These process will be done in **`ìPython`**, with DJANGO ORM syntx.
+These process will be done in **`iPython`**, with DJANGO ORM syntx.
 
 To start the shell,
 

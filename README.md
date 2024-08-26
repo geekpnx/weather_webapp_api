@@ -4,7 +4,7 @@ These steps below is only when you have cloned the repo.
 
 ## **STEP 1**
 
-After, you need to go to  **weather_webapp_api** folder.
+After, you need to go to  **`weather_webapp_api`** folder.
 
 - With the command:
 

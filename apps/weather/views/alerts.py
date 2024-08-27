@@ -6,10 +6,30 @@ from apps.weather.serializers.alerts import AlertSerializer
 
 class AlertsView(APIView):
     def get(self, request, *args, **kwargs):
-        response = requests.get('https://api.openweathermap.org/data/2.5/roadrisk?appid=91e6f5764bd99bc30afcbc68dba30d3a')
+        url = 'http://api.weatherapi.com/v1/forecast.json'
+        params = {
+            'key': '674a65e560f14edfa43170838242708',
+            'q': 'New York',  # You can change this to make it dynamic based on user input
+            'alerts': 'yes'
+        }
+
+        response = requests.get(url, params=params)
         if response.status_code == 200:
-            alerts_data = response.json()
-            serializer = AlertSerializer(data=alerts_data, many=True)
+            alerts_data = response.json().get('alerts', {}).get('alert', [])
+            
+            # Prepare data to match the serializer
+            serialized_data = [
+                {
+                    "headline": alert.get("headline"),
+                    "desc": alert.get("desc"),
+                    # "category": alert.get("category"),
+                    "effective": alert.get("effective"),
+                    "expires": alert.get("expires")
+                }
+                for alert in alerts_data
+            ]
+
+            serializer = AlertSerializer(data=serialized_data, many=True)
             if serializer.is_valid():
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:

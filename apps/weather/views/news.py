@@ -6,10 +6,28 @@ from apps.weather.serializers.news import NewsSerializer
 
 class NewsView(APIView):
     def get(self, request, *args, **kwargs):
-        response = requests.get('https://newsapi.org/v2/everything?q=bitcoin&apiKey=3d6ea3efc349442e9712947edb8ddc1d')
+        # Update the query to focus on weather-related news
+        url = 'https://newsapi.org/v2/everything'
+        params = {
+            'q': 'weather',  # Search for articles containing 'weather'
+            'apiKey': '3d6ea3efc349442e9712947edb8ddc1d',
+            'language': 'en',  # Optional: filter by language if desired
+            'sortBy': 'publishedAt',  # Optional: sort results by relevancy
+        }
+
+        response = requests.get(url, params=params)
         if response.status_code == 200:
-            news_data = response.json()
-            serializer = NewsSerializer(data=news_data, many=True)
+            news_data = response.json().get('articles', [])
+            serialized_data = [
+                {
+                    "title": article["title"],
+                    "url": article["url"],
+                    "publishedAt": article["publishedAt"],
+                    "content": article["content"]  # Or use "content" for more detail
+                }
+                for article in news_data
+            ]
+            serializer = NewsSerializer(data=serialized_data, many=True)
             if serializer.is_valid():
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:

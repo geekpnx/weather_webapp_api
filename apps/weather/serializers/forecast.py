@@ -12,4 +12,4 @@ class ForecastSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Forecast
-        fields = '__all__'
+        exclude = ('id',)

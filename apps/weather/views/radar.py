@@ -22,7 +22,7 @@
 # from rest_framework import status
 # from django.http import HttpResponse
 # import os
-# 
+
 # class RadarView(APIView):
 #     def get(self, request, *args, **kwargs):
 #         # Get parameters from request
@@ -30,13 +30,13 @@
 #         z = kwargs.get('z', '5')
 #         x = kwargs.get('x', '6')
 #         y = kwargs.get('y', '7')
-# 
+
 #         # Load API key from environment variables or settings
 #         api_key = os.getenv('OPENWEATHERMAP_API_KEY', '91e6f5764bd99bc30afcbc68dba30d3a')
-# 
+
 #         # Build the URL
 #         url = f'https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid={api_key}'
-# 
+
 #         # Fetch the radar tile image
 #         response = requests.get(url)
 #         if response.status_code == 200:
@@ -58,9 +58,9 @@ class RadarView(APIView):
     def get(self, request, *args, **kwargs):
         # Get parameters from request
         layer = request.query_params.get('layer', 'temp')  # default to 'temp'
-        z = int(request.query_params.get('z', 5))  # default to zoom level 5
-        tiles_x = int(request.query_params.get('tiles_x', 4))  # default to 4 tiles horizontally
-        tiles_y = int(request.query_params.get('tiles_y', 8))  # default to 8 tiles vertically
+        z = int(request.query_params.get('z', 4))  # default to zoom level 5
+        tiles_x = int(request.query_params.get('tiles_x', 16))  # default to 4 tiles horizontally
+        tiles_y = int(request.query_params.get('tiles_y', 10))  # default to 8 tiles vertically
 
         # Load API key from environment variables or settings
         api_key = os.getenv('OPENWEATHERMAP_API_KEY', '91e6f5764bd99bc30afcbc68dba30d3a')

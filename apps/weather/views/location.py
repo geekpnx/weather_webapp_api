@@ -15,4 +15,3 @@ def location_list(request):
     return Response(location_data.data, status=status.HTTP_200_OK)
 
 
-

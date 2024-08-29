@@ -1,9 +1,8 @@
 from rest_framework import serializers
 
-from apps.weather.models import Forecast
+from apps.weather.models import Forecast, Location
 
 class ForecastSerializer(serializers.ModelSerializer):
-
 
     def validate(self, data):
         if data['max_temperature'] < data['min_temperature']:
@@ -12,4 +11,4 @@ class ForecastSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Forecast
-        fields = '__all__'
+        exclude = ('id',)

@@ -16,7 +16,7 @@ class AlertsView(APIView):
         response = requests.get(url, params=params)
         if response.status_code == 200:
             alerts_data = response.json().get('alerts', {}).get('alert', [])
-            
+
             # Prepare data to match the serializer
             serialized_data = [
                 {

@@ -52,3 +52,4 @@ class CurrentWeatherView(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'error': 'Failed to fetch weather data from the API.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

@@ -52,10 +52,10 @@ nano .env
 Copy and paste the information below inside the file **`.env`**.
 
 ```bash
-SECRET_KEY=      # <-- Django SECRET_KEY goes here
-DB_NAME=        # <-- PorsgreSQL DB_NAME (database name) goes here
-DB_USER=postgres     # <-- PorsgreSQL default username (you can change it however you want) 
-DB_PWD=postgres       # <-- PorsgreSQL default password (you can change it however you want) 
+SECRET_KEY=      
+DB_NAME=
+DB_USER=
+DB_PWD=
 DB_PORT=5432
 DB_HOST=localhost
 ```
@@ -99,6 +99,13 @@ psql -U postgres
 ```sql
 CREATE DATABASE weather_webapp_db;
 ```
+
+also for new user as super user, type in below query
+
+```sql
+CREATE ROLE weather_webapp_user WITH LOGIN SUPERUSER 'password';
+```
+
 
 And add this information into the **`.env`** file.
 

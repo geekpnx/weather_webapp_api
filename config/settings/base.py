@@ -27,7 +27,8 @@ CUSTOM_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
-    'django_extensions',
+    'rest_framework.authtoken', # Create Token table
+    'dj_rest_auth',
     # USER DEFINED APPS
 ]
 
@@ -109,3 +110,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ROOT_URLCONF = "config.urls"
 
 #LOGIN_URL = '/user/login/'  # <-- your Login URL goes here
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}

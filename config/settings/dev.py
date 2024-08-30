@@ -13,6 +13,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+THIRD_PARTY_APPS = [
+    'django_extensions',
+
+    # USER DEFINED APPS
+]
 
 DATABASES = {
     "default": {

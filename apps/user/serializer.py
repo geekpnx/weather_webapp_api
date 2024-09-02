@@ -5,7 +5,7 @@ from .models import UserProfile
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = '__all__'
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True) # nested user data

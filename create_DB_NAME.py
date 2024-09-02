@@ -1,6 +1,8 @@
 import subprocess
 
 def create_database():
+     
+	print("\nLets create Django DB_NAME (database) for you")
     # Prompt the user for the database name
     dbname = input("\nEnter the name of the database you wish to create: ")
 
@@ -10,13 +12,14 @@ def create_database():
     try:
         # Execute the command using subprocess.run
         result = subprocess.run(command, check=True, text=True, capture_output=True)
-        
+
         # Check for errors
         if result.returncode == 0:
-            print(f"\nDatabase '{dbname}' created successfully.")
+            print(f"\nDatabase name '\033[94m{dbname}\033[0m'  created successfully.")
+            print(f"\nPlease added this DB_NAME=\033[94m{dbname}\033[0m into your '.env' file")
         else:
             print(f"\nError creating database: {result.stderr}")
-    
+
     except subprocess.CalledProcessError as e:
         print(f"\nCommand failed with error: {e}")
 

@@ -72,7 +72,7 @@ or by running the script in **`generateSKEY.py`** file.
 - With the command 
 
 ```bash
-python3 -m generateSKEY
+python3 -m generate_SECRET_KEY
 ```
 
 ## **STEP 5**
@@ -83,7 +83,7 @@ your can do so,
 - With the command
 
 ```bash
-python3 -m createDB
+python3 -m create_DB_NAME
 ```
 
 or by going to PostgreSQL shell directly
@@ -100,7 +100,15 @@ psql -U postgres
 CREATE DATABASE weather_webapp_db;
 ```
 
-also for new user as super user, type in below query
+also for new user **`DB_USER`** as super user with password **`DB_PWD`**
+
+- With the command
+
+```bash
+python3 -m create_DB_USER_n_DB_PWD
+```
+
+or by type in the below query in PostgreSQL
 
 ```sql
 CREATE ROLE weather_webapp_user WITH LOGIN SUPERUSER 'password';
@@ -111,7 +119,7 @@ And add this information into the **`.env`** file.
 
 ## **STEP 6**
 
-After **`.env`** file been setup with the required data, you can migrate the django  project `weather_webapp`.
+After **`.env`** file been setup with the required data, you can migrate the django  project `weather_webapp_api`.
 
 - With the command
 

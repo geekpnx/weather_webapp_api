@@ -1,13 +1,11 @@
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
 
+from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
-
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.views import APIView
 
 from .models import UserProfile
 from .serializer import UserProfileSerializer
@@ -28,6 +26,38 @@ class RegisterView(APIView):
         
         serializer = UserProfileSerializer(user_profile)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+
+
+class UserProfileView(RetrieveUpdateDestroyAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_object(self):
+        try:
+            return UserProfile.objects.get(user=self.request.user)
+        except UserProfile.DoesNotExist:
+            return None
+
+    def get(self, request, *args, **kwargs):
+        user_profile = self.get_object()
+        if not user_profile:
+            return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(user_profile)
+        return Response(serializer.data)
+
+    def put(self, request, *args, **kwargs):
+        user_profile = self.get_object()
+        if not user_profile:
+            return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(user_profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 # class LoginView(APIView):
@@ -57,54 +87,3 @@ class RegisterView(APIView):
 #             return Response({"success": "Successfully logged out."}, status=status.HTTP_200_OK)
 #         except Token.DoesNotExist:
 #             return Response({"error": "Token not found."}, status=status.HTTP_400_BAD_REQUEST)
-        
-
-
-# class UserProfileView(RetrieveDestroyAPIView):
-#     serializer_class = UserProfileSerializer
-#     authentication_classes = (BasicAuthentication, )
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         try:
-#             user_profile = UserProfile.objects.get(user=request.user)
-#             serializer = UserProfileSerializer(user_profile)
-#             return Response(serializer.data)
-#         except UserProfile.DoesNotExist:
-#             return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
-
-#     def put(self, request):
-#         try:
-#             user_profile = UserProfile.objects.get(user=request.user)
-#             data = request.data
-#             user_profile.location = data.get('location', user_profile.location)
-#             user_profile.preferred_temperature_unit = data.get('preferred_temperature_unit', user_profile.preferred_temperature_unit)
-#             user_profile.save()
-#             serializer = UserProfileSerializer(user_profile)
-#             return Response(serializer.data)
-#         except UserProfile.DoesNotExist:
-#             return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
-
-class UserProfileView(RetrieveUpdateDestroyAPIView):
-    serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        try:
-            user_profile = UserProfile.objects.get(user=request.user)
-            serializer = UserProfileSerializer(user_profile)
-            return Response(serializer.data)
-        except UserProfile.DoesNotExist:
-            return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    def put(self, request):
-        try:
-            user_profile = UserProfile.objects.get(user=request.user)
-            data = request.data
-            user_profile.location = data.get('location', user_profile.location)
-            user_profile.preferred_temperature_unit = data.get('preferred_temperature_unit', user_profile.preferred_temperature_unit)
-            user_profile.save()
-            serializer = UserProfileSerializer(user_profile)
-            return Response(serializer.data)
-        except UserProfile.DoesNotExist:
-            return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)

@@ -100,6 +100,8 @@ psql -U postgres
 CREATE DATABASE weather_webapp_db;
 ```
 
+## **STEP 6**
+
 also for new user **`DB_USER`** as super user with password **`DB_PWD`**
 
 - With the command
@@ -117,7 +119,7 @@ CREATE ROLE weather_webapp_user WITH LOGIN SUPERUSER 'password';
 
 And add this information into the **`.env`** file.
 
-## **STEP 6**
+## **STEP 7**
 
 After **`.env`** file been setup with the required data, you can migrate the django  project `weather_webapp_api`.
 
@@ -127,15 +129,26 @@ After **`.env`** file been setup with the required data, you can migrate the dja
 make dev-m
 ```
 
-## **STEP 7**
+## **STEP 8**
 
-Run the django server by running the command below in terminal.
+Create superuser with the name **`admin`** (or as you wish) and password **`admin`** (or as you wish), to have access to the administrator Django page
+
+- With the command
+
+```bash
+make dev-super
+```
+
+
+## **STEP 9**
+
+To run the django server by running the command below in terminal.
 
 ```bash
 make
 ```
 
-## **STEP 8**
+## **STEP 10**
 
 Check if all the API endpoints are working correctly, such as **`current`**, **`forecast`** and **`location`**, by going to your browser
 

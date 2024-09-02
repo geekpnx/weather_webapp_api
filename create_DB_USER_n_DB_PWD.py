@@ -1,12 +1,9 @@
 import subprocess
 
 def create_user_db(): 
-	
-    print("\nLets create Django DB_USER (database user) for you")
 	# Prompt the user for the database name
-    db_username = input("\nEnter user name of the database you wish to create: ")
-    print("\nLets create Django DB_PWD (database user password) for you")
-    user_pwd = input("\nEnter user password you wish to create: ")
+    db_username = input("\nLets create Django DB_USER (database user) for you\n\nEnter user name of the database you wish to create: ")
+    user_pwd = input("\nLets create Django DB_PWD (database user password) for you\n\nEnter user password you wish to create: ")
 
     # Define the psql command to create the database
     command = ['psql', '-U', 'postgres', '-c', f"CREATE ROLE {db_username} WITH LOGIN SUPERUSER PASSWORD '{user_pwd}';"]

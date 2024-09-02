@@ -1,10 +1,9 @@
 import subprocess
 
 def create_database():
-     
-	print("\nLets create Django DB_NAME (database) for you")
+    
     # Prompt the user for the database name
-    dbname = input("\nEnter the name of the database you wish to create: ")
+    dbname = input("\nLets create Django DB_NAME (database) for you\n\nEnter the name of the database you wish to create: ")
 
     # Define the psql command to create the database
     command = ['psql', '-U', 'postgres', '-c', f'CREATE DATABASE {dbname};']

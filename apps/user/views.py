@@ -1,27 +1,41 @@
 
 from django.contrib.auth.models import User
-from django.http import Http404
+from django.contrib.auth import logout
 
-from rest_framework.permissions import AllowAny
+
+# from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import authenticate
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.views import APIView
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import UserProfile
 from .serializer import UserProfileSerializer
 
-class RegisterView(APIView):
-    permission_classes = [AllowAny]  # Allow anyone to access this endpoint
 
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    def enforce_csrf(self, request):
+        # Do not perform CSRF check for API requests (Postman, etc.)
+        return
+
+class RegisterView(APIView):
+    authentication_classes = [CsrfExemptSessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         # Deny access if the user is already authenticated
         if request.user.is_authenticated:
-            return Response({'error': 'Authenticated users cannot register again.'}, status=status.HTTP_403_FORBIDDEN)
+        #     return Response({'error': 'Authenticated users cannot register again. Please logout to register.'}, status=status.HTTP_403_FORBIDDEN)
+        # Delete their token if using token authentication
+            Token.objects.filter(user=request.user).delete()
+            logout(request)
+            return Response({'message': 'You were logged out. Please try registering again.'}, status=status.HTTP_403_FORBIDDEN)
+    
+        # Log out the user
+
 
         # Proceed with the registration process if the user is not authenticated
         username = request.data.get('username')
@@ -38,7 +52,8 @@ class RegisterView(APIView):
         
         serializer = UserProfileSerializer(user_profile)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+        
+
 
 class UserProfileView(APIView):
     def get(self, request):

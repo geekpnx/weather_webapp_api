@@ -1,17 +1,15 @@
-
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 
 
-# from rest_framework.permissions import AllowAny
+
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import authenticate
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .models import UserProfile
 from .serializer import UserProfileSerializer
@@ -24,7 +22,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 
 class RegisterView(APIView):
     authentication_classes = [CsrfExemptSessionAuthentication, TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, AllowAny]
     def post(self, request):
         # Deny access if the user is already authenticated
         if request.user.is_authenticated:

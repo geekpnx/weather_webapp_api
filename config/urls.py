@@ -17,10 +17,13 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+# from django.views.generic.base import RedirectView
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/weather/", include('apps.weather.urls', namespace='weather-urls')),
     path("api/v1/user/", include('apps.user.urls', namespace='user-urls')),
-    path('api/v1/auth/', include('dj_rest_auth.urls'))
+    path('api/v1/auth/', include('dj_rest_auth.urls')),
+    # path('', RedirectView.as_view(url='/api/v1/auth/login/', permanent=False))
 ]

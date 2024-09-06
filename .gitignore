@@ -3,3 +3,4 @@ __pycache__/
 frontend_design/
 .env
 samples.py
+json_format.py

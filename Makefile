@@ -1,5 +1,5 @@
 start:
-	python3 manage.py runserver --settings=config.settings.dev 8181
+	python3 manage.py runserver --settings=config.settings.dev
 
 dev-install:
 	pip install -r requirements/dev.txt

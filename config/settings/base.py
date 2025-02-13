@@ -18,10 +18,6 @@ DEFAULT_APPS = [
 CUSTOM_APPS = [
     "apps.user",
     "apps.weather",
-    # USER DEFINED APPS
-    # "apps.name1",    # <-- your app name goes here
-    # "apps.name2",    # <-- your app name goes here
-    # "apps.name3"     # <-- your app name goes here
 ]
 
 
@@ -29,7 +25,7 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken', # Create Token table
     'dj_rest_auth',
-    # USER DEFINED APPS
+    'django_extensions',
 ]
 
 

@@ -14,9 +14,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 THIRD_PARTY_APPS = [
-    'django_extensions',
-
-    # USER DEFINED APPS
+    
 ]
 
 DATABASES = {
@@ -29,3 +27,7 @@ DATABASES = {
         "HOST": env.str('DB_HOST')
     }
 }
+
+WEATHER_API_KEY = env('WEATHER_API_KEY')
+OPENWEATHERMAP_API_KEY = env('OPENWEATHERMAP_API_KEY')
+NEWS_API_KEY = env('NEWS_API_KEY')

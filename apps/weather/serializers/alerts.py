@@ -7,3 +7,7 @@ class AlertSerializer(serializers.Serializer):
     effective = serializers.DateTimeField()
     expires = serializers.DateTimeField()
 
+    def validate(self, data):
+        if data['expires'] <= data['effective']:
+            raise serializers.ValidationError("Expiration time must be later than effective time.")
+        return data

@@ -9,6 +9,12 @@ class ForecastSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Max temperature cannot be lower than min temperature.")
         return data
 
+    def validate_humidity(self, value):
+        if value < 0 or value > 100:
+            raise serializers.ValidationError("Humidity must be between 0 and 100.")
+        return value
+
     class Meta:
         model = Forecast
-        exclude = ('id',)
+        fields = ['location', 'timestamp', 'temperature', 'max_temperature', 'min_temperature', 'humidity', 'weather_description']
+

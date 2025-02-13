@@ -16,7 +16,7 @@ def create_user_db():
         if result.returncode == 0:
             # Use ANSI escape codes to add color
             print(f"\nDatabase user '\033[94m{db_username}\033[0m' and password '\033[94m{user_pwd}\033[0m' created successfully.")
-            print(f"\nPlease added this DB_USER=\033[94m{db_username}\033[0m and DB_PWD=\033[94m{user_pwd}\033[0m into your '.env' file")
+            print(f"\nPlease add this DB_USER=\033[94m{db_username}\033[0m and DB_PWD=\033[94m{user_pwd}\033[0m into your '.env' file")
         else:
             print(f"\nError creating database: {result.stderr}")
 

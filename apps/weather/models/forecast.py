@@ -9,3 +9,7 @@ class Forecast(models.Model):
     min_temperature = models.FloatField()
     humidity = models.IntegerField()
     weather_description = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"Forecast for {self.location.city_name} at {self.timestamp}"
+

@@ -52,7 +52,7 @@ class UserProfileView(APIView):
         """Helper method to get or create the user profile."""
         return get_object_or_404(UserProfile, user=user)
 
-    def get(self, request):
+    def get(self, request): 
         user_profile = self.get_or_create_user_profile(request.user)
         serializer = UserProfileSerializer(user_profile)
         return Response(serializer.data)

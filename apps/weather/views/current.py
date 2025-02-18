@@ -7,12 +7,20 @@ from django.utils import timezone
 from apps.weather.models.current import Current
 from apps.weather.models.location import Location
 from apps.weather.serializers.current import CurrentSerializer
-
+from apps.user.models import UserProfile  # Import UserProfile model
 
 class CurrentWeatherView(APIView):
     def get(self, request, *args, **kwargs):
-        city_name = request.query_params.get('city', 'Hamburg')  # Default if no city is provided
-        api_key = os.getenv('OPENWEATHERMAP_API_KEY')  # Store API key in settings or environment
+        if request.user.is_authenticated:
+            try:
+                user_profile = UserProfile.objects.get(user=request.user)
+                city_name = user_profile.location if user_profile.location else 'Hamburg'
+            except UserProfile.DoesNotExist:
+                city_name = 'Hamburg'
+        else:
+            city_name = request.query_params.get('city', 'Hamburg')
+
+        api_key = os.getenv('OPENWEATHERMAP_API_KEY')  
         url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={api_key}&units=metric"
 
         response = requests.get(url)
@@ -20,11 +28,9 @@ class CurrentWeatherView(APIView):
         if response.status_code == 200:
             weather_data = response.json()
 
-            # Check if the required keys exist in the response
             if not all(key in weather_data for key in ['name', 'sys', 'coord', 'main', 'wind']):
                 return Response({'error': 'Incomplete weather data received from the API.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Extract or create the location
             location, created = Location.objects.get_or_create(
                 city_name=weather_data['name'],
                 country_code=weather_data['sys']['country'],
@@ -32,7 +38,6 @@ class CurrentWeatherView(APIView):
                 longitude=weather_data['coord']['lon'],
             )
 
-            # Create or update the current weather data
             current_weather = {
                 'location': location.id,
                 'timestamp': timezone.now(),
@@ -41,7 +46,6 @@ class CurrentWeatherView(APIView):
                 'wind_speed': weather_data['wind']['speed'],
             }
 
-            # Serialize and validate the data
             serializer = CurrentSerializer(data=current_weather)
             if serializer.is_valid():
                 serializer.save()

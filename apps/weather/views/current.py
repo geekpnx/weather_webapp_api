@@ -7,14 +7,26 @@ from django.utils import timezone
 from apps.weather.models.current import Current
 from apps.weather.models.location import Location
 from apps.weather.serializers.current import CurrentSerializer
+from apps.user.models import UserProfile  # Import the UserProfile model
 
 
 class CurrentWeatherView(APIView):
     def get(self, request, *args, **kwargs):
-        city_name = request.query_params.get('city', 'Hamburg')  # Default if no city is provided
+        # Check if the user is authenticated and has a UserProfile
+        user = request.user
+        location_name = 'Hamburg'  # Default location
+        
+        # Get the user's location from UserProfile if it exists
+        if user.is_authenticated:
+            user_profile = UserProfile.objects.filter(user=user).first()
+            if user_profile and user_profile.location:
+                location_name = user_profile.location
+        
+        # API request to get weather data for the user's location (or default location)
         api_key = os.getenv('OPENWEATHERMAP_API_KEY')  # Store API key in settings or environment
-        url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={api_key}&units=metric"
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={location_name}&appid={api_key}&units=metric"
 
+        # Fetch data from the external API
         response = requests.get(url)
 
         if response.status_code == 200:
@@ -25,11 +37,13 @@ class CurrentWeatherView(APIView):
                 return Response({'error': 'Incomplete weather data received from the API.'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Extract or create the location
+            # Use select_related to optimize the database query for related objects
             location, created = Location.objects.get_or_create(
                 city_name=weather_data['name'],
                 country_code=weather_data['sys']['country'],
                 latitude=weather_data['coord']['lat'],
                 longitude=weather_data['coord']['lon'],
+                user=user
             )
 
             # Create or update the current weather data

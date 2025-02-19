@@ -1,4 +1,5 @@
 from django.utils import timezone
+from apps.user.models import UserProfile
 from apps.weather.models import Forecast, Location
 from apps.weather.serializers.forecast import ForecastSerializer
 from rest_framework.views import APIView
@@ -6,24 +7,35 @@ from rest_framework.response import Response
 from rest_framework import status
 import requests
 import os
-
+from django.shortcuts import get_object_or_404
 
 class ForecastListView(APIView):
-    def get(self, request):
-        city_name = request.query_params.get('city', 'London')
+    def get(self, request, *args, **kwargs):
+        # Check if the user is authenticated and has a UserProfile
+        user = request.user
+        location_name = 'Hamburg'  # Default location
+        
+        # Get the user's location from UserProfile if it exists
+        if user.is_authenticated:
+            user_profile = UserProfile.objects.filter(user=user).first()
+            if user_profile and user_profile.location:
+                location_name = user_profile.location
+        
         api_key = os.getenv('WEATHERBIT_API_KEY')  # Use environment variable for API key
-        url = f'https://api.weatherbit.io/v2.0/forecast/daily?city={city_name}&key={api_key}'
+        url = f'https://api.weatherbit.io/v2.0/forecast/daily?city={location_name}&key={api_key}'
         response = requests.get(url)
         
         if response.status_code == 200:
             forecast_data = response.json()
+
+            # Ensure no duplicate locations are created based on city and country combination
             location, _ = Location.objects.get_or_create(
                 city_name=forecast_data['city_name'],
                 country_code=forecast_data['country_code'],
-                latitude=forecast_data['lat'],
-                longitude=forecast_data['lon'],
+                user=user
             )
 
+            # Loop over the forecast data and save each day's forecast
             for day in forecast_data['data']:
                 timestamp = timezone.datetime.fromtimestamp(day['ts'])
                 

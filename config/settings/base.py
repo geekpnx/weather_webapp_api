@@ -115,10 +115,63 @@ ROOT_URLCONF = "config.urls"
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
+SESSION_COOKIE_AGE = 3600  # Sessions expire after 1 hour
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Close sessions when the browser is closed
+
+
+# import logging
+
+# class SensitiveDataFilter(logging.Filter):
+#     def filter(self, record):
+#         # Replace any occurrence of sensitive data (like api_key) with '[REDACTED]'
+#         if 'api_key' in record.getMessage():
+#             record.msg = record.msg.replace('api_key', '[REDACTED]')
+#         return True
+    
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'level': 'DEBUG',
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }
+
+# Add the filter to the logger in views.py or globally in settings
+# logger = logging.getLogger(__name__)
+# logger.addFilter(SensitiveDataFilter())
+
+
+""" {
+ "username": "aek",
+ "password": "password",
+ "email": "aek@gmail.com",
+ "location": "Paris",
+ "preferred_temperature_unit": "C"
+} 
+
+{
+ "username": "teo",
+ "password": "password",
+ "token": "e7e22e1361131fc17ce0450440189c693bef4ecf"
+}
+
+"""

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.weather.models import Forecast, Location
+from apps.weather.models import Forecast
 
 class ForecastSerializer(serializers.ModelSerializer):
 

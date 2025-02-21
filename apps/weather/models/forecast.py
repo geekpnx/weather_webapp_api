@@ -1,8 +1,8 @@
 from django.db import models
-from .location import Location
+from .location import FavoriteLocation
 
 class Forecast(models.Model):
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    location = models.ForeignKey(FavoriteLocation, on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
     temperature = models.FloatField()
     max_temperature = models.FloatField()

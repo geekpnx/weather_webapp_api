@@ -1,35 +1,24 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
+from django.shortcuts import get_object_or_404
 
 from rest_framework.authtoken.models import Token
-from rest_framework.authentication import authenticate
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
-from rest_framework.permissions import AllowAny
 
 from .models import UserProfile
 from .serializer import UserProfileSerializer
-from django.shortcuts import get_object_or_404
-
-
-class CsrfExemptSessionAuthentication(SessionAuthentication):
-    def enforce_csrf(self, request):
-        # Do not perform CSRF check for API requests (Postman, etc.)
-        return
 
 
 class RegisterView(APIView):
-    authentication_classes = [CsrfExemptSessionAuthentication, TokenAuthentication]
+    """Allows new users to register and get a token for authentication."""
+    authentication_classes = []  # No authentication needed for registration
     permission_classes = [AllowAny]
 
     def post(self, request):
-        if request.user.is_authenticated:
-            Token.objects.filter(user=request.user).delete()
-            logout(request)
-            return Response({'message': 'You were logged out. Please try registering again.'}, status=status.HTTP_403_FORBIDDEN)
-
         username = request.data.get('username')
         password = request.data.get('password')
         email = request.data.get('email')
@@ -39,15 +28,59 @@ class RegisterView(APIView):
         if not username or not password or not email:
             return Response({'error': 'Please provide all required fields.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        if User.objects.filter(username=username).exists():
+            return Response({'error': 'Username already taken.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create new user
         user = User.objects.create_user(username=username, password=password, email=email)
         user_profile = UserProfile.objects.create(user=user, location=location, preferred_temperature_unit=preferred_temperature_unit)
 
+        # Generate token for the user
+        token, created = Token.objects.get_or_create(user=user)
+
         serializer = UserProfileSerializer(user_profile)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({'token': token.key, 'user': serializer.data}, status=status.HTTP_201_CREATED)
+
+
+class LoginView(APIView):
+    """Logs in a user and returns a token."""
+    authentication_classes = []  # No authentication required for login
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        if not username or not password:
+            return Response({'error': 'Please provide both username and password.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(username=username)
+            if not user.check_password(password):
+                return Response({'error': 'Invalid credentials.'}, status=status.HTTP_401_UNAUTHORIZED)
+        except User.DoesNotExist:
+            return Response({'error': 'Invalid credentials.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Get or create a token for the user
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key}, status=status.HTTP_200_OK)
+
+
+class LogoutView(APIView):
+    """Logs out a user by deleting their authentication token."""
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        request.user.auth_token.delete()  # Delete the user's token
+        return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
 
 
 class UserProfileView(APIView):
-    
+    """Allows users to retrieve and update their profile. Requires token authentication."""
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get_or_create_user_profile(self, user):
         """Helper method to get or create the user profile."""
         return get_object_or_404(UserProfile, user=user)

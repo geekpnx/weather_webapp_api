@@ -23,7 +23,7 @@ CUSTOM_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
-    'rest_framework.authtoken', # Create Token table
+    'rest_framework.authtoken',
     'dj_rest_auth',
     'django_extensions',
 ]
@@ -105,59 +105,52 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 ROOT_URLCONF = "config.urls"
 
-#LOGIN_URL = '/user/login/'  # <-- your Login URL goes here
-
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'rest_framework.authentication.TokenAuthentication',
-#     ],
-# }
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        #'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
 
-SESSION_COOKIE_AGE = 3600  # Sessions expire after 1 hour
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Close sessions when the browser is closed
+#SESSION_COOKIE_AGE = 3600  # Sessions expire after 1 hour
+#SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Close sessions when the browser is closed
 
 
-# import logging
+import logging
 
-# class SensitiveDataFilter(logging.Filter):
-#     def filter(self, record):
-#         # Replace any occurrence of sensitive data (like api_key) with '[REDACTED]'
-#         if 'api_key' in record.getMessage():
-#             record.msg = record.msg.replace('api_key', '[REDACTED]')
-#         return True
+class SensitiveDataFilter(logging.Filter):
+    def filter(self, record):
+        # Replace any occurrence of sensitive data (like api_key) with '[REDACTED]'
+        if 'api_key' in record.getMessage():
+            record.msg = record.msg.replace('api_key', '[REDACTED]')
+        return True
     
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
 
 # Add the filter to the logger in views.py or globally in settings
-# logger = logging.getLogger(__name__)
-# logger.addFilter(SensitiveDataFilter())
+logger = logging.getLogger(__name__)
+logger.addFilter(SensitiveDataFilter())
 
 
 """ {
@@ -171,7 +164,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Close sessions when the browser is clo
 {
  "username": "teo",
  "password": "password",
- "token": "e7e22e1361131fc17ce0450440189c693bef4ecf"
+ "token": "6297ffa142b254ea4069566c9a1f708f997ac943"
 }
 
 """

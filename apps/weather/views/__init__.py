@@ -1,4 +1,4 @@
-from .location import location_list
+from .location import FavoriteLocationView
 from .current import CurrentWeatherView
 from .forecast import ForecastListView
 from .alerts import AlertsView

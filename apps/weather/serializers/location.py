@@ -1,9 +1,8 @@
 from rest_framework import serializers
 from django.core.validators import MinValueValidator, MaxValueValidator
-from apps.weather.models import Location
+from apps.weather.models.location import FavoriteLocation
 
-
-class LocationSerializer(serializers.ModelSerializer):
+class FavoriteLocationSerializer(serializers.ModelSerializer):
     latitude = serializers.FloatField(
         validators=[MinValueValidator(-90), MaxValueValidator(90)]
     )
@@ -12,5 +11,5 @@ class LocationSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = Location
-        fields = ['city_name', 'country_code', 'latitude', 'longitude']
+        model = FavoriteLocation
+        fields = ['id', 'city_name', 'country_code', 'latitude', 'longitude']

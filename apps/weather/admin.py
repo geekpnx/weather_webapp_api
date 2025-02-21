@@ -7,4 +7,4 @@ from django.contrib import admin
 
 admin.site.register(models.Current)
 admin.site.register(models.Forecast)
-admin.site.register(models.Location)
+admin.site.register(models.FavoriteLocation)

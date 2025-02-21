@@ -2,18 +2,31 @@ import os
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 import requests
 from apps.weather.serializers.alerts import AlertSerializer
-
+from apps.user.models import UserProfile  # Import UserProfile
 
 class AlertsView(APIView):
+    """Fetches weather alerts based on the user's saved location (requires authentication)."""
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, *args, **kwargs):
-        city = request.query_params.get('city', 'New York')  # Default if no city is provided
-        api_key = os.getenv('WEATHER_API_KEY')  # Use environment variable for the API key
+        user = request.user
+        user_profile = UserProfile.objects.filter(user=user).first()
+        
+        if user_profile and user_profile.location:
+            city = user_profile.location
+        else:
+            return Response({'error': 'User location not set. Please update your profile.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        api_key = os.getenv('WEATHER_API_KEY')
         url = 'http://api.weatherapi.com/v1/forecast.json'
         params = {
             'key': api_key,
-            'q': city,  # Dynamic city
+            'q': city,
             'alerts': 'yes'
         }
 
@@ -21,9 +34,8 @@ class AlertsView(APIView):
         if response.status_code == 200:
             alerts_data = response.json().get('alerts', {}).get('alert', [])
             if not alerts_data:
-                return Response({'error': 'No alerts found for the given city.'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'error': 'No alerts found for your location.'}, status=status.HTTP_404_NOT_FOUND)
 
-            # Prepare data to match the serializer
             serialized_data = [
                 {
                     "headline": alert.get("headline"),

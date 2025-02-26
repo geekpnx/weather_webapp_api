@@ -19,10 +19,29 @@ class FavoriteLocationView(APIView):
 
     def post(self, request):
         """Add a new favorite location."""
+        # Deserialize the incoming data
+        city_name = request.data.get('city_name')
+        country_code = request.data.get('country_code')
+        latitude = request.data.get('latitude', None)
+        longitude = request.data.get('longitude', None)
+
+        # Check if the location already exists for this user
+        existing_location = FavoriteLocation.objects.filter(
+            user=request.user, 
+            city_name=city_name, 
+            country_code=country_code
+        ).first()
+
+        if existing_location:
+            return Response(
+                {'message': 'This location is already in your favorites.'}, 
+                status=status.HTTP_200_OK
+            )
+
+        # Create the new favorite location if it doesn't exist
         serializer = FavoriteLocationSerializer(data=request.data)
         if serializer.is_valid():
-            # Save the location with the authenticated user
-            FavoriteLocation.objects.get_or_create(user=request.user, **serializer.validated_data)
+            serializer.save(user=request.user)
             return Response({'message': 'Location added to favorites.'}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

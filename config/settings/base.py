@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -18,6 +19,7 @@ DEFAULT_APPS = [
 CUSTOM_APPS = [
     "apps.user",
     "apps.weather",
+    "apps.frontend",
 ]
 
 
@@ -26,6 +28,7 @@ THIRD_PARTY_APPS = [
     'rest_framework.authtoken',
     'dj_rest_auth',
     'django_extensions',
+    'corsheaders',
 ]
 
 
@@ -38,12 +41,19 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',  # Add the URL of your React frontend
+]
+
 
 TEMPLATES = [
     {
@@ -91,8 +101,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "/static/"
-#STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'apps/frontend/static')]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -152,19 +163,3 @@ LOGGING = {
 logger = logging.getLogger(__name__)
 logger.addFilter(SensitiveDataFilter())
 
-
-""" {
- "username": "aek",
- "password": "password",
- "email": "aek@gmail.com",
- "location": "Paris",
- "preferred_temperature_unit": "C"
-} 
-
-{
- "username": "teo",
- "password": "password",
- "token": "6297ffa142b254ea4069566c9a1f708f997ac943"
-}
-
-"""

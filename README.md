@@ -14,7 +14,7 @@ cd weather_webapp_api
 
 ## **STEP 2**
 
-Create virtual environment with **`venv`**.
+Create virtual environment with **`venv`**..
 
 - With the command:
 ```bash

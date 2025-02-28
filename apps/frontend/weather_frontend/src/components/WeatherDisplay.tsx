@@ -7,7 +7,7 @@ interface WeatherDisplayProps {
 
 const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ title, data }) => {
   // Ensure data is available and structure is correct
-  const weather = data?.weather[0];
+  const weather = data?.weather ? data.weather[0] : null;
   const main = data?.main;
   const wind = data?.wind;
   const sys = data?.sys;
@@ -17,14 +17,17 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ title, data }) => {
   return (
     <div>
       <h2>{title}</h2>
-      {title === 'Current Weather' ? (
+      {title === 'Current Weather' && weather ? (
         <div>
-          {weather && (
-            <div>
-              <p><strong>Weather:</strong> {weather.main} - {weather.description}</p>
-              <img src={`http://openweathermap.org/img/wn/${weather.icon}.png`} alt={weather.description} />
-            </div>
-          )}
+          <div>
+            {/* Weather Icon and Description */}
+            <img
+              src={`http://openweathermap.org/img/wn/${weather.icon}.png`}
+              alt={weather.description}
+              width={50}  // Adjust the size as needed
+            />
+            <span><strong>{weather.main}</strong> - {weather.description}</span>
+          </div>
           {main && (
             <div>
               <p><strong>Temperature:</strong> {formatTemperature(main.temp)}</p>
@@ -47,7 +50,7 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ title, data }) => {
           )}
         </div>
       ) : (
-        <div> {/* Forecast data handling, if necessary */}</div>
+        <div>No weather data available</div>  // If no weather data or title is not 'Current Weather'
       )}
     </div>
   );

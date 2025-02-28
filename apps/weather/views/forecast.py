@@ -1,14 +1,11 @@
-from django.utils import timezone
+import os
+import requests
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from apps.user.models import UserProfile
-from apps.weather.models import Forecast
-from apps.weather.serializers.forecast import ForecastSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-import requests
-import os
 
 class ForecastListView(APIView):
     """Fetches 7-day weather forecast for any location."""
@@ -31,9 +28,17 @@ class ForecastListView(APIView):
 
         api_key = os.getenv('WEATHERBIT_API_KEY')
         url = f'https://api.weatherbit.io/v2.0/forecast/daily?city={location_name}&key={api_key}'
-        response = requests.get(url)
+        
+        try:
+            response = requests.get(url)
 
-        if response.status_code == 200:
+            # Handle invalid location response (e.g., "city not found")
+            if response.status_code == 404:
+                return Response({'error': f'Location "{location_name}" not found.'}, status=status.HTTP_404_NOT_FOUND)
+            elif response.status_code != 200:
+                return Response({'error': f'Failed to fetch forecast for {location_name}.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             return Response(response.json(), status=status.HTTP_200_OK)
 
-        return Response({'error': f'Failed to fetch forecast for {location_name}.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except requests.exceptions.RequestException as e:
+            return Response({'error': f'Error fetching forecast data: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

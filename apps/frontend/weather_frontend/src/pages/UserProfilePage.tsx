@@ -15,7 +15,7 @@ const UserProfilePage = () => {
 
   // Fetch user profile (including location and preferred temperature unit)
   const fetchUserProfile = async () => {
-    const response = await fetch('http://localhost:8000/api/v1/user/profile/', {
+    const response = await fetch('http://127.0.0.1:8000/api/v1/user/profile/', {
       headers: {
         'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
       },
@@ -57,7 +57,7 @@ const UserProfilePage = () => {
   const handleAddToFavorites = async () => {
     if (searchLocation && country_code && latitude && longitude) {
       // Check if location already exists in favorites
-      const response = await fetch('http://localhost:8000/api/v1/weather/favorites/', {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/weather/favorites/', {
         method: 'GET',
         headers: {
           'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
@@ -78,7 +78,7 @@ const UserProfilePage = () => {
   
       // If not in favorites, proceed to add
       const city_name = searchLocation;
-      const addResponse = await fetch('http://localhost:8000/api/v1/weather/favorites/', {
+      const addResponse = await fetch('http://127.0.0.1:8000/api/v1/weather/favorites/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

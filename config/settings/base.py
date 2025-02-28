@@ -48,9 +48,12 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
     'http://localhost:5173',  # Add the URL of your React frontend
 ]
 
@@ -131,35 +134,35 @@ REST_FRAMEWORK = {
 #SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Close sessions when the browser is closed
 
 
-import logging
+# import logging
 
-class SensitiveDataFilter(logging.Filter):
-    def filter(self, record):
-        # Replace any occurrence of sensitive data (like api_key) with '[REDACTED]'
-        if 'api_key' in record.getMessage():
-            record.msg = record.msg.replace('api_key', '[REDACTED]')
-        return True
+# class SensitiveDataFilter(logging.Filter):
+#     def filter(self, record):
+#         # Replace any occurrence of sensitive data (like api_key) with '[REDACTED]'
+#         if 'api_key' in record.getMessage():
+#             record.msg = record.msg.replace('api_key', '[REDACTED]')
+#         return True
     
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'level': 'DEBUG',
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }
 
-# Add the filter to the logger in views.py or globally in settings
-logger = logging.getLogger(__name__)
-logger.addFilter(SensitiveDataFilter())
+# # Add the filter to the logger in views.py or globally in settings
+# logger = logging.getLogger(__name__)
+# logger.addFilter(SensitiveDataFilter())
 

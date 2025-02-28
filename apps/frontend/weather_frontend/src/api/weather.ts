@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8000/api/v1/weather'; // Django backend URL
+const BASE_URL = 'http://127.0.0.1:8000/api/v1/weather'; // Django backend URL
 
 // Fetch current weather
 export const fetchCurrentWeather = async (location: string) => {

@@ -13,7 +13,7 @@ const RegisterPage = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await fetch('http://localhost:8000/api/v1/user/register/', {
+    const response = await fetch('http://127.0.0.1:8000/api/v1/user/register/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

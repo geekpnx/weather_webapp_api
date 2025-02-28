@@ -10,8 +10,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   const handleSearch = () => {
     if (location.trim()) {
       onSearch(location);
+    } else {
+      alert("Please enter a valid location.");
     }
   };
+  
 
   return (
     <div>

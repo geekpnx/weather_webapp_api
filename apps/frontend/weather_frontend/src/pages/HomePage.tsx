@@ -9,14 +9,24 @@ const HomePage = () => {
   const [location, setLocation] = useState<string>('');
   const [currentWeather, setCurrentWeather] = useState<any>(null);
   const [forecast, setForecast] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async (location: string) => {
-    setLocation(location);
-    const current = await fetchCurrentWeather(location);
-    const forecastData = await fetchForecast(location);
-    setCurrentWeather(current);
-    setForecast(forecastData.data);  // Assuming the forecast data is in the `data` field
+    try {
+      setLocation(location);
+      const current = await fetchCurrentWeather(location);
+      const forecastData = await fetchForecast(location);
+      setCurrentWeather(current);
+      setForecast(forecastData.data);
+    } catch (error) {
+      console.error("Search error:", error);
+      setError(`Location "${location}" not found. Please try again.`);  // Enhanced error message
+      setCurrentWeather(null);
+      setForecast([]);
+    }
   };
+  
+  
 
   return (
     <div>
@@ -31,6 +41,7 @@ const HomePage = () => {
 
       {currentWeather && <WeatherDisplay title="Current Weather" data={currentWeather} />}
       {forecast.length > 0 && <ForecastDisplay data={forecast} />}
+      {error && <div style={{ color: 'red' }}>{error}</div>}
     </div>
   );
 };

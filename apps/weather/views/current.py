@@ -5,12 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.utils import timezone
-from apps.weather.models.current import Current
-from apps.weather.models.location import FavoriteLocation
-from apps.weather.serializers.current import CurrentSerializer
 from apps.user.models import UserProfile
-
 
 class CurrentWeatherView(APIView):
     """Fetches current weather for a user's saved or searched location."""
@@ -34,9 +29,17 @@ class CurrentWeatherView(APIView):
 
         api_key = os.getenv('OPENWEATHERMAP_API_KEY')
         url = f"http://api.openweathermap.org/data/2.5/weather?q={location_name}&appid={api_key}&units=metric"
-        response = requests.get(url)
+        
+        try:
+            response = requests.get(url)
 
-        if response.status_code == 200:
+            # Handle invalid location response (e.g., "city not found")
+            if response.status_code == 404:
+                return Response({'error': f'Location "{location_name}" not found.'}, status=status.HTTP_404_NOT_FOUND)
+            elif response.status_code != 200:
+                return Response({'error': f'Failed to fetch weather data for {location_name}.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             return Response(response.json(), status=status.HTTP_200_OK)
 
-        return Response({'error': f'Failed to fetch weather data for {location_name}.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except requests.exceptions.RequestException as e:
+            return Response({'error': f'Error fetching weather data: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

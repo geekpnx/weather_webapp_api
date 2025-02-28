@@ -50,11 +50,20 @@ class FavoriteLocationView(APIView):
         """Remove a favorite location."""
         city_name = request.data.get('city_name')
         country_code = request.data.get('country_code')
+        latitude = request.data.get('latitude')
+        longitude = request.data.get('longitude')
 
-        if not city_name or not country_code:
-            return Response({'error': 'City name and country code are required.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not city_name or not country_code or latitude is None or longitude is None:
+            return Response({'error': 'City name, country code, latitude, and longitude are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        favorite = FavoriteLocation.objects.filter(user=request.user, city_name=city_name, country_code=country_code).first()
+        favorite = FavoriteLocation.objects.filter(
+            user=request.user,
+            city_name=city_name,
+            country_code=country_code,
+            latitude=latitude,
+            longitude=longitude
+        ).first()
+
         if favorite:
             favorite.delete()
             return Response({'message': f'{city_name} removed from favorites.'}, status=status.HTTP_200_OK)

@@ -20,7 +20,7 @@ const UserProfilePage = () => {
 
   // Redirect if no token exists
   useEffect(() => {
-    const token = sessionStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token');
     if (!token) {
       navigate('/');  // Redirect to homepage if not authenticated
     } else {
@@ -33,7 +33,7 @@ const UserProfilePage = () => {
   const fetchUserProfile = async () => {
     const response = await fetch('http://127.0.0.1:8000/api/v1/user/profile/', {
       headers: {
-        'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
+        'Authorization': `Token ${localStorage.getItem('auth_token')}`,
       },
     });
 
@@ -71,9 +71,9 @@ const UserProfilePage = () => {
   
   // Fetch user's favorite locations
   const fetchFavoriteLocations = async () => {
-    const response = await fetch('http://localhost:8000/api/v1/weather/favorites/', {
+    const response = await fetch('http://127.0.0.1:8000/api/v1/weather/favorites/', {
       headers: {
-        'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
+        'Authorization': `Token ${localStorage.getItem('auth_token')}`,
       },
     });
     const data = await response.json();
@@ -107,7 +107,7 @@ const UserProfilePage = () => {
       const response = await fetch('http://127.0.0.1:8000/api/v1/weather/favorites/', {
         method: 'GET',
         headers: {
-          'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
+          'Authorization': `Token ${localStorage.getItem('auth_token')}`,
         },
       });
       
@@ -129,7 +129,7 @@ const UserProfilePage = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
+          'Authorization': `Token ${localStorage.getItem('auth_token')}`,
         },
         body: JSON.stringify({
           city_name: city_name,
@@ -151,11 +151,11 @@ const UserProfilePage = () => {
 
   // Handle deleting a location from favorites
   const handleDeleteFavorite = async (city_name: string, country_code: string, latitude: number, longitude: number) => {
-    const response = await fetch('http://localhost:8000/api/v1/weather/favorites/', {
+    const response = await fetch('http://127.0.0.1:8000/api/v1/weather/favorites/', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
+        'Authorization': `Token ${localStorage.getItem('auth_token')}`,
       },
       body: JSON.stringify({
         city_name: city_name,
@@ -176,17 +176,17 @@ const UserProfilePage = () => {
 
   // Handle user logout
   const handleLogout = async () => {
-    const response = await fetch('http://localhost:8000/api/v1/user/logout/', {
+    const response = await fetch('http://127.0.0.1:8000/api/v1/user/logout/', {
       method: 'POST',
       headers: {
-        'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
+        'Authorization': `Token ${localStorage.getItem('auth_token')}`,
       },
     });
 
     const data = await response.json();
     if (response.status === 200) {
-      // Remove the token from sessionStorage and redirect to homepage
-      sessionStorage.removeItem('auth_token');
+      // Remove the token from localStorage and redirect to homepage
+      localStorage.removeItem('auth_token');
       alert(data.message); // Logout success message
       navigate('/'); // Redirect to homepage
     } else {

@@ -50,6 +50,8 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
 
 CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:8000',
@@ -129,9 +131,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
-
-#SESSION_COOKIE_AGE = 3600  # Sessions expire after 1 hour
-#SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Close sessions when the browser is closed
 
 
 # import logging

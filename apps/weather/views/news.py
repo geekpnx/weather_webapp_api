@@ -33,18 +33,25 @@ class NewsView(APIView):
         response = requests.get(url, params=params)
         if response.status_code == 200:
             news_data = response.json().get('articles', [])
+            print(news_data)
             if not news_data:
                 return Response({'error': f'No news articles found for {location}.'}, status=status.HTTP_404_NOT_FOUND)
 
+            # Filter for weather-related news and include urlToImage
             serialized_data = [
                 {
                     "title": article["title"],
                     "url": article["url"],
                     "publishedAt": article["publishedAt"],
-                    "content": article["content"]
+                    "content": article["content"],
+                    "urlToImage": article.get("urlToImage")  # Include urlToImage
                 }
                 for article in news_data
+                if "weather" in article["title"].lower() or "weather" in article["description"].lower()  # Filter for weather-related news
             ]
+
+            if not serialized_data:
+                return Response({'error': f'No weather-related news found for {location}.'}, status=status.HTTP_404_NOT_FOUND)
 
             serializer = NewsSerializer(data=serialized_data, many=True)
             if serializer.is_valid():

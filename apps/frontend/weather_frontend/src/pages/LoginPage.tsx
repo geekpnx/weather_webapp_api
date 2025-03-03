@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
@@ -22,10 +22,11 @@ const LoginPage = () => {
 
     if (response.status === 200) {
       // Store token in memory or in context/state (not in localStorage)
-      sessionStorage.setItem('auth_token', data.token);  // Or use context/state
+      // sessionStorage.setItem('auth_token', data.token);  // Or use context/state
+      localStorage.setItem('auth_token', data.token);  // Use localStorage for persistence
 
       // Navigate to the profile page
-      navigate('/profile');
+      navigate('/');
     } else {
       setError(data.error || 'Login failed. Please check your credentials.');
     }

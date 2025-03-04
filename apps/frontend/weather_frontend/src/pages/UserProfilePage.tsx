@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';  // Import useNavigate for redirect
-import { fetchCurrentWeather, fetchForecast } from '../api/weather';
+import { fetchCurrentWeather, fetchForecast, fetchFavoriteLocations, addToFavorites, removeFromFavorites } from '../api/weather';
+import { fetchUserProfile, logoutUser } from '../api/user';
 import WeatherDisplay from '../components/WeatherDisplay';
 import ForecastDisplay from '../components/ForecastDisplay';
 
@@ -18,32 +19,25 @@ const UserProfilePage = () => {
 
   const navigate = useNavigate();  // Hook for redirecting after logout
 
-  // Redirect if no token exists
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      navigate('/');  // Redirect to homepage if not authenticated
-    } else {
-      fetchUserProfile();
-      fetchFavoriteLocations();
-    }
-  }, [navigate]);
-
   // Fetch user profile (including location and preferred temperature unit)
-  const fetchUserProfile = async () => {
-    const response = await fetch('http://127.0.0.1:8000/api/v1/user/profile/', {
-      headers: {
-        'Authorization': `Token ${localStorage.getItem('auth_token')}`,
-      },
-    });
-
-    const data = await response.json();
-    if (response.status === 200) {
+  const fetchUserProfileData = async () => {
+    try {
+      const data = await fetchUserProfile();
       setLocation(data.location);
       setPreferredTemperatureUnit(data.preferred_temperature_unit);
       fetchWeatherData(data.location);
-    } else {
+    } catch (error) {
       setError('Unable to fetch user profile.');
+    }
+  };
+
+  // Fetch user's favorite locations
+  const fetchFavoriteLocationsData = async () => {
+    try {
+      const data = await fetchFavoriteLocations();
+      setFavorites(data);
+    } catch (error) {
+      setError('Unable to fetch favorite locations.');
     }
   };
 
@@ -67,22 +61,17 @@ const UserProfilePage = () => {
       setForecast([]);
     }
   };
-  
-  
-  // Fetch user's favorite locations
-  const fetchFavoriteLocations = async () => {
-    const response = await fetch('http://127.0.0.1:8000/api/v1/weather/favorites/', {
-      headers: {
-        'Authorization': `Token ${localStorage.getItem('auth_token')}`,
-      },
-    });
-    const data = await response.json();
-    if (response.status === 200) {
-      setFavorites(data);
+
+  // Redirect if no token exists
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      navigate('/');  // Redirect to homepage if not authenticated
     } else {
-      setError('Unable to fetch favorite locations.');
+      fetchUserProfileData(); // Call the function to fetch user profile
+      fetchFavoriteLocationsData(); // Call the function to fetch favorite locations
     }
-  };
+  }, [navigate]);
 
   // Handle search for new location
   const handleSearch = async () => {
@@ -98,99 +87,39 @@ const UserProfilePage = () => {
       }
     }
   };
-  
 
   // Handle adding location to favorites
   const handleAddToFavorites = async () => {
     if (searchLocation && country_code && latitude && longitude) {
-      // Check if location already exists in favorites
-      const response = await fetch('http://127.0.0.1:8000/api/v1/weather/favorites/', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Token ${localStorage.getItem('auth_token')}`,
-        },
-      });
-      
-      const data = await response.json();
-  
-      // Check if location is already in favorites
-      const alreadyFavorite = data.some(
-        (fav: any) => fav.city_name === searchLocation && fav.country_code === country_code
-      );
-  
-      if (alreadyFavorite) {
-        alert('This location is already in your favorites!');
-        return;
-      }
-  
-      // If not in favorites, proceed to add
-      const city_name = searchLocation;
-      const addResponse = await fetch('http://127.0.0.1:8000/api/v1/weather/favorites/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${localStorage.getItem('auth_token')}`,
-        },
-        body: JSON.stringify({
-          city_name: city_name,
-          country_code: country_code,
-          latitude: latitude,
-          longitude: longitude,
-        }),
-      });
-  
-      const addData = await addResponse.json();
-      if (addResponse.status === 201) {
+      try {
+        await addToFavorites(searchLocation, country_code, latitude, longitude);
         alert('Location added to favorites!');
-        fetchFavoriteLocations(); // Refresh the list of favorites
-      } else {
-        alert(addData.message || 'Failed to add location to favorites.');
+        fetchFavoriteLocationsData(); // Refresh the list of favorites
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Failed to add location to favorites.');
       }
     }
   };
 
   // Handle deleting a location from favorites
   const handleDeleteFavorite = async (city_name: string, country_code: string, latitude: number, longitude: number) => {
-    const response = await fetch('http://127.0.0.1:8000/api/v1/weather/favorites/', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Token ${localStorage.getItem('auth_token')}`,
-      },
-      body: JSON.stringify({
-        city_name: city_name,
-        country_code: country_code,
-        latitude: latitude,
-        longitude: longitude,
-      }),
-    });
-  
-    if (response.status === 200) {
+    try {
+      await removeFromFavorites(city_name, country_code, latitude, longitude);
       alert('Location removed from favorites!');
-      fetchFavoriteLocations(); // Refresh the list of favorites
-    } else {
-      const data = await response.json();
-      setError(data.error || 'Failed to remove location from favorites.');
+      fetchFavoriteLocationsData(); // Refresh the list of favorites
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to remove location from favorites.');
     }
   };
 
   // Handle user logout
   const handleLogout = async () => {
-    const response = await fetch('http://127.0.0.1:8000/api/v1/user/logout/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${localStorage.getItem('auth_token')}`,
-      },
-    });
-
-    const data = await response.json();
-    if (response.status === 200) {
-      // Remove the token from localStorage and redirect to homepage
-      localStorage.removeItem('auth_token');
-      alert(data.message); // Logout success message
+    try {
+      await logoutUser();
+      alert('Logged out successfully!');
       navigate('/'); // Redirect to homepage
-    } else {
-      alert(data.error || 'Failed to log out.');
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to log out.');
     }
   };
 

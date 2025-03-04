@@ -24,19 +24,19 @@ Content-Type: application/json
 ### Logout User
 POST http://127.0.0.1:8000/api/v1/user/logout/
 Content-Type: application/json
-Authorization: Token a89c12495c0587207ba9cd6cb73f4064d4917032
+Authorization: Token aa44f90382bdabc6be2d821235b4eb468859d351
 
 
 ### User Profile
 GET http://127.0.0.1:8000/api/v1/user/profile/
 Content-Type: application/json
-Authorization: Token a89c12495c0587207ba9cd6cb73f4064d4917032
+Authorization: Token aa44f90382bdabc6be2d821235b4eb468859d351
 
 ### Edit User Profile
 
 PUT http://127.0.0.1:8000/api/v1/user/profile/
 Content-Type: application/json
-Authorization: Token a89c12495c0587207ba9cd6cb73f4064d4917032
+Authorization: Token aa44f90382bdabc6be2d821235b4eb468859d351
 
 {
     "email": "terence7ds@gmail.com",
@@ -52,35 +52,35 @@ Authorization: Token a89c12495c0587207ba9cd6cb73f4064d4917032
 ### Get Current Weather
 GET http://127.0.0.1:8000/api/v1/weather/current/
 Content-Type: application/json
-Authorization: Token a89c12495c0587207ba9cd6cb73f4064d4917032
+Authorization: Token aa44f90382bdabc6be2d821235b4eb468859d351
 
 
 ### Get Favorite Locations Weather
 GET http://127.0.0.1:8000/api/v1/weather/favorites/
 Content-Type: application/json
-Authorization: Token a89c12495c0587207ba9cd6cb73f4064d4917032
+Authorization: Token aa44f90382bdabc6be2d821235b4eb468859d351
 
 
 ### Get Weather Forecast
 GET http://127.0.0.1:8000/api/v1/weather/forecast/
 Content-Type: application/json
-Authorization: Token a89c12495c0587207ba9cd6cb73f4064d4917032
+Authorization: Token aa44f90382bdabc6be2d821235b4eb468859d351
 
 
 ### Get Weather Radar Data
 GET http://127.0.0.1:8000/api/v1/weather/alerts/
 Content-Type: application/json
-Authorization: Token a89c12495c0587207ba9cd6cb73f4064d4917032
+Authorization: Token aa44f90382bdabc6be2d821235b4eb468859d351
 
 
 ### Get Weather News
 GET http://127.0.0.1:8000/api/v1/weather/news/
 Content-Type: application/json
-Authorization: Token a89c12495c0587207ba9cd6cb73f4064d4917032
+Authorization: Token aa44f90382bdabc6be2d821235b4eb468859d351
 
 
 ### Get Weather Radar Data
 GET http://127.0.0.1:8000/api/v1/weather/radar/
 Content-Type: application/json
-Authorization: Token a89c12495c0587207ba9cd6cb73f4064d4917032
+Authorization: Token aa44f90382bdabc6be2d821235b4eb468859d351
 

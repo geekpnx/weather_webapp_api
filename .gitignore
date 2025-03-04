@@ -1,7 +1,8 @@
-.venv
 __pycache__/
 frontend_design/
-.env
 samples.py
 json_format.py
 test.rest
+.env
+.venv/
+endpoint_testing.rest

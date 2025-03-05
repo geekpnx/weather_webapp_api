@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../../../static/css/NavBar.css'; // Import the CSS file
 
 interface NavBarProps {
   onSearch: (location: string) => void;
@@ -33,43 +34,43 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#f0f0f0' }}>
+    <div className="navbar">
       {/* Logo */}
-      <div style={{ fontSize: '24px', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => navigate('/')}>
+      <div className="logo" onClick={() => navigate('/')}>
         WeatherApp
       </div>
 
       {/* Search Bar */}
-      <div style={{ display: 'flex', gap: '10px' }}>
+      <div className="search-container">
         <input
           type="text"
           value={searchLocation}
           onChange={(e) => setSearchLocation(e.target.value)}
           placeholder="Enter location"
-          style={{ padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
+          className="search-input"
         />
-        <button onClick={handleSearch} style={{ padding: '5px 10px', borderRadius: '4px', border: 'none', backgroundColor: '#007bff', color: '#fff' }}>
+        <button onClick={handleSearch} className="search-button">
           Search
         </button>
       </div>
 
       {/* Auth/Profile Buttons */}
-      <div style={{ display: 'flex', gap: '10px' }}>
+      <div className="auth-buttons">
         {!isAuthenticated ? (
           <>
-            <button onClick={() => navigate('/login')} style={{ padding: '5px 10px', borderRadius: '4px', border: 'none', backgroundColor: '#28a745', color: '#fff' }}>
+            <button onClick={() => navigate('/login')} className="login-button">
               Login
             </button>
-            <button onClick={() => navigate('/register')} style={{ padding: '5px 10px', borderRadius: '4px', border: 'none', backgroundColor: '#17a2b8', color: '#fff' }}>
+            <button onClick={() => navigate('/register')} className="register-button">
               Register
             </button>
           </>
         ) : (
           <>
-            <button onClick={() => navigate('/profile')} style={{ padding: '5px 10px', borderRadius: '4px', border: 'none', backgroundColor: '#ffc107', color: '#000' }}>
+            <button onClick={() => navigate('/profile')} className="profile-button">
               Profile
             </button>
-            <button onClick={handleLogout} style={{ padding: '5px 10px', borderRadius: '4px', border: 'none', backgroundColor: '#dc3545', color: '#fff' }}>
+            <button onClick={handleLogout} className="logout-button">
               Logout
             </button>
           </>

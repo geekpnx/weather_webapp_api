@@ -3,7 +3,7 @@ import { fetchCurrentWeather, fetchForecast, fetchNews, fetchRadarImage } from '
 import WeatherDisplay from '../components/WeatherDisplay';
 import ForecastDisplay from '../components/ForecastDisplay';
 import NewsDisplay from '../components/NewsDisplay';
-import NavBar from '../components/NavBar'; // Import the new NavBar
+import NavBar from '../components/NavBar';
 
 interface NewsArticle {
   title: string;
@@ -22,19 +22,33 @@ const HomePage = () => {
   const [radarImage, setRadarImage] = useState<string | null>(null);
   const [loadingRadar, setLoadingRadar] = useState<boolean>(false);
 
-  const handleSearch = async (location: string) => {
+  // Fetch weather data based on location name or geolocation
+  const handleSearch = async (location: string | { lat: number; lon: number }) => {
     try {
-      setLocation(location);
-      const current = await fetchCurrentWeather(location);
-      const forecastData = await fetchForecast(location);
+      let current;
+      if (typeof location === 'string') {
+        setLocation(location);
+        current = await fetchCurrentWeather(location);
+      } else {
+        setLocation('Your Location');
+        current = await fetchCurrentWeather(undefined, location.lat, location.lon);
+      }
+  
+      // Fetch forecast using the location name or coordinates
+      const forecastData = await fetchForecast(
+        typeof location === 'string' ? location : undefined, // Pass location name if available
+        typeof location === 'string' ? undefined : location.lat, // Pass lat if available
+        typeof location === 'string' ? undefined : location.lon // Pass lon if available
+      );
+  
       setCurrentWeather(current);
       setForecast(forecastData.data);
-
+  
       const token = localStorage.getItem('auth_token');
       if (token) {
         const newsData = await fetchNews();
         setNews(newsData.slice(0, 5)); // Limit to 5 articles
-
+  
         setLoadingRadar(true);
         const radarImageUrl = await fetchRadarImage();
         setRadarImage(radarImageUrl);
@@ -51,6 +65,25 @@ const HomePage = () => {
     }
   };
 
+  // Fetch user's geolocation on page load
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          handleSearch({ lat: latitude, lon: longitude });
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          setError('Unable to retrieve your location.');
+        }
+      );
+    } else {
+      setError('Geolocation is not supported by your browser.');
+    }
+  }, []);
+
+  // Fetch news and radar image for authenticated users
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
     if (token) {
@@ -72,7 +105,7 @@ const HomePage = () => {
   return (
     <div>
       {/* NavBar */}
-      <NavBar onSearch={handleSearch} />
+      <NavBar onSearch={(location) => handleSearch(location)} />
 
       {/* Page Content */}
       <h1>Weather for {location}</h1>

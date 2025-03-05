@@ -8,27 +8,37 @@ from rest_framework.response import Response
 from rest_framework import status
 
 class ForecastListView(APIView):
-    """Fetches 7-day weather forecast for any location."""
+    """Fetches 16-day weather forecast for any location or geolocation."""
     authentication_classes = [TokenAuthentication]
     permission_classes = [AllowAny]  # Guests can view forecasts
 
     def get(self, request, *args, **kwargs):
         location_name = request.query_params.get('location', None)
+        lat = request.query_params.get('lat', None)
+        lon = request.query_params.get('lon', None)
 
-        # If no location is provided, use the user's saved location
-        if not location_name and request.user.is_authenticated:
+        # If no location or geolocation is provided, use the user's saved location
+        if not location_name and not (lat and lon) and request.user.is_authenticated:
             user_profile = UserProfile.objects.filter(user=request.user).first()
             if user_profile and user_profile.location:
                 location_name = user_profile.location
             else:
                 return Response({'error': 'No location provided and no saved location found.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not location_name:
-            return Response({'error': 'Please provide a location.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not location_name and not (lat and lon):
+            return Response({'error': 'Please provide a location or geolocation coordinates.'}, status=status.HTTP_400_BAD_REQUEST)
 
         api_key = os.getenv('WEATHERBIT_API_KEY')
-        url = f'https://api.weatherbit.io/v2.0/forecast/daily?city={location_name}&key={api_key}'
-        
+        url = None
+
+        # Build the API URL based on the provided input
+        if location_name:
+            url = f'https://api.weatherbit.io/v2.0/forecast/daily?city={location_name}&key={api_key}'
+        elif lat and lon:
+            url = f'https://api.weatherbit.io/v2.0/forecast/daily?lat={lat}&lon={lon}&key={api_key}'
+        else:
+            return Response({'error': 'Invalid input. Please provide a location or geolocation coordinates.'}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             response = requests.get(url)
 
@@ -36,7 +46,7 @@ class ForecastListView(APIView):
             if response.status_code == 404:
                 return Response({'error': f'Location "{location_name}" not found.'}, status=status.HTTP_404_NOT_FOUND)
             elif response.status_code != 200:
-                return Response({'error': f'Failed to fetch forecast for {location_name}.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'error': f'Failed to fetch forecast for {location_name or "geolocation"}.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             return Response(response.json(), status=status.HTTP_200_OK)
 

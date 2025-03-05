@@ -25,7 +25,7 @@ const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
             <span>{forecast.weather.description}</span>
           </div>
 
-          <p><strong>Temperature:</strong> {formatTemperature(forecast.temp)} (High: {formatTemperature(forecast.high_temp)} / Low: {formatTemperature(forecast.low_temp)}°C)</p>
+          <p><strong>Temperature:</strong> {formatTemperature(forecast.temp)} (High: {formatTemperature(forecast.high_temp)} / Low: {formatTemperature(forecast.low_temp)})</p>
           <p><strong>UV Index:</strong> {forecast.uv}</p>
           <p><strong>Wind Speed:</strong> {forecast.wind_spd} m/s - {forecast.wind_cdir}</p>
           <p><strong>Precipitation:</strong> {forecast.precip} mm</p>

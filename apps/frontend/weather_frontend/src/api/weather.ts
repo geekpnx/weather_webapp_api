@@ -13,10 +13,19 @@ const getAuthToken = (): string | null => {
   return localStorage.getItem('auth_token');
 };
 
-// Fetch current weather
-export const fetchCurrentWeather = async (location: string) => {
+// Fetch current weather by location name or geolocation
+export const fetchCurrentWeather = async (location?: string, lat?: number, lon?: number) => {
   try {
-    const response = await fetch(`${BASE_URL}/current/?location=${location}`);
+    let url = `${BASE_URL}/current/`;
+    if (location) {
+      url += `?location=${location}`;
+    } else if (lat !== undefined && lon !== undefined) {
+      url += `?lat=${lat}&lon=${lon}`;
+    } else {
+      throw new Error('Please provide a location or geolocation coordinates.');
+    }
+
+    const response = await fetch(url);
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || 'Error fetching current weather');
@@ -33,10 +42,19 @@ export const fetchCurrentWeather = async (location: string) => {
   }
 };
 
-// Fetch forecast
-export const fetchForecast = async (location: string) => {
+// Fetch forecast by location name or geolocation
+export const fetchForecast = async (location?: string, lat?: number, lon?: number) => {
   try {
-    const response = await fetch(`${BASE_URL}/forecast/?location=${location}`);
+    let url = `${BASE_URL}/forecast/`;
+    if (location) {
+      url += `?location=${location}`;
+    } else if (lat !== undefined && lon !== undefined) {
+      url += `?lat=${lat}&lon=${lon}`;
+    } else {
+      throw new Error('Please provide a location or geolocation coordinates.');
+    }
+
+    const response = await fetch(url);
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || 'Error fetching forecast data');
@@ -52,6 +70,7 @@ export const fetchForecast = async (location: string) => {
     }
   }
 };
+
 
 // Fetch news articles
 export const fetchNews = async (): Promise<NewsArticle[]> => {
@@ -102,8 +121,6 @@ export const fetchRadarImage = async (): Promise<string> => {
     throw new Error("Failed to fetch radar image");
   }
 };
-
-
 
 // Fetch user's favorite locations
 export const fetchFavoriteLocations = async () => {

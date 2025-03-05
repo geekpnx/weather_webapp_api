@@ -1,5 +1,6 @@
 start:
-	python3 manage.py runserver --settings=config.settings.dev
+	cd apps/frontend/weather_frontend && npm start
+#	python3 manage.py runserver --settings=config.settings.dev
 
 dev-install:
 	pip install -r requirements/dev.txt

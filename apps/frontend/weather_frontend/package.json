@@ -6,7 +6,7 @@
   "scripts": {
     "start": "concurrently \"npm run dev\" \"npm run backend\"",
     "dev": "vite",
-    "backend": "cd ../ && cd ../ && cd ../ && source .venv/bin/activate && .venv/bin/python3 manage.py runserver --settings=config.settings.dev",
+    "backend": "cd ../../.. && .venv/bin/python3 manage.py runserver --settings=config.settings.dev",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

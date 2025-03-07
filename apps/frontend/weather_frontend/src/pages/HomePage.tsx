@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchCurrentWeather, fetchForecast, fetchNews, fetchRadarImage } from '../api/weather';
+import { fetchCoordinates, fetchCurrentWeather, fetchForecast, fetchNews, fetchRadarImage } from '../api/weather';
 import WeatherDisplay from '../components/WeatherDisplay';
 import ForecastDisplay from '../components/ForecastDisplay';
 import NewsDisplay from '../components/NewsDisplay';
@@ -21,6 +21,9 @@ const HomePage = () => {
   const [error, setError] = useState<string | null>(null);
   const [radarImage, setRadarImage] = useState<string | null>(null);
   const [loadingRadar, setLoadingRadar] = useState<boolean>(false);
+  const [lat, setLat] = useState<number | undefined>(undefined);
+  const [lon, setLon] = useState<number | undefined>(undefined);
+  const [zoom, setZoom] = useState<number>(10);
 
   // Fetch weather data based on location name or geolocation
   const handleSearch = async (location: string | { lat: number; lon: number }) => {
@@ -36,22 +39,30 @@ const HomePage = () => {
   
       // Fetch forecast using the location name or coordinates
       const forecastData = await fetchForecast(
-        typeof location === 'string' ? location : undefined, // Pass location name if available
-        typeof location === 'string' ? undefined : location.lat, // Pass lat if available
-        typeof location === 'string' ? undefined : location.lon // Pass lon if available
+        typeof location === 'string' ? location : undefined,
+        typeof location === 'string' ? undefined : location.lat,
+        typeof location === 'string' ? undefined : location.lon
       );
   
       setCurrentWeather(current);
       setForecast(forecastData.data);
   
+      // Update latitude, longitude, and zoom for the map
+      if (typeof location === 'string') {
+        const { lat, lon } = await fetchCoordinates(location);
+        setLat(lat); // Update latitude
+        setLon(lon); // Update longitude
+        setZoom(10); // Reset zoom level
+      } else {
+        setLat(location.lat); // Update latitude
+        setLon(location.lon); // Update longitude
+        setZoom(10); // Reset zoom level
+      }
+  
       const token = localStorage.getItem('auth_token');
       if (token) {
         const newsData = await fetchNews();
         setNews(newsData.slice(0, 5)); // Limit to 5 articles
-  
-        setLoadingRadar(true);
-        const radarImageUrl = await fetchRadarImage();
-        setRadarImage(radarImageUrl);
       }
     } catch (error) {
       console.error('Search error:', error);
@@ -59,9 +70,7 @@ const HomePage = () => {
       setCurrentWeather(null);
       setForecast([]);
       setNews([]);
-      setRadarImage(null);
-    } finally {
-      setLoadingRadar(false);
+      setRadarImage(null); // Reset radar image on error
     }
   };
 
@@ -83,29 +92,46 @@ const HomePage = () => {
     }
   }, []);
 
-  // Fetch news and radar image for authenticated users
+  // Fetch radar image when latitude, longitude, or zoom changes
+  const [layer, setLayer] = useState<string>('temp'); // Default to temperature layer
+
+  // Fetch radar image when latitude, longitude, zoom, or layer changes
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
-    if (token) {
-      fetchNews().then((newsData) => setNews(newsData.slice(0, 5)));
-
+    if (token && lat !== undefined && lon !== undefined) {
       setLoadingRadar(true);
-      fetchRadarImage()
-        .then(setRadarImage)
+      fetchRadarImage(lat, lon, zoom, layer) // Pass the layer parameter
+        .then((imageUrl) => {
+          setRadarImage(imageUrl);
+          setError(null); // Clear any previous errors
+        })
         .catch((error) => {
           console.error('Radar fetch error:', error);
-          setError('Failed to fetch radar image');
+          setError('Failed to fetch radar image. Please try again later.');
+          setRadarImage(null); // Reset radar image on error
         })
         .finally(() => {
           setLoadingRadar(false);
         });
     }
-  }, []);
+  }, [lat, lon, zoom, layer]); // Add layer to the dependency array
+
+  // Layer selection UI
+  const handleLayerChange = (newLayer: string) => {
+    setLayer(newLayer);
+  };
 
   return (
     <div>
       {/* NavBar */}
       <NavBar onSearch={(location) => handleSearch(location)} />
+
+      {/* Layer Selection */}
+      <div>
+        <button onClick={() => handleLayerChange('map')}>Base Map</button>
+        <button onClick={() => handleLayerChange('temp')}>Temperature</button>
+        <button onClick={() => handleLayerChange('wind')}>Wind</button>
+      </div>
 
       {/* Page Content */}
       <h1>Weather for {location}</h1>
@@ -117,6 +143,7 @@ const HomePage = () => {
       {error && <div style={{ color: 'red' }}>{error}</div>}
     </div>
   );
+
 };
 
 export default HomePage;

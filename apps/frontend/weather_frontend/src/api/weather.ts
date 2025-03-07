@@ -13,6 +13,40 @@ const getAuthToken = (): string | null => {
   return localStorage.getItem('auth_token');
 };
 
+// Fetch coordinates (latitude and longitude) for a given city name
+export const fetchCoordinates = async (location: string): Promise<{ lat: number; lon: number }> => {
+  try {
+    const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY; // For Vite
+    // const api_key = process.env.REACT_APP_OPENWEATHERMAP_API_KEY; // For Create React App
+    if (!api_key) {
+      throw new Error('OpenWeatherMap API key is not configured.');
+    }
+
+    const geo_url = `http://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=${api_key}`;
+    const response = await fetch(geo_url);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error fetching coordinates');
+    }
+
+    const geo_data = await response.json();
+    if (geo_data && geo_data.length > 0) {
+      const { lat, lon } = geo_data[0];
+      return { lat, lon };
+    } else {
+      throw new Error(`Could not determine coordinates for ${location}.`);
+    }
+  } catch (error) {
+    console.error("Error fetching coordinates:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message || 'Error fetching coordinates');
+    } else {
+      throw new Error('Error fetching coordinates');
+    }
+  }
+};
+
 // Fetch current weather by location name or geolocation
 export const fetchCurrentWeather = async (location?: string, lat?: number, lon?: number) => {
   try {
@@ -71,7 +105,6 @@ export const fetchForecast = async (location?: string, lat?: number, lon?: numbe
   }
 };
 
-
 // Fetch news articles
 export const fetchNews = async (): Promise<NewsArticle[]> => {
   try {
@@ -101,24 +134,33 @@ export const fetchNews = async (): Promise<NewsArticle[]> => {
 };
 
 // Fetch radar image
-export const fetchRadarImage = async (): Promise<string> => {
+export const fetchRadarImage = async (lat?: number, lon?: number, zoom?: number, layer?: string): Promise<string> => {
   try {
     const token = getAuthToken();
     if (!token) throw new Error("User is not authenticated. Please log in.");
 
-    const response = await fetch(`${BASE_URL}/radar/`, {
+    let url = `${BASE_URL}/radar/`;
+    if (lat !== undefined && lon !== undefined && zoom !== undefined) {
+      url += `?lat=${lat}&lon=${lon}&zoom=${zoom}`;
+      if (layer) {
+        url += `&layer=${layer}`;
+      }
+    }
+
+    const response = await fetch(url, {
       headers: { 'Authorization': `Token ${token}` },
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch radar image");
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to fetch map image');
     }
 
     const blob = await response.blob();
     return URL.createObjectURL(blob);
   } catch (error) {
-    console.error("Radar fetch error:", error);
-    throw new Error("Failed to fetch radar image");
+    console.error("Map fetch error:", error);
+    throw new Error("Failed to fetch map image. Please try again later.");
   }
 };
 

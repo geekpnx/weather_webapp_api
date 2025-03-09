@@ -1,44 +1,44 @@
-import React from 'react';
+  import React from 'react';
 
-interface NewsDisplayProps {
-  articles: {
-    title: string;
-    url: string;
-    publishedAt: string;
-    content: string;
-    urlToImage: string | null; // Add urlToImage to the interface
-  }[];
-}
-
-const NewsDisplay: React.FC<NewsDisplayProps> = ({ articles }) => {
-  if (articles.length === 0) {
-    return <div>No news available.</div>;
+  interface NewsDisplayProps {
+    articles: {
+      title: string;
+      url: string;
+      publishedAt: string;
+      content: string;
+      urlToImage: string | null; // Add urlToImage to the interface
+    }[];
   }
 
-  return (
-    <div>
-      <h2>Latest Weather News</h2>
-      <ul>
-        {articles.map((article, index) => (
-          <li key={index}>
-            <a href={article.url} target="_blank" rel="noopener noreferrer">
-              {/* Render the image if urlToImage exists */}
-              {article.urlToImage && (
-                <img
-                  src={article.urlToImage}
-                  alt={article.title}
-                  style={{ maxWidth: '100%', height: 'auto', marginBottom: '10px' }}
-                />
-              )}
-              <h3>{article.title}</h3>
-              <p>{article.content}</p>
-              <p><em>Published at: {new Date(article.publishedAt).toLocaleString()}</em></p>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
+  const NewsDisplay: React.FC<NewsDisplayProps> = ({ articles }) => {
+    if (articles.length === 0) {
+      return <div>No news available.</div>;
+    }
 
-export default NewsDisplay;
+    return (
+      <div>
+        <h2>Latest Weather News</h2>
+        <ul>
+          {articles.map((article, index) => (
+            <li key={index}>
+              <a href={article.url} target="_blank" rel="noopener noreferrer">
+                {/* Render the image if urlToImage exists */}
+                {article.urlToImage && (
+                  <img
+                    src={article.urlToImage}
+                    alt={article.title}
+                    style={{ maxWidth: '100%', height: 'auto', marginBottom: '10px' }}
+                  />
+                )}
+                <h3>{article.title}</h3>
+                <p>{article.content}</p>
+                <p><em>Published at: {new Date(article.publishedAt).toLocaleString()}</em></p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
+  export default NewsDisplay;

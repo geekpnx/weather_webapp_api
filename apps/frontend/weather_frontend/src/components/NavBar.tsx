@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../static/css/NavBar.css'; // Import the CSS file
+import logo from '../../../static/img/logo_WA.svg'; // Import the logo image
+import searchIcon from '../../../static/img/search-icon.svg'; // Import the search icon
+
 
 interface NavBarProps {
   onSearch: (location: string) => void;
@@ -37,7 +40,11 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
     <div className="navbar">
       {/* Logo */}
       <div className="logo" onClick={() => navigate('/')}>
-        WeatherApp
+        <img
+            src={logo} // Path to your logo image
+            alt="WeatherApp Logo"
+            className="logo-image"
+          />
       </div>
 
       {/* Search Bar */}
@@ -50,7 +57,11 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
           className="search-input"
         />
         <button onClick={handleSearch} className="search-button">
-          Search
+        <img
+            src={searchIcon} // Path to your search icon
+            alt="Search"
+            className="search-icon"
+          />
         </button>
       </div>
 

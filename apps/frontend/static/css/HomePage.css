@@ -1,0 +1,148 @@
+@font-face {
+  font-family: 'Abel';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(https://design.penpot.app/internal/gfonts/font/abel/v18/MwQ5bhbm2POE2V9BPQ.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* General Reset */
+* {
+  font-family: 'Abel';
+  font-style: normal;
+  font-weight: 400;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  align-items: center; /* Center horizontally */
+  justify-content: center; /* Center vertically */
+}
+
+
+
+/* Home Page Container */
+.home-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center horizontally */
+  justify-content: center; /* Center vertically */
+  min-height: 100vh; /* Ensure the page takes up at least the full viewport height */
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+/* Content Container */
+.content-container {  
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center horizontally */
+  gap: 20px; /* Add spacing between cards */
+  width: 100%;
+  max-width: 1200px; /* Limit the maximum width of the content */
+  margin-top: 17px;
+}
+
+/* Card Styling */
+.card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 100%;
+  max-width: 800px; /* Limit the maximum width of each card */
+}
+
+/* Weather Current Card */
+.weather-current {
+  text-align: center;
+}
+
+.weather-current h1 {
+  color: black;
+}
+
+/* Forecast Card */
+.forecast {
+  text-align: center;
+}
+
+/* Weather News Card */
+.weather-news {
+  color: #343434;
+  text-align: center;
+}
+
+.weather-news ul {
+  list-style: none;
+  padding: 0;
+}
+
+.weather-news li {
+  margin-bottom: 20px;
+}
+
+.weather-news img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.weather-news a {
+  font-weight: 400;
+  color: #343434;
+}
+
+
+/* Maps Card */
+.maps {
+  text-align: center;
+}
+
+.layer-buttons {
+  margin-bottom: 20px;
+}
+
+.layer-buttons button {
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  background-color: #343434;
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.layer-buttons button:hover {
+  background-color: #6e6e6e;
+}
+
+.radar-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+/* Error Message */
+.error-message {
+  color: rgb(197, 41, 41);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+
+/* Footer Styling */
+.footer {
+  text-align: center;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-top: 1px solid #ddd;
+  margin-top: auto; /* Push the footer to the bottom */
+  width: 100%;
+}
+
+.footer p {
+  margin: 0;
+  color: #333;
+  font-size: 14px;
+}

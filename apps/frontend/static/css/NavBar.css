@@ -1,0 +1,144 @@
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Navigation Bar */
+.navbar {
+  display: flex;
+  justify-content: space-between; /* Space out logo, search, and auth buttons */
+  align-items: center;
+  padding: 10px 20px;
+  background-color: white;
+  border-radius: 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  max-width: 1200px; /* Match the width of the cards below */
+  width: 100%; /* Ensure it takes up the full width */
+  margin: 0 auto; /* Center the navbar horizontally */
+  gap: 20px; /* Add spacing between navbar sections */
+}
+
+/* Logo */
+.logo {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-right: 20px; /* Add spacing between logo and search container */
+}
+
+.logo-image {
+  height: 30px; /* Adjust the height as needed */
+  width: auto; /* Maintain aspect ratio */
+}
+
+/* Search Container */
+.search-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-grow: 1; /* Allow the search container to grow and take up remaining space */
+  max-width: 600px; /* Limit the width of the search container */
+}
+
+.search-input {
+  padding: 8px 15px;
+  border: 1px solid #ccc;
+  color: #303030;
+  border-radius: 20px;
+  outline: none;
+  width: 100%; /* Take up the full width of the search container */
+  font-size: 16px;
+  background-color: lemonchiffon;
+  min-width: 200px; /* Minimum width for the search input */
+  max-width: 400px; /* Maximum width for the search input */
+}
+
+/* Search Button with Icon */
+.search-button {
+  padding: 8px; /* Adjust padding to fit the icon */
+  border-radius: 20px;
+  border: none;
+  background-color: transparent; /* Remove background color */
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-button:hover {
+  fill: #303030; /* Change the fill color of the SVG */
+  background-color: rgba(0, 0, 0, 0.1); /* Add a subtle hover effect */
+}
+
+/* Search Icon */
+.search-icon {
+  width: 25px; /* Adjust the size of the icon */
+  height: 25px; /* Adjust the size of the icon */
+  transition: fill 0.3s ease; /* Add a smooth transition for hover effects */
+}
+
+
+
+/* Auth Buttons */
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+  margin-left: 20px; /* Add spacing between search container and auth buttons */
+}
+
+.login-button,
+.register-button,
+.profile-button,
+.logout-button {
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  white-space: nowrap; /* Prevent button text from wrapping */
+}
+
+.login-button {
+  background-color: #303030;
+  color: #fff;
+}
+
+.login-button:hover {
+  background-color: #9e9e9e;
+}
+
+.register-button {
+  background-color: #303030;
+  color: #fff;
+}
+
+.register-button:hover {
+  background-color: #9e9e9e;
+}
+
+.profile-button {
+  background-color: #303030;
+  color: #fff;
+}
+
+.profile-button:hover {
+  background-color: #9e9e9e;
+}
+
+.logout-button {
+  background-color: #656565;
+  color: #fff;
+}
+
+.logout-button:hover {
+  background-color: #9e9e9e;
+}

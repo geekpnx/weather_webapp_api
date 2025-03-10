@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../api/user'; // Import the loginUser function
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -10,24 +11,11 @@ const LoginPage = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await fetch('http://localhost:8000/api/v1/user/login/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
-    const data = await response.json();
-
-    if (response.status === 200) {
-      // Store token in memory or in context/state (not in localStorage)
-      sessionStorage.setItem('auth_token', data.token);  // Or use context/state
-
-      // Navigate to the profile page
-      navigate('/profile');
-    } else {
-      setError(data.error || 'Login failed. Please check your credentials.');
+    try {
+      await loginUser(username, password); // Call loginUser without assigning to a variable
+      navigate('/'); // Navigate to the homepage after successful login
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Login failed. Please check your credentials.');
     }
   };
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { registerUser } from '../api/user'; // Import the registerUser function
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -13,27 +14,11 @@ const RegisterPage = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await fetch('http://localhost:8000/api/v1/user/register/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username,
-        email,
-        password,
-        location,
-        preferred_temperature_unit: preferredTemperatureUnit,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (response.status === 201) {
-      // After successful registration, navigate to login
-      navigate('/login');
-    } else {
-      setError(data.error || 'Registration failed. Please try again.');
+    try {
+      await registerUser(username, email, password, location, preferredTemperatureUnit); // Use the registerUser function
+      navigate('/login'); // Navigate to the login page after successful registration
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Registration failed. Please try again.');
     }
   };
 

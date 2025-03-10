@@ -1,31 +1,29 @@
 import React from 'react';
+import '../../../static/css/ForecastDisplay.css'; // Import CSS for ForecastDisplay
 
 interface ForecastDisplayProps {
-  data: any[];  // Array of forecast data
+  data: any[]; // Array of forecast data
 }
 
 const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
-  const formatTemperature = (temp: number) => `${temp.toFixed(1)}°C`;  // Format temperature to 1 decimal place
-  const formatTime = (timestamp: number) => new Date(timestamp * 1000).toLocaleTimeString(); // Format sunrise/sunset time
+  const formatTemperature = (temp: number) => `${temp.toFixed(1)}°C`;
+  const formatTime = (timestamp: number) => new Date(timestamp * 1000).toLocaleTimeString();
 
   return (
-    <div>
+    <div className="forecast-display">
       <h2>16-Day Forecast</h2>
       {data.map((forecast, index) => (
-        <div key={index} style={{ borderBottom: '1px solid #ddd', padding: '10px' }}>
+        <div key={index} className="forecast-item">
           <h3>{forecast.datetime}</h3>
-
-          {/* Weather Icon */}
-          <div>
+          <div className="weather-icon">
             <img
               src={`https://weatherbit.io/static/img/icons/${forecast.weather.icon}.png`}
               alt={forecast.weather.description}
-              width={50}  // Adjust the size as needed
+              width={50}
             />
             <span>{forecast.weather.description}</span>
           </div>
-
-          <p><strong>Temperature:</strong> {formatTemperature(forecast.temp)}°C (High: {formatTemperature(forecast.high_temp)}°C / Low: {formatTemperature(forecast.low_temp)}°C)</p>
+          <p><strong>Temperature:</strong> {formatTemperature(forecast.temp)} (High: {formatTemperature(forecast.high_temp)} / Low: {formatTemperature(forecast.low_temp)})</p>
           <p><strong>UV Index:</strong> {forecast.uv}</p>
           <p><strong>Wind Speed:</strong> {forecast.wind_spd} m/s - {forecast.wind_cdir}</p>
           <p><strong>Precipitation:</strong> {forecast.precip} mm</p>

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate for redirect
-import { fetchCurrentWeather, fetchForecast } from '../api/weather';
+import { useNavigate } from 'react-router-dom';
+import { fetchCurrentWeather, fetchForecast, fetchFavoriteLocations, addToFavorites, removeFromFavorites } from '../api/weather';
+import { fetchUserProfile } from '../api/user'; // Only import fetchUserProfile (logoutUser is handled in NavBar)
 import WeatherDisplay from '../components/WeatherDisplay';
 import ForecastDisplay from '../components/ForecastDisplay';
+import NavBar from '../components/NavBar'; // Import the new NavBar
 
 const UserProfilePage = () => {
   const [currentWeather, setCurrentWeather] = useState<any>(null);
@@ -13,52 +15,23 @@ const UserProfilePage = () => {
   const [longitude, setLongitude] = useState<number | null>(null);
   const [preferredTemperatureUnit, setPreferredTemperatureUnit] = useState<string>('C');
   const [searchLocation, setSearchLocation] = useState<string>('');
-  const [favorites, setFavorites] = useState<any[]>([]); // State for favorite locations
+  const [favorites, setFavorites] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const navigate = useNavigate();  // Hook for redirecting after logout
-
-  // Redirect if no token exists
-  useEffect(() => {
-    const token = sessionStorage.getItem('auth_token');
-    if (!token) {
-      navigate('/');  // Redirect to homepage if not authenticated
-    } else {
-      fetchUserProfile();
-      fetchFavoriteLocations();
-    }
-  }, [navigate]);
-
-  // Fetch user profile (including location and preferred temperature unit)
-  const fetchUserProfile = async () => {
-    const response = await fetch('http://localhost:8000/api/v1/user/profile/', {
-      headers: {
-        'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
-      },
-    });
-
-    const data = await response.json();
-    if (response.status === 200) {
-      setLocation(data.location);
-      setPreferredTemperatureUnit(data.preferred_temperature_unit);
-      fetchWeatherData(data.location);
-    } else {
-      setError('Unable to fetch user profile.');
-    }
-  };
+  const navigate = useNavigate();
 
   // Fetch weather data for the given location
   const fetchWeatherData = async (location: string) => {
     try {
-      const current = await fetchCurrentWeather(location);
-      const forecastData = await fetchForecast(location);
+      const current = await fetchCurrentWeather(location); // Use fetchCurrentWeather
+      const forecastData = await fetchForecast(location); // Use fetchForecast
       setCurrentWeather(current);
       setForecast(forecastData.data);
       setLatitude(current.coord.lat);
       setLongitude(current.coord.lon);
       setCountryCode(current.sys.country);
     } catch (error) {
-      if (error instanceof Error && error.message.includes("404")) {
+      if (error instanceof Error && error.message.includes('404')) {
         setError(`Location "${location}" not found. Please try again.`);
       } else {
         setError('Unable to fetch weather data.');
@@ -67,140 +40,70 @@ const UserProfilePage = () => {
       setForecast([]);
     }
   };
-  
-  
-  // Fetch user's favorite locations
-  const fetchFavoriteLocations = async () => {
-    const response = await fetch('http://localhost:8000/api/v1/weather/favorites/', {
-      headers: {
-        'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
-      },
-    });
-    const data = await response.json();
-    if (response.status === 200) {
-      setFavorites(data);
-    } else {
-      setError('Unable to fetch favorite locations.');
-    }
-  };
 
-  // Handle search for new location
-  const handleSearch = async () => {
-    if (searchLocation) {
+  // Fetch user profile and favorite locations
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      navigate('/');
+    } else {
+      fetchUserProfile()
+        .then((data) => {
+          setLocation(data.location);
+          setPreferredTemperatureUnit(data.preferred_temperature_unit);
+          fetchWeatherData(data.location); // Fetch weather data for the user's location
+        })
+        .catch(() => setError('Unable to fetch user profile.'));
+
+      fetchFavoriteLocations()
+        .then(setFavorites)
+        .catch(() => setError('Unable to fetch favorite locations.'));
+    }
+  }, [navigate]);
+
+  // Handle search for a new location
+  const handleSearch = async (location: string) => {
+    if (location) {
       try {
-        await fetchWeatherData(searchLocation);
+        await fetchWeatherData(location);
       } catch (error) {
-        if (error instanceof Error) {
-          setError(error.message || 'Failed to fetch weather data');
-        } else {
-          setError('Failed to fetch weather data');
-        }
+        setError(error instanceof Error ? error.message : 'Failed to fetch weather data.');
       }
     }
   };
-  
 
-  // Handle adding location to favorites
+  // Handle adding a location to favorites
   const handleAddToFavorites = async () => {
     if (searchLocation && country_code && latitude && longitude) {
-      // Check if location already exists in favorites
-      const response = await fetch('http://localhost:8000/api/v1/weather/favorites/', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
-        },
-      });
-      
-      const data = await response.json();
-  
-      // Check if location is already in favorites
-      const alreadyFavorite = data.some(
-        (fav: any) => fav.city_name === searchLocation && fav.country_code === country_code
-      );
-  
-      if (alreadyFavorite) {
-        alert('This location is already in your favorites!');
-        return;
-      }
-  
-      // If not in favorites, proceed to add
-      const city_name = searchLocation;
-      const addResponse = await fetch('http://localhost:8000/api/v1/weather/favorites/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
-        },
-        body: JSON.stringify({
-          city_name: city_name,
-          country_code: country_code,
-          latitude: latitude,
-          longitude: longitude,
-        }),
-      });
-  
-      const addData = await addResponse.json();
-      if (addResponse.status === 201) {
+      try {
+        await addToFavorites(searchLocation, country_code, latitude, longitude); // Use addToFavorites
         alert('Location added to favorites!');
-        fetchFavoriteLocations(); // Refresh the list of favorites
-      } else {
-        alert(addData.message || 'Failed to add location to favorites.');
+        const updatedFavorites = await fetchFavoriteLocations(); // Refresh the list of favorites
+        setFavorites(updatedFavorites);
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Failed to add location to favorites.');
       }
     }
   };
 
-  // Handle deleting a location from favorites
+  // Handle removing a location from favorites
   const handleDeleteFavorite = async (city_name: string, country_code: string, latitude: number, longitude: number) => {
-    const response = await fetch('http://localhost:8000/api/v1/weather/favorites/', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
-      },
-      body: JSON.stringify({
-        city_name: city_name,
-        country_code: country_code,
-        latitude: latitude,
-        longitude: longitude,
-      }),
-    });
-  
-    if (response.status === 200) {
+    try {
+      await removeFromFavorites(city_name, country_code, latitude, longitude); // Use removeFromFavorites
       alert('Location removed from favorites!');
-      fetchFavoriteLocations(); // Refresh the list of favorites
-    } else {
-      const data = await response.json();
-      setError(data.error || 'Failed to remove location from favorites.');
+      const updatedFavorites = await fetchFavoriteLocations(); // Refresh the list of favorites
+      setFavorites(updatedFavorites);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to remove location from favorites.');
     }
-  };
-
-  // Handle user logout
-  const handleLogout = async () => {
-    const response = await fetch('http://localhost:8000/api/v1/user/logout/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
-      },
-    });
-
-    const data = await response.json();
-    if (response.status === 200) {
-      // Remove the token from sessionStorage and redirect to homepage
-      sessionStorage.removeItem('auth_token');
-      alert(data.message); // Logout success message
-      navigate('/'); // Redirect to homepage
-    } else {
-      alert(data.error || 'Failed to log out.');
-    }
-  };
-
-  // Handle click on a favorite location
-  const handleClickFavoriteLocation = (city_name: string) => {
-    fetchWeatherData(city_name); // Fetch weather data for the clicked favorite location
   };
 
   return (
     <div>
+      {/* NavBar */}
+      <NavBar onSearch={handleSearch} />
+
+      {/* Page Content */}
       <h1>User Profile</h1>
       {error && <p>{error}</p>}
 
@@ -211,7 +114,7 @@ const UserProfilePage = () => {
       {currentWeather && <WeatherDisplay title="Current Weather" data={currentWeather} />}
       {forecast.length > 0 && <ForecastDisplay data={forecast} />}
 
-      {/* Display search bar */}
+      {/* Search for a new location */}
       <div>
         <h3>Search for a new location:</h3>
         <input
@@ -220,10 +123,10 @@ const UserProfilePage = () => {
           onChange={(e) => setSearchLocation(e.target.value)}
           placeholder="Enter city"
         />
-        <button onClick={handleSearch}>Search</button>
+        <button onClick={() => handleSearch(searchLocation)}>Search</button>
       </div>
 
-      {/* Display the option to add the location to favorites */}
+      {/* Add to favorites */}
       {searchLocation && country_code && latitude && longitude && (
         <div>
           <h3>{searchLocation}</h3>
@@ -231,12 +134,12 @@ const UserProfilePage = () => {
         </div>
       )}
 
-      {/* Display user's favorite locations */}
+      {/* Display favorite locations */}
       <h3>Your Favorite Locations:</h3>
       {favorites.length > 0 ? (
         <ul>
-          {favorites.map((fav: any) => (
-            <li key={fav.id} style={{ cursor: 'pointer' }} onClick={() => handleClickFavoriteLocation(fav.city_name)}>
+          {favorites.map((fav) => (
+            <li key={fav.id} style={{ cursor: 'pointer' }} onClick={() => handleSearch(fav.city_name)}>
               {fav.city_name}, {fav.country_code}
               <button onClick={() => handleDeleteFavorite(fav.city_name, fav.country_code, fav.latitude, fav.longitude)}>
                 Remove
@@ -247,11 +150,6 @@ const UserProfilePage = () => {
       ) : (
         <p>No favorite locations added yet.</p>
       )}
-
-      {/* Logout Button */}
-      <div>
-        <button onClick={handleLogout}>Logout</button>
-      </div>
     </div>
   );
 };

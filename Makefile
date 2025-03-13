@@ -28,3 +28,6 @@ dev-startapp:
 
 dev-shell-plus:
 	python3 manage.py shell_plus --settings=config.settings.dev
+
+dev-npm-intall:
+	cd apps/frontend/weather_frontend && npm install

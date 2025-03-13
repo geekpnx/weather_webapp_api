@@ -5,19 +5,13 @@ import ForecastDisplay from '../components/ForecastDisplay';
 import NewsDisplay from '../components/NewsDisplay';
 import NavBar from '../components/NavBar';
 import '../../../static/css/HomePage.css'; // Import the new CSS file
+import { ForecastItem } from '../types/types'; // Import the ForecastItem interface
+import { NewsArticle } from '../types/types'; // Import the NewArticle interface
 
-interface NewsArticle {
-  title: string;
-  url: string;
-  publishedAt: string;
-  content: string;
-  urlToImage: string | null;
-}
 
 const HomePage = () => {
   const [location, setLocation] = useState<string>('');
   const [currentWeather, setCurrentWeather] = useState<any>(null);
-  const [forecast, setForecast] = useState<any[]>([]);
   const [news, setNews] = useState<NewsArticle[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [radarImage, setRadarImage] = useState<string | null>(null);
@@ -26,6 +20,7 @@ const HomePage = () => {
   const [lon, setLon] = useState<number | undefined>(undefined);
   const [zoom, setZoom] = useState<number>(10);
   const [layer, setLayer] = useState<string>('temp'); // Default to temperature layer
+  const [forecast, setForecast] = useState<ForecastItem[]>([]); // Ensure forecast state is typed as ForecastItem[]
 
   // Fetch weather data based on location name or geolocation
   const handleSearch = async (location: string | { lat: number; lon: number }) => {
@@ -54,7 +49,7 @@ const HomePage = () => {
       );
   
       setCurrentWeather(current);
-      setForecast(forecastData.data);
+      setForecast(forecastData);
   
       if (typeof location === 'string') {
         const { lat, lon } = await fetchCoordinates(location);

@@ -26,7 +26,7 @@ const UserProfilePage = () => {
       const current = await fetchCurrentWeather(location); // Use fetchCurrentWeather
       const forecastData = await fetchForecast(location); // Use fetchForecast
       setCurrentWeather(current);
-      setForecast(forecastData.data);
+      setForecast(forecastData);
       setLatitude(current.coord.lat);
       setLongitude(current.coord.lon);
       setCountryCode(current.sys.country);

@@ -1,10 +1,6 @@
-interface NewsArticle {
-  title: string;
-  url: string;
-  publishedAt: string;
-  content: string;
-  urlToImage: string | null;
-}
+import { ForecastItem } from '../types/types'; // Import the ForecastItem interface
+import { NewsArticle } from '../types/types'; // Import the NewArticle interface
+
 
 const BASE_URL = 'http://127.0.0.1:8000/api/v1/weather'; // Django backend URL
 
@@ -76,14 +72,51 @@ export const fetchCurrentWeather = async (location?: string, lat?: number, lon?:
   }
 };
 
-// Fetch forecast by location name or geolocation
-export const fetchForecast = async (location?: string, lat?: number, lon?: number) => {
+
+// Helper function to fetch UV index
+const fetchUVIndex = async (lat: number, lon: number): Promise<number> => {
   try {
-    let url = `${BASE_URL}/forecast/`;
+    const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY; // For Vite
+    // const api_key = process.env.REACT_APP_OPENWEATHERMAP_API_KEY; // For Create React App
+    if (!api_key) {
+      throw new Error('OpenWeatherMap API key is not configured.');
+    }
+
+    const url = `http://api.openweathermap.org/data/2.5/uvi?lat=${lat}&lon=${lon}&appid=${api_key}`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Error fetching UV index data');
+    }
+
+    const data = await response.json();
+    return data.value; // UV index value
+  } catch (error) {
+    console.error("Error fetching UV index:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message || 'Error fetching UV index data');
+    } else {
+      throw new Error('Error fetching UV index data');
+    }
+  }
+};
+
+
+// Fetch forecast by location name or geolocation
+export const fetchForecast = async (location?: string, lat?: number, lon?: number): Promise<ForecastItem[]> => {
+  try {
+    const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY; // For Vite
+    // const api_key = process.env.REACT_APP_OPENWEATHERMAP_API_KEY; // For Create React App
+    if (!api_key) {
+      throw new Error('OpenWeatherMap API key is not configured.');
+    }
+
+    let url;
     if (location) {
-      url += `?location=${location}`;
+      url = `http://api.openweathermap.org/data/2.5/forecast?q=${location}&appid=${api_key}&units=metric`;
     } else if (lat !== undefined && lon !== undefined) {
-      url += `?lat=${lat}&lon=${lon}`;
+      url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${api_key}&units=metric`;
     } else {
       throw new Error('Please provide a location or geolocation coordinates.');
     }
@@ -91,10 +124,59 @@ export const fetchForecast = async (location?: string, lat?: number, lon?: numbe
     const response = await fetch(url);
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || 'Error fetching forecast data');
+      throw new Error(errorData.message || 'Error fetching forecast data');
     }
+
     const data = await response.json();
-    return data;
+
+    // Get today's date for comparison
+    const today = new Date();
+    const todayDateString = today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+    // Fetch UV index for the location
+    const uvIndex = await fetchUVIndex(data.city.coord.lat, data.city.coord.lon);
+
+    // Extract sunrise and sunset times
+    const sunrise = data.city.sunrise ? new Date(data.city.sunrise * 1000).toLocaleTimeString() : undefined;
+    const sunset = data.city.sunset ? new Date(data.city.sunset * 1000).toLocaleTimeString() : undefined;
+
+    // Group forecasts by day
+    const groupedForecasts = data.list.reduce((acc: { [key: string]: any }, entry: any) => {
+      const entryDate = new Date(entry.dt * 1000); // Convert timestamp to Date object
+      const entryDateString = entryDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+      if (!acc[entryDateString]) {
+        acc[entryDateString] = {
+          day_name: entryDateString === todayDateString
+            ? "Today"
+            : entryDateString === new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+              ? "Tomorrow"
+              : entryDate.toLocaleDateString('en-US', { weekday: 'long' }), // Full day name (e.g., "Tuesday")
+          date: entryDateString,
+          uv_index: uvIndex,
+          sunrise,
+          sunset,
+          forecasts: [], // Array to store individual forecasts for the day
+        };
+      }
+
+      acc[entryDateString].forecasts.push({
+        datetime: entry.dt_txt, // Date and time from API
+        temperature: entry.main.temp, // Temperature
+        feels_like: entry.main.feels_like, // Feels-like temperature
+        temp_min: entry.main.temp_min, // Minimum temperature
+        temp_max: entry.main.temp_max, // Maximum temperature
+        weather_description: entry.weather[0].description, // Weather description
+        weather_icon: entry.weather[0].icon, // Weather icon code
+        humidity: entry.main.humidity, // Humidity
+        wind_speed: entry.wind.speed, // Wind speed
+      });
+
+      return acc;
+    }, {});
+
+    // Convert groupedForecasts object into an array
+    return Object.values(groupedForecasts);
   } catch (error) {
     console.error("Error fetching forecast:", error);
     if (error instanceof Error) {
@@ -104,6 +186,7 @@ export const fetchForecast = async (location?: string, lat?: number, lon?: numbe
     }
   }
 };
+
 
 // Fetch news articles
 export const fetchNews = async (): Promise<NewsArticle[]> => {

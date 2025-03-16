@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../../static/css/WeatherDisplay.css'; // Import CSS for WeatherDisplay
+import '../../../backend/static/css/WeatherDisplay.css'; // Import CSS for WeatherDisplay
 
 interface WeatherDisplayProps {
   title: string;

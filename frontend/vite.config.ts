@@ -8,6 +8,6 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: '../static',  // Vite's default output directory for development
+    outDir: '../backend/static',  // Vite's default output directory for development
   },
 });

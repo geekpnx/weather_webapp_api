@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../../static/css/NavBar.css'; // Import the CSS file
-import logo from '../../../static/img/logo_WA.svg'; // Import the logo image
-import searchIcon from '../../../static/img/search-icon.svg'; // Import the search icon
+import '../../../backend/static/css/NavBar.css'; // Import the CSS file
+import logo from '../../../backend/static/img/logo_WA.svg'; // Import the logo image
+import searchIcon from '../../../backend/static/img/search-icon.svg'; // Import the search icon
 
 
 interface NavBarProps {

@@ -4,7 +4,7 @@ import WeatherDisplay from '../components/WeatherDisplay';
 import ForecastDisplay from '../components/ForecastDisplay';
 import NewsDisplay from '../components/NewsDisplay';
 import NavBar from '../components/NavBar';
-import '../../../static/css/HomePage.css'; // Import the new CSS file
+import '../../../backend/static/css/HomePage.css'; // Import the new CSS file
 import { ForecastItem } from '../types/types'; // Import the ForecastItem interface
 import { NewsArticle } from '../types/types'; // Import the NewArticle interface
 

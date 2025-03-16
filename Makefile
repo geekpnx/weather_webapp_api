@@ -5,7 +5,7 @@ dev-venv:
 	cd backend/ && python3 -m venv .venv --prompt $(name)
 
 dev-install:
-	cd backend/ && pip install -r requirements/dev.txt
+	cd backend/ && .venv/bin/pip install -r requirements/dev.txt
 
 dev-create-secretkey:
 	cd backend/ && .venv/bin/python3 scripts/generate_SECRET_KEY.py

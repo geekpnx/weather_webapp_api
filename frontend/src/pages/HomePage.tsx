@@ -7,7 +7,7 @@ import NavBar from '../components/NavBar';
 import '../../../backend/static/css/HomePage.css';
 import { ForecastItem } from '../types/types';
 import { NewsArticle } from '../types/types';
-import { useAuth } from '../context/AuthContext'; // Import useAuth
+import { useAuth } from '../context/AuthContext';
 
 const HomePage = () => {
   const [location, setLocation] = useState<string>('');
@@ -21,8 +21,9 @@ const HomePage = () => {
   const [zoom, setZoom] = useState<number>(10);
   const [layer, setLayer] = useState<string>('temp');
   const [forecast, setForecast] = useState<ForecastItem[]>([]);
+  const [isFetchingLocation, setIsFetchingLocation] = useState<boolean>(false);
 
-  const { isAuthenticated } = useAuth(); // Use global authentication state
+  const { isAuthenticated } = useAuth();
 
   // Fetch weather data based on location name or geolocation
   const handleSearch = async (location: string | { lat: number; lon: number }) => {
@@ -77,18 +78,21 @@ const HomePage = () => {
   // Fetch user's geolocation on page load
   useEffect(() => {
     if (navigator.geolocation) {
+      setIsFetchingLocation(true); // Show loading state
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
           handleSearch({ lat: latitude, lon: longitude });
+          setIsFetchingLocation(false); // Hide loading state
         },
         (error) => {
           console.error('Geolocation error:', error);
-          setError('Unable to retrieve your location.');
+          setError('Unable to retrieve your location. Please enable location access or search manually.');
+          setIsFetchingLocation(false); // Hide loading state
         }
       );
     } else {
-      setError('Geolocation is not supported by your browser.');
+      setError('Geolocation is not supported by your browser. Please search manually.');
     }
   }, []);
 
@@ -145,6 +149,9 @@ const HomePage = () => {
         {/* Error Message */}
         {error && <div className="error-message">{error}</div>}
 
+        {/* Loading State for Geolocation */}
+        {isFetchingLocation && <p>Fetching your location...</p>}
+
         {/* Weather Display */}
         {currentWeather && (
           <div className="card weather-current">
@@ -168,7 +175,7 @@ const HomePage = () => {
         )}
 
         {/* Radar Map */}
-        {isAuthenticated && ( // Only show radar section if user is authenticated
+        {isAuthenticated && (
           <div className="card maps">
             <div className="layer-buttons">
               <button onClick={() => handleLayerChange('map')}>Base Map</button>

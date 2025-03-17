@@ -53,8 +53,11 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
 
       {/* Search Bar */}
       <div className="search-container">
+        <label htmlFor="location-input" className="sr-only"></label>
         <input
           type="text"
+          id="location-input" // Add a unique ID
+          name="location" // Add a name attribute
           value={searchLocation}
           onChange={(e) => setSearchLocation(e.target.value)}
           placeholder="Enter location"

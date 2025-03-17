@@ -94,11 +94,12 @@
 }
 
 .weather-news h3 {
+  font-size:1.5em;
   font-weight:bolder;
 }
 
 .weather-news p {
-  font-size:small;
+  font-size:1em;
 }
 
 /* Maps Card */

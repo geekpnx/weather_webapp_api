@@ -50,6 +50,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess }) => {
           <label>Password:</label>
           <input
             type="password"
+            autoComplete="current-password" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required

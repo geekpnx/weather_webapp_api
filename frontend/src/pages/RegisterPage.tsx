@@ -32,6 +32,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess }) => {
           <label>Username:</label>
           <input
             type="text"
+            autoComplete="username" 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
@@ -41,6 +42,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess }) => {
           <label>Email:</label>
           <input
             type="email"
+            autoComplete="email" 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required

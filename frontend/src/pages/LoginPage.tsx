@@ -33,6 +33,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           <label>Username:</label>
           <input
             type="text"
+            autoComplete="username" 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required

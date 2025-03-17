@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { registerUser } from '../api/user'; // Import the registerUser function
+import { registerUser } from '../api/user';
 
-const RegisterPage = () => {
-  const navigate = useNavigate();
+interface RegisterPageProps {
+  onRegisterSuccess: () => void; // New prop for registration success
+}
+
+const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,8 +17,8 @@ const RegisterPage = () => {
     e.preventDefault();
 
     try {
-      await registerUser(username, email, password, location, preferredTemperatureUnit); // Use the registerUser function
-      navigate('/login'); // Navigate to the login page after successful registration
+      await registerUser(username, email, password, location, preferredTemperatureUnit);
+      onRegisterSuccess(); // Call onRegisterSuccess after successful registration
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Registration failed. Please try again.');
     }

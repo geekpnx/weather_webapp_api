@@ -4,10 +4,10 @@ import WeatherDisplay from '../components/WeatherDisplay';
 import ForecastDisplay from '../components/ForecastDisplay';
 import NewsDisplay from '../components/NewsDisplay';
 import NavBar from '../components/NavBar';
-import '../../../backend/static/css/HomePage.css'; // Import the new CSS file
-import { ForecastItem } from '../types/types'; // Import the ForecastItem interface
-import { NewsArticle } from '../types/types'; // Import the NewArticle interface
-
+import '../../../backend/static/css/HomePage.css';
+import { ForecastItem } from '../types/types';
+import { NewsArticle } from '../types/types';
+import { useAuth } from '../context/AuthContext'; // Import useAuth
 
 const HomePage = () => {
   const [location, setLocation] = useState<string>('');
@@ -19,38 +19,36 @@ const HomePage = () => {
   const [lat, setLat] = useState<number | undefined>(undefined);
   const [lon, setLon] = useState<number | undefined>(undefined);
   const [zoom, setZoom] = useState<number>(10);
-  const [layer, setLayer] = useState<string>('temp'); // Default to temperature layer
-  const [forecast, setForecast] = useState<ForecastItem[]>([]); // Ensure forecast state is typed as ForecastItem[]
+  const [layer, setLayer] = useState<string>('temp');
+  const [forecast, setForecast] = useState<ForecastItem[]>([]);
+
+  const { isAuthenticated } = useAuth(); // Use global authentication state
 
   // Fetch weather data based on location name or geolocation
   const handleSearch = async (location: string | { lat: number; lon: number }) => {
     try {
       let current;
       let cityName = '';
-  
+
       if (typeof location === 'string') {
-        // If location is a string (city name)
         setLocation(location);
         current = await fetchCurrentWeather(location);
-        cityName = location; // Use the provided city name
+        cityName = location;
       } else {
-        // If location is an object (geolocation)
         current = await fetchCurrentWeather(undefined, location.lat, location.lon);
-  
-        // Extract city name from the CurrentWeather response
-        cityName = current.name || 'Your Location'; // Fallback to 'Your Location' if name is not available
-        setLocation(cityName); // Set the city name as the location
+        cityName = current.name || 'Your Location';
+        setLocation(cityName);
       }
-  
+
       const forecastData = await fetchForecast(
         typeof location === 'string' ? location : undefined,
         typeof location === 'string' ? undefined : location.lat,
         typeof location === 'string' ? undefined : location.lon
       );
-  
+
       setCurrentWeather(current);
       setForecast(forecastData);
-  
+
       if (typeof location === 'string') {
         const { lat, lon } = await fetchCoordinates(location);
         setLat(lat);
@@ -61,11 +59,10 @@ const HomePage = () => {
         setLon(location.lon);
         setZoom(10);
       }
-  
-      const token = localStorage.getItem('auth_token');
-      if (token) {
+
+      if (isAuthenticated) {
         const newsData = await fetchNews();
-        setNews(newsData.slice(0, 5)); // Limit to 5 articles
+        setNews(newsData.slice(0, 5));
       }
     } catch (error) {
       console.error('Search error:', error);
@@ -97,8 +94,7 @@ const HomePage = () => {
 
   // Fetch radar image when latitude, longitude, zoom, or layer changes
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (token && lat !== undefined && lon !== undefined) {
+    if (isAuthenticated && lat !== undefined && lon !== undefined) {
       setLoadingRadar(true);
       fetchRadarImage(lat, lon, zoom, layer)
         .then((imageUrl) => {
@@ -113,8 +109,26 @@ const HomePage = () => {
         .finally(() => {
           setLoadingRadar(false);
         });
+    } else {
+      setRadarImage(null); // Clear radar image if user is not authenticated
     }
-  }, [lat, lon, zoom, layer]);
+  }, [isAuthenticated, lat, lon, zoom, layer]);
+
+  // Fetch news when authentication status changes
+  useEffect(() => {
+    if (isAuthenticated && lat !== undefined && lon !== undefined) {
+      fetchNews()
+        .then((newsData) => {
+          setNews(newsData.slice(0, 5));
+        })
+        .catch((error) => {
+          console.error('News fetch error:', error);
+          setError('Failed to fetch news. Please try again later.');
+        });
+    } else {
+      setNews([]); // Clear news if user is not authenticated
+    }
+  }, [isAuthenticated, lat, lon]);
 
   // Layer selection UI
   const handleLayerChange = (newLayer: string) => {
@@ -125,12 +139,12 @@ const HomePage = () => {
     <div className="home-page">
       {/* NavBar */}
       <NavBar onSearch={(location) => handleSearch(location)} />
-  
+
       {/* Page Content */}
       <div className="content-container">
         {/* Error Message */}
         {error && <div className="error-message">{error}</div>}
-  
+
         {/* Weather Display */}
         {currentWeather && (
           <div className="card weather-current">
@@ -138,33 +152,35 @@ const HomePage = () => {
             <WeatherDisplay title="Current Weather" data={currentWeather} />
           </div>
         )}
-  
+
         {/* Forecast Display */}
         {forecast.length > 0 && (
           <div className="card forecast">
             <ForecastDisplay data={forecast} />
           </div>
         )}
-  
+
         {/* News Display */}
         {news.length > 0 && (
           <div className="card weather-news">
             <NewsDisplay articles={news} />
           </div>
         )}
-  
+
         {/* Radar Map */}
-        <div className="card maps">
-          <div className="layer-buttons">
-            <button onClick={() => handleLayerChange('map')}>Base Map</button>
-            <button onClick={() => handleLayerChange('temp')}>Temperature</button>
-            <button onClick={() => handleLayerChange('wind')}>Wind</button>
+        {isAuthenticated && ( // Only show radar section if user is authenticated
+          <div className="card maps">
+            <div className="layer-buttons">
+              <button onClick={() => handleLayerChange('map')}>Base Map</button>
+              <button onClick={() => handleLayerChange('temp')}>Temperature</button>
+              <button onClick={() => handleLayerChange('wind')}>Wind</button>
+            </div>
+            {loadingRadar && <p>Loading radar image...</p>}
+            {radarImage && <img src={radarImage} alt="Radar Map" className="radar-image" />}
           </div>
-          {loadingRadar && <p>Loading radar image...</p>}
-          {radarImage && <img src={radarImage} alt="Radar Map" className="radar-image" />}
-        </div>
+        )}
       </div>
-  
+
       {/* Footer */}
       <footer className="footer">
         <p>© 2024 Weather WebApp made with ♡</p>

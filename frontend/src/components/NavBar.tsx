@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../../backend/static/css/NavBar.css'; // Import the CSS file
-import logo from '../../../backend/static/img/logo_WA.svg'; // Import the logo image
-import searchIcon from '../../../backend/static/img/search-icon.svg'; // Import the search icon
-
+import '../../../backend/static/css/NavBar.css';
+import logo from '../../../backend/static/img/logo_WA.svg';
+import searchIcon from '../../../backend/static/img/search-icon.svg';
+import AuthModal from './AuthModal';
+import { useAuth } from '../context/AuthContext'; // Import useAuth
 
 interface NavBarProps {
   onSearch: (location: string) => void;
@@ -11,14 +12,10 @@ interface NavBarProps {
 
 const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const { isAuthenticated, login, logout } = useAuth(); // Use global auth state
   const [searchLocation, setSearchLocation] = useState<string>('');
-
-  // Check authentication status on component mount
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    setIsAuthenticated(!!token);
-  }, []);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [isRegisterMode, setIsRegisterMode] = useState<boolean>(false);
 
   // Handle search
   const handleSearch = () => {
@@ -29,22 +26,29 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
     }
   };
 
-  // Handle logout
-  const handleLogout = () => {
-    localStorage.removeItem('auth_token');
-    setIsAuthenticated(false);
-    navigate('/');
+  // Open AuthModal in login mode
+  const handleLoginClick = () => {
+    setIsRegisterMode(false); // Set to login mode
+    setIsAuthModalOpen(true); // Open the modal
+  };
+
+  // Open AuthModal in registration mode
+  const handleRegisterClick = () => {
+    setIsRegisterMode(true); // Set to registration mode
+    setIsAuthModalOpen(true); // Open the modal
+  };
+
+  // Handle successful login
+  const handleLoginSuccess = () => {
+    login(); // Update global auth state
+    setIsAuthModalOpen(false); // Close the modal after successful login
   };
 
   return (
     <div className="navbar">
       {/* Logo */}
       <div className="logo" onClick={() => navigate('/')}>
-        <img
-            src={logo} // Path to your logo image
-            alt="WeatherApp Logo"
-            className="logo-image"
-          />
+        <img src={logo} alt="WeatherApp Logo" className="logo-image" />
       </div>
 
       {/* Search Bar */}
@@ -57,11 +61,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
           className="search-input"
         />
         <button onClick={handleSearch} className="search-button">
-        <img
-            src={searchIcon} // Path to your search icon
-            alt="Search"
-            className="search-icon"
-          />
+          <img src={searchIcon} alt="Search" className="search-icon" />
         </button>
       </div>
 
@@ -69,10 +69,10 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
       <div className="auth-buttons">
         {!isAuthenticated ? (
           <>
-            <button onClick={() => navigate('/login')} className="login-button">
+            <button onClick={handleLoginClick} className="login-button">
               Login
             </button>
-            <button onClick={() => navigate('/register')} className="register-button">
+            <button onClick={handleRegisterClick} className="register-button">
               Register
             </button>
           </>
@@ -81,12 +81,20 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
             <button onClick={() => navigate('/profile')} className="profile-button">
               Profile
             </button>
-            <button onClick={handleLogout} className="logout-button">
+            <button onClick={logout} className="logout-button">
               Logout
             </button>
           </>
         )}
       </div>
+
+      {/* AuthModal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        isRegisterMode={isRegisterMode}
+        onLoginSuccess={handleLoginSuccess}
+      />
     </div>
   );
 };

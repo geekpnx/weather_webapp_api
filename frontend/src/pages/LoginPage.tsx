@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../api/user'; // Import the loginUser function
+import { loginUser } from '../api/user';
 
-const LoginPage = () => {
+// Define the props interface for LoginPage
+interface LoginPageProps {
+  onLoginSuccess: () => void; // Add onLoginSuccess to the props interface
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -12,8 +17,9 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      await loginUser(username, password); // Call loginUser without assigning to a variable
-      navigate('/'); // Navigate to the homepage after successful login
+      await loginUser(username, password);
+      onLoginSuccess(); // Call onLoginSuccess after successful login
+      navigate('/'); // Navigate to the homepage
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Login failed. Please check your credentials.');
     }

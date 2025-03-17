@@ -16,6 +16,7 @@
   box-sizing: border-box;
   align-items: center; /* Center horizontally */
   justify-content: center; /* Center vertically */
+  text-decoration: none;
 }
 
 
@@ -92,6 +93,13 @@
   color: #343434;
 }
 
+.weather-news h3 {
+  font-weight:bolder;
+}
+
+.weather-news p {
+  font-size:small;
+}
 
 /* Maps Card */
 .maps {

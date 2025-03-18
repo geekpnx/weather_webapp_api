@@ -1,6 +1,5 @@
 import { ForecastItem } from '../types/types'; // Import the ForecastItem interface
-import { NewsArticle } from '../types/types'; // Import the NewArticle interface
-
+import { NewsArticle } from '../types/types'; // Import the NewsArticle interface
 
 const BASE_URL = 'http://127.0.0.1:8000/api/v1/weather'; // Django backend URL
 
@@ -72,7 +71,6 @@ export const fetchCurrentWeather = async (location?: string, lat?: number, lon?:
   }
 };
 
-
 // Helper function to fetch UV index
 const fetchUVIndex = async (lat: number, lon: number): Promise<number> => {
   try {
@@ -101,7 +99,6 @@ const fetchUVIndex = async (lat: number, lon: number): Promise<number> => {
     }
   }
 };
-
 
 // Fetch forecast by location name or geolocation
 export const fetchForecast = async (location?: string, lat?: number, lon?: number): Promise<ForecastItem[]> => {
@@ -189,17 +186,23 @@ export const fetchForecast = async (location?: string, lat?: number, lon?: numbe
 
 
 // Fetch news articles
-export const fetchNews = async (): Promise<NewsArticle[]> => {
+export const fetchNews = async (location?: string): Promise<NewsArticle[]> => {
   try {
     const token = getAuthToken();
     if (!token) throw new Error("User is not authenticated. Please log in.");
 
-    const response = await fetch(`${BASE_URL}/news/`, {
+    const url = `${BASE_URL}/news/${location ? `?location=${location}` : ''}`;
+    const response = await fetch(url, {
       headers: { 'Authorization': `Token ${token}`, 'Content-Type': 'application/json' },
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch news");
+      const errorData = await response.json();
+      if (response.status === 429) {
+        throw new Error(errorData.error || 'News API request limit reached. Please try again later.');
+      }
+      // Treat other errors as no news
+      return [];
     }
 
     const data = await response.json();
@@ -212,23 +215,26 @@ export const fetchNews = async (): Promise<NewsArticle[]> => {
     }));
   } catch (error) {
     console.error("News fetch error:", error);
-    throw new Error("Failed to fetch news");
+    if (error instanceof Error && error.message.includes('News API request limit reached')) {
+      throw error; // Propagate this specific error
+    }
+    return []; // Return empty array for other errors
   }
 };
 
-// Fetch radar image
-export const fetchRadarImage = async (lat?: number, lon?: number, zoom?: number, layer?: string): Promise<string> => {
+
+// Fetch radar image from Django backend
+export const fetchRadarImage = async (
+  lat: number,
+  lon: number,
+  zoom: number,
+  layer: string
+): Promise<{ imageUrl: string; center: { lat: number; lon: number }; boundary: [number, number][] }> => {
   try {
     const token = getAuthToken();
     if (!token) throw new Error("User is not authenticated. Please log in.");
 
-    let url = `${BASE_URL}/radar/`;
-    if (lat !== undefined && lon !== undefined && zoom !== undefined) {
-      url += `?lat=${lat}&lon=${lon}&zoom=${zoom}`;
-      if (layer) {
-        url += `&layer=${layer}`;
-      }
-    }
+    const url = `${BASE_URL}/radar/?lat=${lat}&lon=${lon}&zoom=${zoom}&layer=${layer}`;
 
     const response = await fetch(url, {
       headers: { 'Authorization': `Token ${token}` },
@@ -236,14 +242,18 @@ export const fetchRadarImage = async (lat?: number, lon?: number, zoom?: number,
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch map image');
+      throw new Error(errorData.error || 'Failed to fetch map data');
     }
 
-    const blob = await response.blob();
-    return URL.createObjectURL(blob);
+    const data = await response.json();
+    return {
+      imageUrl: data.image_url,
+      center: data.center,
+      boundary: data.boundary,
+    };
   } catch (error) {
     console.error("Map fetch error:", error);
-    throw new Error("Failed to fetch map image. Please try again later.");
+    throw new Error("Failed to fetch map data. Please try again later.");
   }
 };
 

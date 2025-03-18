@@ -8,20 +8,20 @@ import '../../../backend/static/css/HomePage.css';
 import { ForecastItem } from '../types/types';
 import { NewsArticle } from '../types/types';
 import { useAuth } from '../context/AuthContext';
+import MapComponent from '../components/MapComponent';
 
 const HomePage = () => {
   const [location, setLocation] = useState<string>('');
   const [currentWeather, setCurrentWeather] = useState<any>(null);
   const [news, setNews] = useState<NewsArticle[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [radarImage, setRadarImage] = useState<string | null>(null);
-  const [loadingRadar, setLoadingRadar] = useState<boolean>(false);
   const [lat, setLat] = useState<number | undefined>(undefined);
   const [lon, setLon] = useState<number | undefined>(undefined);
   const [zoom, setZoom] = useState<number>(10);
-  const [layer, setLayer] = useState<string>('temp');
-  const [forecast, setForecast] = useState<ForecastItem[]>([]);
+  const [layer, setLayer] = useState<string>('map');
   const [isFetchingLocation, setIsFetchingLocation] = useState<boolean>(false);
+  const [forecast, setForecast] = useState<ForecastItem[]>([]);
+  const [radarData, setRadarData] = useState<{ imageUrl: string; center: { lat: number; lon: number }; boundary: [number, number][] } | null>(null);
 
   const { isAuthenticated } = useAuth();
 
@@ -61,19 +61,28 @@ const HomePage = () => {
         setZoom(10);
       }
 
-      if (isAuthenticated) {
-        const newsData = await fetchNews();
+    // News handling with separate error catching
+    if (isAuthenticated) {
+      try {
+        const newsData = await fetchNews(cityName);
         setNews(newsData.slice(0, 5));
+      } catch (error) {
+        // Only handle API limit errors, ignore other news errors
+        if (error instanceof Error && error.message.includes('News API request limit reached')) {
+          setError(error.message);
+        }
       }
-    } catch (error) {
-      console.error('Search error:', error);
-      setError(`Location "${location}" not found.`);
-      setCurrentWeather(null);
-      setForecast([]);
-      setNews([]);
-      setRadarImage(null);
     }
-  };
+
+  } catch (error) {
+    console.error('Search error:', error);
+    setError(`Location "${location}" not found.`);
+    setCurrentWeather(null);
+    setForecast([]);
+    setNews([]);
+    setRadarData(null);
+  }
+};
 
   // Fetch user's geolocation on page load
   useEffect(() => {
@@ -96,25 +105,21 @@ const HomePage = () => {
     }
   }, []);
 
-  // Fetch radar image when latitude, longitude, zoom, or layer changes
+  // Fetch radar data when lat, lon, zoom, or layer changes
   useEffect(() => {
     if (isAuthenticated && lat !== undefined && lon !== undefined) {
-      setLoadingRadar(true);
       fetchRadarImage(lat, lon, zoom, layer)
-        .then((imageUrl) => {
-          setRadarImage(imageUrl);
+        .then((data) => {
+          setRadarData(data);
           setError(null);
         })
         .catch((error) => {
           console.error('Radar fetch error:', error);
           setError('Failed to fetch radar image. Please try again later.');
-          setRadarImage(null);
-        })
-        .finally(() => {
-          setLoadingRadar(false);
+          setRadarData(null);
         });
     } else {
-      setRadarImage(null); // Clear radar image if user is not authenticated
+      setRadarData(null); // Clear radar data if user is not authenticated
     }
   }, [isAuthenticated, lat, lon, zoom, layer]);
 
@@ -134,7 +139,8 @@ const HomePage = () => {
     }
   }, [isAuthenticated, lat, lon]);
 
-  // Layer selection UI
+
+  // Handle layer change
   const handleLayerChange = (newLayer: string) => {
     setLayer(newLayer);
   };
@@ -175,15 +181,20 @@ const HomePage = () => {
         )}
 
         {/* Radar Map */}
-        {isAuthenticated && (
+        {isAuthenticated && radarData && (
           <div className="card maps">
             <div className="layer-buttons">
               <button onClick={() => handleLayerChange('map')}>Base Map</button>
               <button onClick={() => handleLayerChange('temp')}>Temperature</button>
               <button onClick={() => handleLayerChange('wind')}>Wind</button>
             </div>
-            {loadingRadar && <p>Loading radar image...</p>}
-            {radarImage && <img src={radarImage} alt="Radar Map" className="radar-image" />}
+            <MapComponent
+              lat={radarData.center.lat}
+              lon={radarData.center.lon}
+              zoom={zoom}
+              boundary={radarData.boundary}
+              imageUrl={radarData.imageUrl}
+            />
           </div>
         )}
       </div>

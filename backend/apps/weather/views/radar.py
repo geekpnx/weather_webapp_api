@@ -1,17 +1,24 @@
-import time
-import os
+import base64
+import math
 import requests
 from PIL import Image
 from io import BytesIO
-from django.http import HttpResponse
+from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from apps.user.models import UserProfile  # Import UserProfile
-
+from apps.user.models import UserProfile
+import os
 import logging
+import time
+from django.core.cache import cache
+from concurrent.futures import ThreadPoolExecutor
+
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+import certifi
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +43,7 @@ class RadarView(APIView):
             elif user_profile and user_profile.location:
                 location = user_profile.location
                 # Convert city name to latitude and longitude using OpenWeatherMap's geocoding API
-                api_key = os.getenv('OPENWEATHERMAP_API_KEY')  # Still using OpenWeatherMap for geocoding
+                api_key = os.getenv('OPENWEATHERMAP_API_KEY')
                 if not api_key:
                     return Response({'error': 'OpenWeatherMap API key not configured.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -51,24 +58,31 @@ class RadarView(APIView):
             else:
                 return Response({'error': 'User location not set and no coordinates provided. Please update your profile or provide coordinates.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            tiles_x = int(request.query_params.get('tiles_x', 4))  # Adjust based on zoom level
-            tiles_y = int(request.query_params.get('tiles_y', 4))  # Adjust based on zoom level
+            tiles_x = int(request.query_params.get('tiles_x', 2))  # Default to 2x2 tiles
+            tiles_y = int(request.query_params.get('tiles_y', 2))
 
             # Call stitch_tiles with all required arguments
             combined_image = self.stitch_tiles(layer, zoom, tiles_x, tiles_y, latitude, longitude)
 
             if combined_image:
                 img_io = BytesIO()
-                combined_image.save(img_io, 'PNG')
+                combined_image.save(img_io, 'WEBP')  # Save as WebP for smaller size
                 img_io.seek(0)
-                return HttpResponse(img_io.getvalue(), content_type='image/png')
 
+                # Encode the image data as base64
+                image_base64 = base64.b64encode(img_io.getvalue()).decode('utf-8')
+
+                # Return JSON response with image URL, center coordinates, and boundary
+                return JsonResponse({
+                    'image_url': f"data:image/webp;base64,{image_base64}",
+                    'center': {'lat': latitude, 'lon': longitude},
+                    'boundary': self.get_boundary(latitude, longitude, zoom),  # Add boundary data
+                })
             return Response({'error': 'Failed to fetch map data'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as e:
             logger.error(f"Error in RadarView: {str(e)}", exc_info=True)
             return Response({'error': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
     def stitch_tiles(self, layer, z, tiles_x, tiles_y, lat, lon):
         """Stitches multiple tiles into one image centered around the provided latitude and longitude."""
@@ -89,94 +103,63 @@ class RadarView(APIView):
             overlay_image = Image.new('RGBA', (256 * tiles_x, 256 * tiles_y))
 
             # Fetch and stitch base map tiles (OpenStreetMap)
-            for x in range(start_x, end_x + 1):
-                for y in range(start_y, end_y + 1):
-                    # Ensure y is within valid range
-                    if y < 0 or y >= 2 ** z:
-                        logger.warning(f"Skipping invalid tile: y={y} (zoom={z})")
-                        continue
+            with ThreadPoolExecutor() as executor:
+                futures = []
+                for x in range(start_x, end_x + 1):
+                    for y in range(start_y, end_y + 1):
+                        if y < 0 or y >= 2 ** z:
+                            continue
+                        base_url = f'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+                        futures.append(executor.submit(self.get_tile_from_cache_or_fetch, base_url))
 
-                    # Fetch base map tile (OpenStreetMap)
-                    base_url = f'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-                    logger.info(f"Fetching base map tile: {base_url}")
-
-                    headers = {
-                        'User-Agent': 'YourAppName/1.0 (your@email.com)'
-                    }
-                    base_response = requests.get(base_url, headers=headers)
-
-                    if base_response.status_code == 200:
-                        base_tile = Image.open(BytesIO(base_response.content)).convert('RGBA')
-                        # Calculate the position to paste the tile
+                for idx, future in enumerate(futures):
+                    base_tile = future.result()
+                    if base_tile:
+                        x = start_x + (idx // tiles_y)
+                        y = start_y + (idx % tiles_y)
                         paste_x = (x - start_x) * 256
                         paste_y = (y - start_y) * 256
                         base_image.paste(base_tile, (paste_x, paste_y))
-                    else:
-                        logger.error(f"Failed to fetch base map tile: {base_url}, status code: {base_response.status_code}")
-                        return Response(
-                            {'error': f'Failed to fetch base map tile: {base_url}, status code: {base_response.status_code}'},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                        )
-
-                    # Add a delay to avoid rate limiting
-                    time.sleep(0.1)  # 100ms delay between requests
-
-            # Fetch and stitch weather layer tiles (OpenWeatherMap)
-            if layer != 'map':
-                for x in range(start_x, end_x + 1):
-                    for y in range(start_y, end_y + 1):
-                        # Ensure y is within valid range
-                        if y < 0 or y >= 2 ** z:
-                            logger.warning(f"Skipping invalid tile: y={y} (zoom={z})")
-                            continue
-
-                        # Fetch weather layer tile (OpenWeatherMap)
-                        api_key = os.getenv('OPENWEATHERMAP_API_KEY')
-                        if not api_key:
-                            logger.error("OpenWeatherMap API key not configured.")
-                            return Response(
-                                {'error': 'OpenWeatherMap API key not configured.'},
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                            )
-                        overlay_url = f'https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid={api_key}'
-                        logger.info(f"Fetching weather layer tile: {overlay_url}")
-
-                        overlay_response = requests.get(overlay_url, headers=headers)
-
-                        if overlay_response.status_code == 200:
-                            overlay_tile = Image.open(BytesIO(overlay_response.content)).convert('RGBA')
-                            # Reduce transparency of the overlay tile
-                            overlay_tile = overlay_tile.point(lambda p: p * 0.8)  # Adjust transparency (0.7 = 70% opacity)
-                            # Calculate the position to paste the tile
-                            paste_x = (x - start_x) * 256
-                            paste_y = (y - start_y) * 256
-                            overlay_image.paste(overlay_tile, (paste_x, paste_y), overlay_tile)
-                        else:
-                            logger.error(f"Failed to fetch weather layer tile: {overlay_url}, status code: {overlay_response.status_code}")
-                            return Response(
-                                {'error': f'Failed to fetch weather layer tile: {overlay_url}, status code: {overlay_response.status_code}'},
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                            )
-
-                        # Add a delay to avoid rate limiting
-                        time.sleep(0.1)  # 100ms delay between requests
 
             # Combine the base map and weather layer
             combined_image = Image.alpha_composite(base_image, overlay_image)
-
             return combined_image
         except Exception as e:
             logger.error(f"Error in stitching tiles: {str(e)}", exc_info=True)
-            return Response(
-                {'error': f'Internal server error: {str(e)}'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-    
+            return None
+
+    def get_tile_from_cache_or_fetch(self, url):
+        """Fetch a tile from cache or make a network request."""
+        cache_key = f"tile_{url}"
+        cached_tile = cache.get(cache_key)
+        if cached_tile:
+            return Image.open(BytesIO(cached_tile)).convert('RGBA')
+
+        headers = {'User-Agent': 'YourAppName/1.0 (your@email.com)'}
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            cache.set(cache_key, response.content, timeout=3600)  # Cache for 1 hour
+            return Image.open(BytesIO(response.content)).convert('RGBA')
+        return None
+
     def deg2num(self, lat_deg, lon_deg, zoom):
         """Convert latitude and longitude to tile coordinates."""
-        import math
         lat_rad = math.radians(lat_deg)
         n = 2.0 ** zoom
         xtile = int((lon_deg + 180.0) / 360.0 * n)
         ytile = int((1.0 - math.asinh(math.tan(lat_rad)) / math.pi) / 2.0 * n)
         return xtile, ytile
+
+    def get_boundary(self, lat, lon, zoom):
+        """Calculate boundary coordinates (e.g., a circle or polygon) around the location."""
+        radius = 5000  # Radius in meters
+        earth_radius = 6378137  # Earth's radius in meters
+        lat_rad = math.radians(lat)
+        lon_rad = math.radians(lon)
+        boundary = []
+        for angle in range(0, 360, 10):  # Create a circle with 36 points
+            angle_rad = math.radians(angle)
+            boundary_lat = lat + (radius / earth_radius) * (180 / math.pi) * math.sin(angle_rad)
+            boundary_lon = lon + (radius / earth_radius) * (180 / math.pi) * math.cos(angle_rad) / math.cos(lat_rad)
+            boundary.append([boundary_lat, boundary_lon])
+        return boundary

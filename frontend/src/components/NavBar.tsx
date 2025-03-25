@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../backend/static/css/NavBar.css';
-import logo from '../../../backend/static/img/logo_WA.svg';
-import searchIcon from '../../../backend/static/img/search-icon.svg';
+import logo from '../../../backend/static/images/logo/logo_WA.svg';
+import searchIcon from '../../../backend/static/images/icons/search-icon.svg';
 import AuthModal from './AuthModal';
-import { useAuth } from '../context/AuthContext'; // Import useAuth
+import ProfileModal from './ProfileModal';  // Add this import
+import { useAuth } from '../context/AuthContext';
 
 interface NavBarProps {
   onSearch: (location: string) => void;
@@ -12,12 +13,12 @@ interface NavBarProps {
 
 const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
   const navigate = useNavigate();
-  const { isAuthenticated, login, logout } = useAuth(); // Use global auth state
+  const { isAuthenticated, login, logout } = useAuth();
   const [searchLocation, setSearchLocation] = useState<string>('');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [isRegisterMode, setIsRegisterMode] = useState<boolean>(false);
+  const [showProfileModal, setShowProfileModal] = useState<boolean>(false);  // New state for profile modal
 
-  // Handle search
   const handleSearch = () => {
     if (searchLocation.trim()) {
       onSearch(searchLocation);
@@ -26,22 +27,19 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
     }
   };
 
-  // Open AuthModal in login mode
   const handleLoginClick = () => {
-    setIsRegisterMode(false); // Set to login mode
-    setIsAuthModalOpen(true); // Open the modal
+    setIsRegisterMode(false);
+    setIsAuthModalOpen(true);
   };
 
-  // Open AuthModal in registration mode
   const handleRegisterClick = () => {
-    setIsRegisterMode(true); // Set to registration mode
-    setIsAuthModalOpen(true); // Open the modal
+    setIsRegisterMode(true);
+    setIsAuthModalOpen(true);
   };
 
-  // Handle successful login
   const handleLoginSuccess = () => {
-    login(); // Update global auth state
-    setIsAuthModalOpen(false); // Close the modal after successful login
+    login();
+    setIsAuthModalOpen(false);
   };
 
   return (
@@ -56,8 +54,8 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
         <label htmlFor="location-input" className="sr-only"></label>
         <input
           type="text"
-          id="location-input" // Add a unique ID
-          name="location" // Add a name attribute
+          id="location-input"
+          name="location"
           value={searchLocation}
           onChange={(e) => setSearchLocation(e.target.value)}
           placeholder="Enter location"
@@ -81,7 +79,10 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
           </>
         ) : (
           <>
-            <button onClick={() => navigate('/profile')} className="profile-button">
+            <button 
+              onClick={() => setShowProfileModal(true)}  // Changed to open profile modal
+              className="profile-button"
+            >
               Profile
             </button>
             <button onClick={logout} className="logout-button">
@@ -91,12 +92,18 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
         )}
       </div>
 
-      {/* AuthModal */}
+      {/* Auth Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         isRegisterMode={isRegisterMode}
         onLoginSuccess={handleLoginSuccess}
+      />
+
+      {/* Profile Modal */}
+      <ProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
       />
     </div>
   );

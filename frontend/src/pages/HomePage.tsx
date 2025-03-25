@@ -162,7 +162,7 @@ const HomePage = () => {
         {currentWeather && (
           <div className="card weather-current">
             <h1>{location}</h1>
-            <WeatherDisplay title="Current Weather" data={currentWeather} />
+            <WeatherDisplay data={currentWeather} />
           </div>
         )}
 

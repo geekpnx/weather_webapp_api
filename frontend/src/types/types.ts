@@ -36,3 +36,27 @@ export interface NewsDisplayProps {
       urlToImage: string | null; // Add urlToImage to the interface
     }[];
   }
+
+
+  export interface UserProfileData {
+    user: {
+      username: string;
+      email: string;
+      first_name?: string;
+      last_name?: string;
+    };
+    location: string;
+    preferred_temperature_unit: 'C' | 'F';
+    preferred_theme: string;
+  }
+  
+  export interface PreferencesData {
+    preferred_temperature_unit: 'C' | 'F';
+    preferred_theme: string;
+  }
+
+
+  export interface ProfilePictureResponse {
+    profile_picture: string;
+  }
+  

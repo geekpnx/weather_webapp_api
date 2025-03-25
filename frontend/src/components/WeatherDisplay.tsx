@@ -2,11 +2,10 @@ import React from 'react';
 import '../../../backend/static/css/WeatherDisplay.css'; // Import CSS for WeatherDisplay
 
 interface WeatherDisplayProps {
-  title: string;
   data: any; // This will hold the current weather or forecast data
 }
 
-const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ title, data }) => {
+const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ data }) => {
   const weather = data?.weather ? data.weather[0] : null;
   const main = data?.main;
   const wind = data?.wind;
@@ -16,16 +15,15 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ title, data }) => {
 
   return (
     <div className="weather-display">
-      <h2>{title}</h2>
       {weather ? (
         <div className="weather-content">
           <div className="weather-icon">
             <img
               src={`http://openweathermap.org/img/wn/${weather.icon}.png`}
               alt={weather.description}
-              width={100}
+              width={10}
             />
-            <span><strong>{weather.main}</strong> - {weather.description}</span>
+            <span><strong>{weather.description}</strong></span>
           </div>
           {main && (
             <div className="weather-details">

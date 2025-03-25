@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django.shortcuts import get_object_or_404
-
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import UserProfile
-from .serializer import UserProfileSerializer
+from .serializer import UserProfileSerializer, UserSerializer
 
 
 class RegisterView(APIView):
@@ -77,36 +77,139 @@ class LogoutView(APIView):
 
 
 class UserProfileView(APIView):
-    """Allows users to retrieve and update their profile. Requires token authentication."""
+    """Handle profile updates and retrieval"""
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
-    def get_or_create_user_profile(self, user):
-        """Helper method to get or create the user profile."""
-        return get_object_or_404(UserProfile, user=user)
+    def get_profile(self):
+        return get_object_or_404(UserProfile, user=self.request.user)
 
     def get(self, request):
-        user_profile = self.get_or_create_user_profile(request.user)
-        serializer = UserProfileSerializer(user_profile)
+        profile = self.get_profile()
+        serializer = UserProfileSerializer(profile, context={'request': request})
         return Response(serializer.data)
 
     def put(self, request):
-        user_profile = self.get_or_create_user_profile(request.user)
-        data = request.data
+        profile = self.get_profile()
+        data = request.data.copy()
+        
+        # Handle profile picture removal first
+        if data.get('remove_profile_picture', False):
+            if profile.profile_picture:
+                profile.profile_picture.delete(save=False)
+            profile.profile_picture = None
+            profile.save()
+            return Response(
+                UserProfileSerializer(profile, context={'request': request}).data,
+                status=status.HTTP_200_OK
+            )
 
-        # Update the User model fields
+        # Handle profile picture upload
+        if 'profile_picture' in request.FILES:
+            if profile.profile_picture:
+                profile.profile_picture.delete(save=False)
+            profile.profile_picture = request.FILES['profile_picture']
+            profile.save()
+            return Response(
+                UserProfileSerializer(profile, context={'request': request}).data,
+                status=status.HTTP_200_OK
+            )
+
+        # Handle regular profile updates
+        user_data = data.pop('user', {})
         user = request.user
-        user.first_name = data.get('first_name', user.first_name)
-        user.last_name = data.get('last_name', user.last_name)
-        user.email = data.get('email', user.email)
-        user.username = data.get('username', user.username)
-        user.save()
 
-        # Update the UserProfile model fields
-        user_profile.location = data.get('location', user_profile.location)
-        user_profile.preferred_temperature_unit = data.get('preferred_temperature_unit', user_profile.preferred_temperature_unit)
-        user_profile.save()
+        # Validate username uniqueness
+        if 'username' in user_data and user_data['username'] != user.username:
+            if User.objects.filter(username=user_data['username']).exists():
+                return Response(
+                    {'error': 'Username already taken'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        # Serialize the updated UserProfile
-        serializer = UserProfileSerializer(user_profile)
-        return Response(serializer.data)
+        # Update User model
+        user_serializer = UserSerializer(user, data=user_data, partial=True)
+        if not user_serializer.is_valid():
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        user_serializer.save()
+
+        # Update UserProfile
+        profile_serializer = UserProfileSerializer(
+            profile,
+            data=data,
+            partial=True,
+            context={'request': request}
+        )
+        
+        if not profile_serializer.is_valid():
+            return Response(
+                {'profile_errors': profile_serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        profile_serializer.save()
+
+        return Response({
+            'user': user_serializer.data,
+            'profile': profile_serializer.data
+        }, status=status.HTTP_200_OK)
+    
+
+class DeleteAccountView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if not request.user.check_password(request.data.get('password')):
+            return Response({'error': 'Incorrect password'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        request.user.delete()
+        return Response({'message': 'Account deleted successfully'}, status=status.HTTP_200_OK)
+
+class FavoriteLocationView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_profile(self):
+        return get_object_or_404(UserProfile, user=self.request.user)
+
+    def post(self, request):
+        profile = self.get_profile()
+        location = request.data.get('location', '').strip()
+        
+        if not location:
+            return Response({'error': 'Location required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if location in profile.favorite_locations:
+            return Response(UserProfileSerializer(profile, context={'request': request}).data)
+        
+        # Add to beginning of list and keep only last 5
+        profile.favorite_locations = [location] + profile.favorite_locations
+        profile.favorite_locations = profile.favorite_locations[:5]
+        profile.save()
+        return Response(UserProfileSerializer(profile, context={'request': request}).data)
+
+    def delete(self, request):
+        profile = self.get_profile()
+        location = request.data.get('location', '').strip()
+        
+        if location in profile.favorite_locations:
+            profile.favorite_locations.remove(location)
+            profile.save()
+        return Response(UserProfileSerializer(profile, context={'request': request}).data)
+
+class ThemePreferenceView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        profile = get_object_or_404(UserProfile, user=request.user)
+        theme = request.data.get('theme', 'light')
+        
+        if theme not in dict(UserProfile._meta.get_field('preferred_theme').choices):
+            return Response({'error': 'Invalid theme choice'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        profile.preferred_theme = theme
+        profile.save()
+        return Response(UserProfileSerializer(profile, context={'request': request}).data)

@@ -1,20 +1,79 @@
 from rest_framework import serializers
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from apps.core.constants import PREFERRED_UNITS, THEME_CHOICES
 from .models import UserProfile
+import re
+
+location_validator = RegexValidator(regex=r'^[a-zA-Z\s]*$', message='Enter a valid location name.')
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields= ['email', 'first_name', 'last_name', 'username'] 
-
-location_validator = RegexValidator(regex=r'^[a-zA-Z\s]*$', message='Enter a valid location name.')
+        fields = ['id', 'username', 'email', 'first_name', 'last_name']
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(required=False)
+    profile_picture = serializers.SerializerMethodField()
     location = serializers.CharField(validators=[location_validator])
-    user = UserSerializer(read_only=True)
+    preferred_temperature_unit = serializers.ChoiceField(
+        choices=PREFERRED_UNITS,
+        default='C'
+    )
+    favorite_locations = serializers.JSONField(
+        default=list,
+        help_text="List of favorite locations"
+    )
+    preferred_theme = serializers.ChoiceField(
+        choices=THEME_CHOICES,
+        default='light'
+    )
 
     class Meta:
         model = UserProfile
-        fields = ['user', 'location', 'preferred_temperature_unit']
+        fields = [
+            'user', 
+            'profile_picture', 
+            'location', 
+            'preferred_temperature_unit',
+            'favorite_locations', 
+            'preferred_theme'
+        ]
 
+    def get_profile_picture(self, obj):
+        request = self.context.get('request')
+        if obj.profile_picture:
+            return request.build_absolute_uri(obj.profile_picture.url)
+        return request.build_absolute_uri(settings.STATIC_URL + 'images/propic/user_profile.svg')
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', {})
+        user = instance.user
+        
+        # Update User model
+        for attr, value in user_data.items():
+            setattr(user, attr, value)
+        user.save()
+
+        # Update UserProfile
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
+    
+    def validate_location(self, value):
+        if not re.match(r'^[a-zA-Z\s]*$', value):
+            raise serializers.ValidationError("Enter a valid location name.")
+        return value
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        
+        # Ensure all URLs are properly formatted
+        if not data['profile_picture'].startswith('http'):
+            data['profile_picture'] = request.build_absolute_uri(data['profile_picture'])
+            
+        return data

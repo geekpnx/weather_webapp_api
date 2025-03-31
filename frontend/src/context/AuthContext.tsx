@@ -1,27 +1,66 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+// frontend/src/context/AuthContext.tsx
+import React, { createContext, useState, useContext, ReactNode, useEffect, useCallback } from 'react';
+import { fetchUserProfile } from '../api/user';
+import { UserProfileData } from '../types/types';
 
 interface AuthContextType {
   isAuthenticated: boolean;
+  userProfile: UserProfileData | null;
   login: () => void;
   logout: () => void;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!localStorage.getItem('auth_token'));
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    () => !!localStorage.getItem('auth_token')
+  );
+  const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
 
-  const login = () => {
+  const refreshProfile = useCallback(async () => {
+    try {
+      const profile = await fetchUserProfile();
+      setUserProfile(profile);
+    } catch (error) {
+      console.error('Profile refresh failed:', error);
+      logout();
+    }
+  }, []);
+
+  const login = useCallback(() => {
     setIsAuthenticated(true);
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('auth_token');
     setIsAuthenticated(false);
-  };
+    setUserProfile(null);
+  }, []);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (isAuthenticated && !userProfile) {
+        try {
+          await refreshProfile();
+        } catch (error) {
+          console.error('Authentication check failed:', error);
+          logout();
+        }
+      }
+    };
+    checkAuth();
+  }, [isAuthenticated, userProfile, refreshProfile, logout]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ 
+      isAuthenticated,
+      userProfile,
+      login,
+      logout,
+      refreshProfile
+    }}>
       {children}
     </AuthContext.Provider>
   );

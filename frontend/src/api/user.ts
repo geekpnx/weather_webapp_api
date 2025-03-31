@@ -39,6 +39,32 @@ const getAuthHeader = (): { Authorization: string } => {
 };
 
 
+export const addFavoriteLocation = async (location: string): Promise<UserProfileData> => {
+  const response = await fetch(`${BASE_URL}/favorites/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeader(),
+    },
+    credentials: 'include',  // Add this line
+    body: JSON.stringify({ location }),
+  });
+  return handleResponse<UserProfileData>(response);
+};
+
+export const removeFavoriteLocation = async (location: string): Promise<UserProfileData> => {
+  const response = await fetch(`${BASE_URL}/favorites/`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeader(),
+    },
+    body: JSON.stringify({ location }),
+  });
+  return handleResponse<UserProfileData>(response);
+};
+
+
 // Login user
 export const loginUser = async (username: string, password: string) => {
   const response = await fetch(`${BASE_URL}/login/`, {
@@ -165,7 +191,7 @@ export const updateUserProfile = async (data: UserProfileData): Promise<UserProf
   return handleResponse<UserProfileData>(response);
 };
 
-export const uploadProfilePicture = async (file: File): Promise<ProfilePictureResponse> => {
+export const uploadProfilePicture = async (file: File): Promise<UserProfileData> => {
   const formData = new FormData();
   formData.append('profile_picture', file);
 
@@ -174,7 +200,7 @@ export const uploadProfilePicture = async (file: File): Promise<ProfilePictureRe
     headers: getAuthHeader(),
     body: formData,
   });
-  return handleResponse<ProfilePictureResponse>(response);
+  return handleResponse<UserProfileData>(response);
 };
 
 export const removeProfilePicture = async (): Promise<ProfilePictureResponse> => {

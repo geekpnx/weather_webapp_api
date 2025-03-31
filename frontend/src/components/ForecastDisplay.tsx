@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../../backend/static/css/ForecastDisplay.css'; // Import CSS for ForecastDisplay
+import '../../../static/css/ForecastDisplay.css'; // Import CSS for ForecastDisplay
 import { ForecastItem } from '../types/types'; // Import the ForecastItem interface
 
 // Define the props for the ForecastDisplay component

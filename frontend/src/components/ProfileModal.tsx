@@ -1,7 +1,7 @@
 // components/ProfileModal.tsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import '../../../backend/static/css/ProfileModal.css';
+import '../../../static/css/ProfileModal.css';
 import {
   fetchUserProfile,
   deleteAccount,
@@ -11,30 +11,33 @@ import {
   updatePreferences,
 } from '../api/user';
 
+import { 
+  // ... other imports
+  removeFavoriteLocation 
+} from '../api/user';
+
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialTab?: 'profile' | 'settings';  // Add this prop
 }
 
-const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
+const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab = 'profile'  }) => {
   const { logout } = useAuth();
   const [userData, setUserData] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'profile' | 'settings'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'settings'>(initialTab);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [password, setPassword] = useState('');
 
   useEffect(() => {
     if (isOpen) loadProfile();
-  }, [isOpen]);
+    setActiveTab(initialTab);
+  }, [isOpen, initialTab]);
 
   const loadProfile = async () => {
     try {
       const data = await fetchUserProfile();
-      // Force fresh image load
-      if (data.profile_picture) {
-        data.profile_picture = `${data.profile_picture}?ts=${Date.now()}`;
-      }
       setUserData(data);
       setError('');
     } catch (error) {
@@ -48,12 +51,9 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
   
     try {
       await uploadProfilePicture(file);
-      // Force update with cache busting
-      const data = await fetchUserProfile();
-      setUserData({
-        ...data,
-        profile_picture: data.profile_picture + `?ts=${Date.now()}`
-      });
+      await loadProfile(); // Refresh entire profile data
+      setSuccess('Profile picture updated');
+      setError('');
     } catch (error) {
       setError('Failed to upload image');
     }
@@ -107,9 +107,11 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
           first_name: userData.user.first_name,
           last_name: userData.user.last_name
         },
+        profile_picture: userData.profile_picture,
         location: userData.location,
         preferred_temperature_unit: userData.preferred_temperature_unit,
-        preferred_theme: userData.preferred_theme
+        preferred_theme: userData.preferred_theme,
+        favorite_locations: userData.favorite_location
       };
   
       // Use the updateUserProfile API function
@@ -122,7 +124,17 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  
+  const handleRemoveFavorite = async (location: string) => {
+    try {
+      await removeFavoriteLocation(location);
+      await loadProfile(); // Refresh the profile data
+      setSuccess(`${location} removed from favorites.`);
+    } catch (error) {
+      setError('Failed to remove favorite location.');
+    }
+  };
+
+
   const handlePreferencesUpdate = async () => {
     try {
       // Check if preferences actually changed
@@ -180,13 +192,13 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
         {/* Profile Picture Section - Now outside tabs */}
         <div className="profile-picture-section">
           <img 
-            src={userData?.profile_picture || '/static/images/propic/user_profile.svg'}
+            src={userData?.profile_picture || 'http://127.0.0.1:8000/static/images/propic/user_propic.svg'}
             alt="Profile"
             className="profile-picture"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = '/static/img/user_profile.svg';
+              (e.target as HTMLImageElement).src = 'http://127.0.0.1:8000/static/images/propic/user_propic.svg';
             }}
-            key={userData?.profile_picture} // Force re-render when URL changes
+            key={userData?.profile_picture ? `${userData.profile_picture}?ts=${Date.now()}` : 'default'}
           />
           <div className="picture-controls">
             <input
@@ -328,7 +340,12 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                 {userData.favorite_locations?.map((location: string, index: number) => (
                   <div key={index} className="favorite-location-item">
                     {location}
-                    <button className="remove-favorite">×</button>
+                    <button 
+                      className="remove-favorite" 
+                      onClick={() => handleRemoveFavorite(location)}
+                    >
+                      ×
+                    </button>
                   </div>
                 ))}
               </div>

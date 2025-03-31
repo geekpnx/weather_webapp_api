@@ -1,6 +1,6 @@
 from pathlib import Path
 import os
-
+import mimetypes
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -39,9 +39,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -50,15 +50,28 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_URLS_REGEX = r'^/(api|media)/.*$'  # Explicitly allow media URLs
 CORS_ALLOW_CREDENTIALS = True
-CORS_EXPOSE_HEADERS = ['Content-Disposition', 'Content-Type']
+
+
 
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
-    'http://localhost:8000',
 
+]
+
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+CORS_EXPOSE_HEADERS = [
+    'Content-Type',
+    'Content-Length',
+    'Content-Disposition'
 ]
 
 
@@ -106,18 +119,35 @@ USE_I18N = True
 USE_TZ = True
 
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR.parent, 'static')  # Project-level static
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+     os.path.join(BASE_DIR.parent, "static"), 
 ]
 
 
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR.parent, 'media')  # Project-level media
+
+
+
+print(f"BASE_DIR: {BASE_DIR}")
+print(f"[DEBUG] MEDIA_ROOT: {MEDIA_ROOT}")
+print(f" [DEBUG] MEDIA_URL: {MEDIA_URL}")
+# print(f"[DEBUG] STATIC_ROOT: {STATIC_ROOT}")  # Should show project/media/
+print(f"[DEBUG] STATIC_URL: {STATIC_URL}")    # Should be /media/
+print(f"[DEBUG] STATICFILES_DIR: {STATICFILES_DIRS}")
+
+
+mimetypes.add_type("image/jpeg", ".jpg", True)
+mimetypes.add_type("image/svg+xml", ".svg", True)
+mimetypes.add_type("image/png", ".png", True)
+mimetypes.add_type("image/gif", ".gif", True)
 
 # Cache control for media files
 FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'

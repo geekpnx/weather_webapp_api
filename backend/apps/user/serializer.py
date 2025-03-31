@@ -43,10 +43,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_profile_picture(self, obj):
         request = self.context.get('request')
-        if obj.profile_picture:
-            return request.build_absolute_uri(obj.profile_picture.url)
-        return request.build_absolute_uri(settings.STATIC_URL + 'images/propic/user_profile.svg')
 
+        if obj.profile_picture:
+            print("Profile Picture URL:", obj.profile_picture.url) # If user has uploaded a profile picture
+            if request:
+                return request.build_absolute_uri(obj.profile_picture.url)
+            return f"{settings.MEDIA_URL}{obj.profile_picture}"
+
+        # Default profile picture (from STATIC_URL)
+        default_picture_path = settings.STATIC_URL + 'images/propic/user_propic.svg'
+        return request.build_absolute_uri(default_picture_path) if request else default_picture_path
+        
+    
     def update(self, instance, validated_data):
         user_data = validated_data.pop('user', {})
         user = instance.user
@@ -68,12 +76,3 @@ class UserProfileSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Enter a valid location name.")
         return value
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        request = self.context.get('request')
-        
-        # Ensure all URLs are properly formatted
-        if not data['profile_picture'].startswith('http'):
-            data['profile_picture'] = request.build_absolute_uri(data['profile_picture'])
-            
-        return data

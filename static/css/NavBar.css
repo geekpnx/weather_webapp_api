@@ -25,10 +25,10 @@
 
 /* Logo */
 .logo {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  margin-right: 20px; /* Add spacing between logo and search container */
+  order: 1;
+  position: absolute; /* Add this */
+  left: 20px; /* Adjust as needed */
+  margin-right: 0; /* Remove previous margin */
 }
 
 .logo-image {
@@ -36,53 +36,240 @@
   width: auto; /* Maintain aspect ratio */
 }
 
+
+
 /* Search Container */
 .search-container {
+  order: 2;
   display: flex;
-  gap: 10px;
   align-items: center;
-  flex-grow: 1; /* Allow the search container to grow and take up remaining space */
-  max-width: 600px; /* Limit the width of the search container */
+  gap: 8px;
+  flex-grow: 0; /* Changed from 1 */
+  margin: 0 auto; /* Add this */
+  transform: translateX(-5%); /* Fine-tune horizontal centering */
+}
+
+.input-with-add {
+  position: relative;
+  flex-grow: 1;
+}
+
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
 }
 
 .search-input {
-  padding: 8px 15px;
+  padding: 8px 40px 8px 15px; /* Right padding for add button */
+  width: 200px;
+  min-width: 300px; /* Minimum width */
+  flex-grow: 1;
+  height: 40px;
   border: 1px solid #ccc;
-  color: #303030;
   border-radius: 20px;
-  outline: none;
-  width: 100%; /* Take up the full width of the search container */
   font-size: 16px;
   background-color: lemonchiffon;
-  min-width: 200px; /* Minimum width for the search input */
-  max-width: 400px; /* Maximum width for the search input */
 }
 
-/* Search Button with Icon */
-.search-button {
-  padding: 8px; /* Adjust padding to fit the icon */
+.search-buttons {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 20px;
+  padding: 4px 8px;
+  backdrop-filter: blur(2px);
+}
+
+.search-button,
+.add-button {
+  padding: 0px;
   border: none;
-  background-color: transparent; /* Remove background color */
-  color: #fff;
+  background: none;
   cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
   display: flex;
   align-items: center;
-  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.search-button:hover,
+.add-button:hover {
+  opacity: 0.8;
+}
+
+.add-button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.search-button {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 20px;
+  background-color: #303030;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+
+.add-icon {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.2s;
+}
+
+
+.search-icon {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(1);
+}
+
+/* Hover effects */
+.add-button:hover .add-icon {
+  transform: scale(1.1);
 }
 
 .search-button:hover {
-  fill: #303030; /* Change the fill color of the SVG */
-  background-color: rgba(0, 0, 0, 0.1); /* Add a subtle hover effect */
+  background-color: #404040;
 }
 
-/* Search Icon */
-.search-icon {
-  width: 25px; /* Adjust the size of the icon */
-  height: 25px; /* Adjust the size of the icon */
-  transition: fill 0.3s ease; /* Add a smooth transition for hover effects */
+/* Navigation Icons */
+.nav-icons {
+  order: 3;
+  position: absolute; /* Add this */
+  right: 20px; /* Adjust as needed */
+}
+
+/* Add these styles */
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+
+}
+
+.dropdown-container:not(:last-child) {
+  margin-right: 10px !important;
+}
+
+/* Firefox fix */
+@-moz-document url-prefix() {
+  .dropdown-menu {
+    transform: translateZ(0) translateY(5px);
+    margin-top: 0;
+  }
+  .favorite-icon {
+    image-rendering: crisp-edges;
+  }
+}
+
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.favorite-icon {
+  width: 32px;
+  height: 32px;
+  transition: opacity 0.2s;
+}
+
+/* Update profile icon styles */
+.profile-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  transition: opacity 0.2s;
+  border: 2px solid #303030;
+}
+
+.profile-icon.authenticated {
+  border: 2px solid #303030;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  min-width: 160px;
+  z-index: 1000;
+  margin-top: 8px;
+  transform: translateZ(0); /* Standard property */
+  -webkit-transform: translateZ(0); /* Safari prefix */
+  backface-visibility: hidden;
+}
+
+.dropdown-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  color: #303030;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #f5f5f5;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(-5px); /* Standard property */
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@-webkit-keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    -webkit-transform: translateY(-5px); /* Safari prefix */
+    transform: translateY(-5px); /* Standard property */
+  }
+  to { 
+    opacity: 1; 
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+
+/* Add to your CSS */
+@-moz-document url-prefix() { /* Firefox specific */
+  .dropdown-menu {
+    transform: translateZ(0); /* Force hardware acceleration */
+  }
+  
+  .icon-button {
+    background-color: rgba(0,0,0,0.0001); /* Fix click target */
+  }
 }
 
 /* Auth Buttons */

@@ -45,9 +45,11 @@ export interface NewsDisplayProps {
       first_name?: string;
       last_name?: string;
     };
+    profile_picture: string; // Add this line
     location: string;
     preferred_temperature_unit: 'C' | 'F';
     preferred_theme: string;
+    favorite_locations: string[]; // Add this line
   }
   
   export interface PreferencesData {

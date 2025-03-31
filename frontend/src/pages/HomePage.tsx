@@ -4,11 +4,12 @@ import WeatherDisplay from '../components/WeatherDisplay';
 import ForecastDisplay from '../components/ForecastDisplay';
 import NewsDisplay from '../components/NewsDisplay';
 import NavBar from '../components/NavBar';
-import '../../../backend/static/css/HomePage.css';
+import '../../../static/css/HomePage.css';
 import { ForecastItem } from '../types/types';
 import { NewsArticle } from '../types/types';
 import { useAuth } from '../context/AuthContext';
 import MapComponent from '../components/MapComponent';
+import AuthModal from '../components/AuthModal';
 
 const HomePage = () => {
   const [location, setLocation] = useState<string>('');
@@ -22,10 +23,40 @@ const HomePage = () => {
   const [isFetchingLocation, setIsFetchingLocation] = useState<boolean>(false);
   const [forecast, setForecast] = useState<ForecastItem[]>([]);
   const [radarData, setRadarData] = useState<{ imageUrl: string; center: { lat: number; lon: number }; boundary: [number, number][] } | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
+  const [favoriteLocations, setFavoriteLocations] = useState<string[]>(() => {
+  const saved = localStorage.getItem('favoriteLocations');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const { isAuthenticated } = useAuth();
 
-  // Fetch weather data based on location name or geolocation
+  useEffect(() => {
+    if (isAuthenticated) {
+      const saved = localStorage.getItem('favoriteLocations');
+      if (saved) setFavoriteLocations(JSON.parse(saved));
+    } else {
+      setFavoriteLocations([]);
+    }
+  }, [isAuthenticated]);
+
+  const handleAuthModalOpen = (mode: 'login' | 'register') => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
+  };
+
+  const handleAddFavorite = (location: string) => {
+    setFavoriteLocations(prev => {
+      if (!prev.includes(location)) {
+        const updated = [...prev, location];
+        localStorage.setItem('favoriteLocations', JSON.stringify(updated));
+        return updated;
+      }
+      return prev;
+    });
+  };
+
   const handleSearch = async (location: string | { lat: number; lon: number }) => {
     try {
       let current;
@@ -61,43 +92,39 @@ const HomePage = () => {
         setZoom(10);
       }
 
-    // News handling with separate error catching
-    if (isAuthenticated) {
-      try {
-        const newsData = await fetchNews(cityName);
-        setNews(newsData.slice(0, 5));
-      } catch (error) {
-        // Only handle API limit errors, ignore other news errors
-        if (error instanceof Error && error.message.includes('News API request limit reached')) {
-          setError(error.message);
+      if (isAuthenticated) {
+        try {
+          const newsData = await fetchNews(cityName);
+          setNews(newsData.slice(0, 5));
+        } catch (error) {
+          if (error instanceof Error && error.message.includes('News API request limit reached')) {
+            setError(error.message);
+          }
         }
       }
+    } catch (error) {
+      console.error('Search error:', error);
+      setError(`Location "${location}" not found.`);
+      setCurrentWeather(null);
+      setForecast([]);
+      setNews([]);
+      setRadarData(null);
     }
+  };
 
-  } catch (error) {
-    console.error('Search error:', error);
-    setError(`Location "${location}" not found.`);
-    setCurrentWeather(null);
-    setForecast([]);
-    setNews([]);
-    setRadarData(null);
-  }
-};
-
-  // Fetch user's geolocation on page load
   useEffect(() => {
     if (navigator.geolocation) {
-      setIsFetchingLocation(true); // Show loading state
+      setIsFetchingLocation(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
           handleSearch({ lat: latitude, lon: longitude });
-          setIsFetchingLocation(false); // Hide loading state
+          setIsFetchingLocation(false);
         },
         (error) => {
           console.error('Geolocation error:', error);
           setError('Unable to retrieve your location. Please enable location access or search manually.');
-          setIsFetchingLocation(false); // Hide loading state
+          setIsFetchingLocation(false);
         }
       );
     } else {
@@ -105,7 +132,6 @@ const HomePage = () => {
     }
   }, []);
 
-  // Fetch radar data when lat, lon, zoom, or layer changes
   useEffect(() => {
     if (isAuthenticated && lat !== undefined && lon !== undefined) {
       fetchRadarImage(lat, lon, zoom, layer)
@@ -119,11 +145,10 @@ const HomePage = () => {
           setRadarData(null);
         });
     } else {
-      setRadarData(null); // Clear radar data if user is not authenticated
+      setRadarData(null);
     }
   }, [isAuthenticated, lat, lon, zoom, layer]);
 
-  // Fetch news when authentication status changes
   useEffect(() => {
     if (isAuthenticated && lat !== undefined && lon !== undefined) {
       fetchNews()
@@ -135,30 +160,28 @@ const HomePage = () => {
           setError('Failed to fetch news. Please try again later.');
         });
     } else {
-      setNews([]); // Clear news if user is not authenticated
+      setNews([]);
     }
   }, [isAuthenticated, lat, lon]);
 
-
-  // Handle layer change
   const handleLayerChange = (newLayer: string) => {
     setLayer(newLayer);
   };
 
   return (
     <div className="home-page">
-      {/* NavBar */}
-      <NavBar onSearch={(location) => handleSearch(location)} />
+      <NavBar 
+        onSearch={(location) => handleSearch(location)}
+        onLogin={() => handleAuthModalOpen('login')}
+        onRegister={() => handleAuthModalOpen('register')}
+        favoriteLocations={favoriteLocations}
+        onAddFavorite={isAuthenticated ? handleAddFavorite : undefined}
+      />
 
-      {/* Page Content */}
       <div className="content-container">
-        {/* Error Message */}
         {error && <div className="error-message">{error}</div>}
-
-        {/* Loading State for Geolocation */}
         {isFetchingLocation && <p>Fetching your location...</p>}
 
-        {/* Weather Display */}
         {currentWeather && (
           <div className="card weather-current">
             <h1>{location}</h1>
@@ -166,21 +189,18 @@ const HomePage = () => {
           </div>
         )}
 
-        {/* Forecast Display */}
         {forecast.length > 0 && (
           <div className="card forecast">
             <ForecastDisplay data={forecast} />
           </div>
         )}
 
-        {/* News Display */}
         {news.length > 0 && (
           <div className="card weather-news">
             <NewsDisplay articles={news} />
           </div>
         )}
 
-        {/* Radar Map */}
         {isAuthenticated && radarData && (
           <div className="card maps">
             <div className="layer-buttons">
@@ -199,7 +219,12 @@ const HomePage = () => {
         )}
       </div>
 
-      {/* Footer */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialMode={authModalMode}
+      />
+
       <footer className="footer">
         <p>© 2024 Weather WebApp made with ♡</p>
       </footer>

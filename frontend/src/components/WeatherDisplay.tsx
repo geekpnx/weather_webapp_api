@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../../backend/static/css/WeatherDisplay.css'; // Import CSS for WeatherDisplay
+import '../../../static/css/WeatherDisplay.css'; // Import CSS for WeatherDisplay
 
 interface WeatherDisplayProps {
   data: any; // This will hold the current weather or forecast data

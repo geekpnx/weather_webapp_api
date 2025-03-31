@@ -12,6 +12,9 @@ from rest_framework.views import APIView
 from .models import UserProfile
 from .serializer import UserProfileSerializer, UserSerializer
 
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 
 class RegisterView(APIView):
     """Allows new users to register and get a token for authentication."""
@@ -38,7 +41,7 @@ class RegisterView(APIView):
         # Generate token for the user
         token, created = Token.objects.get_or_create(user=user)
 
-        serializer = UserProfileSerializer(user_profile)
+        serializer = UserProfileSerializer(user_profile, context={'request': request})
         return Response({'token': token.key, 'user': serializer.data}, status=status.HTTP_201_CREATED)
 
 
@@ -167,6 +170,8 @@ class DeleteAccountView(APIView):
         request.user.delete()
         return Response({'message': 'Account deleted successfully'}, status=status.HTTP_200_OK)
 
+
+@method_decorator(csrf_exempt, name='dispatch')
 class FavoriteLocationView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -213,3 +218,4 @@ class ThemePreferenceView(APIView):
         profile.preferred_theme = theme
         profile.save()
         return Response(UserProfileSerializer(profile, context={'request': request}).data)
+    

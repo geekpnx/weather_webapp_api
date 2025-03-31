@@ -13,7 +13,3 @@ urlpatterns = [
     path('profile/favorites/', FavoriteLocationView.as_view(), name='favorite-locations'),
     path('profile/theme/', ThemePreferenceView.as_view(), name='theme-preference'),
 ] 
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

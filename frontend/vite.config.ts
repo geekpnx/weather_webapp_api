@@ -8,16 +8,7 @@ export default defineConfig({
       '/media': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
-        configure: (proxy) => {
-          proxy.on('proxyRes', (proxyRes) => {
-            if (proxyRes.headers['content-type']?.startsWith('image/')) {
-              proxyRes.headers['content-type'] = proxyRes.headers['content-type'].replace(
-                'text/html',
-                'image/jpeg'
-              );
-            }
-          });
-        }
+        rewrite: (path) => path.replace(/^\/media/, '/media'),
       }
     }
   },

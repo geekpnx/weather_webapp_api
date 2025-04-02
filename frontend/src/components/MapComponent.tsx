@@ -1,66 +1,103 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { MapComponentProps } from '../types/types';
+import '../../../static/css/MapComponent.css'
+import pinIcon from '../../../static/images/pin/pin-icon.svg'
+
 
 const defaultIcon = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
+  iconUrl: pinIcon,
+  iconSize: [40, 40],
+  iconAnchor: [15, 40],
+  popupAnchor: [2, -50],
+
 });
 
-interface MapComponentProps {
-  lat: number;
-  lon: number;
-  zoom: number;
-  boundary: [number, number][];
-  imageUrl: string;
-}
 
-const MapComponent: React.FC<MapComponentProps> = ({ lat, lon, zoom, boundary, imageUrl }) => {
-  const mapRef = useRef<L.Map | null>(null);
+const MapComponent: React.FC<MapComponentProps> = ({
+  lat,
+  lon,
+  zoom,
+  boundary,
+  layer,
+  apiKey,
+}) => {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const leafletMapRef = useRef<L.Map | null>(null);
+
+  // Refs for map layers
+  const baseLayerRef = useRef<L.TileLayer | null>(null);
+  const weatherLayerRef = useRef<L.TileLayer | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
   const imageOverlayRef = useRef<L.ImageOverlay | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const boundaryPolygonRef = useRef<L.Polygon | null>(null);
 
   useEffect(() => {
-    if (!mapRef.current) {
-      mapRef.current = L.map('map').setView([lat, lon], zoom);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-      }).addTo(mapRef.current);
-    }
+    if (!mapRef.current || leafletMapRef.current) return;
 
-    if (imageUrl && !imageOverlayRef.current) {
-      const bounds = L.latLngBounds([
-        [lat - 0.02, lon - 0.02],  // Smaller bounds for faster rendering
-        [lat + 0.02, lon + 0.02],
-      ]);
-      imageOverlayRef.current = L.imageOverlay(imageUrl, bounds).addTo(mapRef.current);
-      setIsLoading(false);
-    }
-
-    L.marker([lat, lon], { icon: defaultIcon }).addTo(mapRef.current)
-      .bindPopup('Your Location')
-      .openPopup();
-
-    if (boundary.length > 0) {
-      L.polygon(boundary, { color: 'blue', fillOpacity: 0.2 }).addTo(mapRef.current);
-    }
+    // Initialize map
+    leafletMapRef.current = L.map(mapRef.current).setView([lat, lon], zoom);
+    
+    // Base OSM layer
+    baseLayerRef.current = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      // attribution: '© OpenStreetMap contributors',
+      opacity: 0.8,
+    }).addTo(leafletMapRef.current);
 
     return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
+      if (leafletMapRef.current) {
+        leafletMapRef.current.remove();
+        leafletMapRef.current = null;
       }
     };
-  }, [lat, lon, zoom, boundary, imageUrl]);
+  }, []);
+
+  useEffect(() => {
+    if (!leafletMapRef.current) return;
+
+    // Update map view
+    leafletMapRef.current.setView([lat, lon], zoom);
+
+    // Update marker
+    if (markerRef.current) {
+      leafletMapRef.current.removeLayer(markerRef.current);
+    }
+    markerRef.current = L.marker([lat, lon], { icon: defaultIcon })
+      .bindPopup('Your Location')
+      .addTo(leafletMapRef.current);
+
+    // Update weather layer
+    if (weatherLayerRef.current) {
+      leafletMapRef.current.removeLayer(weatherLayerRef.current);
+    }
+    if (layer && apiKey) {
+      const owmUrl = `https://tile.openweathermap.org/map/${layer}/{z}/{x}/{y}.png?appid=${apiKey}`;
+      weatherLayerRef.current = L.tileLayer(owmUrl, {
+        // attribution: '© OpenWeatherMap',
+        opacity: 3,
+      }).addTo(leafletMapRef.current);
+    }
+
+    // Update image overlay
+    if (imageOverlayRef.current) {
+      leafletMapRef.current.removeLayer(imageOverlayRef.current);
+    }
+
+    // Update boundary polygon
+    if (boundaryPolygonRef.current) {
+      leafletMapRef.current.removeLayer(boundaryPolygonRef.current);
+    }
+    if (boundary.length > 0) {
+      boundaryPolygonRef.current = L.polygon(boundary, {
+        color: 'orange',
+        fillOpacity: 0.15,
+      }).addTo(leafletMapRef.current);
+    }
+  }, [lat, lon, zoom, layer, apiKey, boundary]);
 
   return (
-    <div id="map" style={{ height: '400px', width: '100%', borderRadius: '10px' }}>
-      {isLoading && <div className="loading-indicator">Loading map...</div>}
+    <div ref={mapRef} className="map-container">  
     </div>
   );
 };

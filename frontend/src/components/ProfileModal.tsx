@@ -11,10 +11,7 @@ import {
   updatePreferences,
 } from '../api/user';
 
-import { 
-  // ... other imports
-  removeFavoriteLocation 
-} from '../api/user';
+
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -23,12 +20,17 @@ interface ProfileModalProps {
 }
 
 const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab = 'profile'  }) => {
-  const { logout } = useAuth();
+  const { logout, refreshProfile } = useAuth();
   const [userData, setUserData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'profile' | 'settings'>(initialTab);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [password, setPassword] = useState('');
+  const isDefaultImage = () => {
+  const defaultImageUrl = 'http://127.0.0.1:8000/static/images/propic/user_propic.svg';
+    return !userData?.profile_picture || userData.profile_picture === defaultImageUrl;
+  };
+
 
   useEffect(() => {
     if (isOpen) loadProfile();
@@ -51,20 +53,23 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
   
     try {
       await uploadProfilePicture(file);
-      await loadProfile(); // Refresh entire profile data
+      await loadProfile();
       setSuccess('Profile picture updated');
       setError('');
+      refreshProfile(); // Add this from useAuth context
     } catch (error) {
       setError('Failed to upload image');
     }
   };
   
+
   const handleRemovePicture = async () => {
     try {
       await removeProfilePicture();
       await loadProfile();
       setSuccess('Profile picture removed successfully');
       setError('');
+      refreshProfile(); // Add this from useAuth context
     } catch (error) {
       setError(error instanceof Error ? 
         error.message : 
@@ -72,7 +77,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
       );
     }
   };
-
 
   useEffect(() => {
     if (success) {
@@ -90,7 +94,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
     if (error) {
       const timer = setTimeout(() => {
         setError('');
-      }, 5000); // Errors stay longer (5 seconds)
+      }, 3000); // Errors stay longer (5 seconds)
 
       return () => clearTimeout(timer);
     }
@@ -111,7 +115,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
         location: userData.location,
         preferred_temperature_unit: userData.preferred_temperature_unit,
         preferred_theme: userData.preferred_theme,
-        favorite_locations: userData.favorite_location
       };
   
       // Use the updateUserProfile API function
@@ -124,15 +127,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
     }
   };
 
-  const handleRemoveFavorite = async (location: string) => {
-    try {
-      await removeFavoriteLocation(location);
-      await loadProfile(); // Refresh the profile data
-      setSuccess(`${location} removed from favorites.`);
-    } catch (error) {
-      setError('Failed to remove favorite location.');
-    }
-  };
 
 
   const handlePreferencesUpdate = async () => {
@@ -182,38 +176,48 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
       <div className="profile-modal">
         <button className="close-button" onClick={onClose}>×</button>
 
-        {error && <div className="error-message">{error}</div>}
         {success && (
-          <div className="success-message fade-out">
+          <div className="global-message success">
             {success}
+          </div>
+        )}
+
+        {error && (
+          <div className="global-message error">
+            {error}
           </div>
         )}
 
         {/* Profile Picture Section - Now outside tabs */}
         <div className="profile-picture-section">
-          <img 
-            src={userData?.profile_picture || 'http://127.0.0.1:8000/static/images/propic/user_propic.svg'}
-            alt="Profile"
-            className="profile-picture"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'http://127.0.0.1:8000/static/images/propic/user_propic.svg';
-            }}
-            key={userData?.profile_picture ? `${userData.profile_picture}?ts=${Date.now()}` : 'default'}
-          />
-          <div className="picture-controls">
-            <input
-              type="file"
-              id="profile-upload"
-              accept="image/*"
-              onChange={handleFileUpload}
-              hidden
+          <div className="profile-picture-container">
+            <img 
+              src={userData?.profile_picture }
+              alt="Profile"
+              className="profile-picture"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'http://127.0.0.1:8000/static/images/propic/user_propic.svg';
+              }}
+              key={userData?.profile_picture ? `${userData.profile_picture}?ts=${Date.now()}` : 'default'}
             />
-            <label htmlFor="profile-upload" className="btn-upload">
-              Change Photo
-            </label>
-            <button onClick={handleRemovePicture} className="btn-remove">
-              Remove
-            </button>
+            <div className="picture-control-overlay">
+              <input
+                type="file"
+                id="profile-upload"
+                accept="image/*"
+                onChange={handleFileUpload}
+                hidden
+              />
+              {!isDefaultImage() ? (
+                <button onClick={handleRemovePicture} className="btn-remove">
+                  −
+                </button>
+              ) : (
+                <label htmlFor="profile-upload" className="btn-upload">
+                  +
+                </label>
+              )}
+            </div>
           </div>
         </div>
 
@@ -233,8 +237,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
           </button>
         </div>
 
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
 
         {/* Profile Tab Content */}
         {activeTab === 'profile' && userData && (
@@ -334,22 +336,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
               </select>
             </div>
 
-            <div className="form-group">
-              <label>Favorite Locations</label>
-              <div className="favorite-locations-list">
-                {userData.favorite_locations?.map((location: string, index: number) => (
-                  <div key={index} className="favorite-location-item">
-                    {location}
-                    <button 
-                      className="remove-favorite" 
-                      onClick={() => handleRemoveFavorite(location)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
 
             {/* Add Save button for Settings */}
             <button 
@@ -363,18 +349,22 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
 
         {/* Danger Zone - Moved outside tabs */}
         <div className="danger-zone">
-          <h3>Delete Account</h3>
+          <div className="form-group"> 
+             <h3>Delete Account</h3>
+          </div>
           <form onSubmit={(e) => e.preventDefault()}>
-            <input
-              type="password"
-              placeholder="Enter password to confirm"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-              required
-            />
+            <div className="form-group">  
+              <input
+                type="password"
+                placeholder="Enter password to confirm"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+                required
+              />
+            </div>
             <button onClick={handleDeleteAccount} className="btn-delete">
-              Delete Account Permanently
+              Delete Account
             </button>
           </form>
         </div>

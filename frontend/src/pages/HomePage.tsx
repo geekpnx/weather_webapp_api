@@ -204,17 +204,21 @@ const HomePage = () => {
         {isAuthenticated && radarData && (
           <div className="card maps">
             <div className="layer-buttons">
-              <button onClick={() => handleLayerChange('map')}>Base Map</button>
-              <button onClick={() => handleLayerChange('temp')}>Temperature</button>
-              <button onClick={() => handleLayerChange('wind')}>Wind</button>
+              <button onClick={() => handleLayerChange('temp_new')}>Temperature</button>
+              <button onClick={() => handleLayerChange('wind_new')}>Wind</button>
+              <button onClick={() => handleLayerChange('clouds_new')}>Clouds</button>
+              <button onClick={() => handleLayerChange('precipitation_new')}>Precipitation</button>
             </div>
-            <MapComponent
-              lat={radarData.center.lat}
-              lon={radarData.center.lon}
-              zoom={zoom}
-              boundary={radarData.boundary}
-              imageUrl={radarData.imageUrl}
-            />
+            {lat !== undefined && lon !== undefined && (
+                <MapComponent
+                  lat={lat}
+                  lon={lon}
+                  zoom={zoom}
+                  layer={layer}
+                  apiKey={import.meta.env.VITE_OPENWEATHERMAP_API_KEY || ''}
+                  boundary={radarData.boundary}  
+                />
+            )}
           </div>
         )}
       </div>

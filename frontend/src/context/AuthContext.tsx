@@ -1,4 +1,3 @@
-// frontend/src/context/AuthContext.tsx
 import React, { createContext, useState, useContext, ReactNode, useEffect, useCallback } from 'react';
 import { fetchUserProfile } from '../api/user';
 import { UserProfileData } from '../types/types';
@@ -11,7 +10,7 @@ interface AuthContextType {
   refreshProfile: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
@@ -19,7 +18,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
 
-  const refreshProfile = useCallback(async () => {
+  const refreshProfile = useCallback(async (): Promise<void> => {
     try {
       const profile = await fetchUserProfile();
       setUserProfile(profile);
@@ -30,8 +29,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const login = useCallback(() => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      logout();
+      return;
+    }
     setIsAuthenticated(true);
-  }, []);
+    refreshProfile();
+  }, [refreshProfile]);
 
   const logout = useCallback(() => {
     localStorage.removeItem('auth_token');

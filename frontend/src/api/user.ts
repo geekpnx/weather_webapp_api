@@ -46,7 +46,6 @@ export const addFavoriteLocation = async (location: string): Promise<UserProfile
       'Content-Type': 'application/json',
       ...getAuthHeader(),
     },
-    credentials: 'include',  // Add this line
     body: JSON.stringify({ location }),
   });
   return handleResponse<UserProfileData>(response);

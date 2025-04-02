@@ -40,20 +40,18 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
+    # "config.middleware.cors_media_headers.MediaCORSHeadersMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    # "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_URLS_REGEX = r'^/(api|media)/.*$'  # Explicitly allow media URLs
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
-
-
 
 
 CORS_ALLOWED_ORIGINS = [
@@ -63,16 +61,8 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
 
-CORS_EXPOSE_HEADERS = [
-    'Content-Type',
-    'Content-Length',
-    'Content-Disposition'
-]
+CORS_EXPOSE_HEADERS = ['Content-Type', 'Content-Length', 'Content-Disposition']
 
 
 
@@ -136,32 +126,17 @@ MEDIA_ROOT = os.path.join(BASE_DIR.parent, 'media')  # Project-level media
 
 
 
-print(f"BASE_DIR: {BASE_DIR}")
-print(f"[DEBUG] MEDIA_ROOT: {MEDIA_ROOT}")
-print(f" [DEBUG] MEDIA_URL: {MEDIA_URL}")
-# print(f"[DEBUG] STATIC_ROOT: {STATIC_ROOT}")  # Should show project/media/
-print(f"[DEBUG] STATIC_URL: {STATIC_URL}")    # Should be /media/
-print(f"[DEBUG] STATICFILES_DIR: {STATICFILES_DIRS}")
 
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+UPLOAD_MAX_FILE_SIZE = 10 * 1024 * 1024
 
-mimetypes.add_type("image/jpeg", ".jpg", True)
-mimetypes.add_type("image/svg+xml", ".svg", True)
-mimetypes.add_type("image/png", ".png", True)
-mimetypes.add_type("image/gif", ".gif", True)
-
-# Cache control for media files
-FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-DEFAULT_FILE_STORAGE = FILE_STORAGE
-MEDIA_STORAGE_BACKEND = FILE_STORAGE
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Inform django about the new user model 
-# AUT = <app_name>.<model_class>
-#AUTH_USER_MODEL = "user.User" # <-- your User authentication model goes here
 
 ROOT_URLCONF = "config.urls"
 
@@ -169,7 +144,6 @@ ROOT_URLCONF = "config.urls"
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-        #'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -209,3 +183,23 @@ REST_FRAMEWORK = {
 # logger = logging.getLogger(__name__)
 # logger.addFilter(SensitiveDataFilter())
 
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#         'apps.user': {  # Add app-specific logging
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#         },
+#     },
+# }

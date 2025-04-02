@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { loginUser, registerUser } from '../api/user';
 import { useAuth } from '../context/AuthContext';
+import '../../../static/css/AuthModal.css';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -22,6 +23,26 @@ const AuthModal: React.FC<AuthModalProps> = ({
   const [preferredTemperatureUnit, setPreferredTemperatureUnit] = useState('C');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
+
+  // Clear messages after timeout
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError('');
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   // Reset mode when opening/closing modal
   useEffect(() => {
@@ -84,16 +105,28 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
-        <button className="close-button" onClick={onClose}>×</button>
-        <h2>{mode === 'login' ? 'Login' : 'Sign Up'}</h2>
-        
-        {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+      {/* Global Messages */}
+      {successMessage && (
+        <div className="global-message success">
+          {successMessage}
+        </div>
+      )}
 
+      {error && (
+        <div className="global-message error">
+          {error}
+        </div>
+      )}
+
+      <div className="auth-modal">
+        <button className="close-button" onClick={onClose}>×</button>
+        <div className="modal-header">
+          <h2>{mode === 'login' ? 'Login' : 'Sign Up'}</h2>
+        </div>
+  
         <form onSubmit={handleSubmit}>
-          <div>
-            <label>Username:</label>
+          <div className="form-group">
+            <label>Username</label>
             <input
               type="text"
               autoComplete="username"
@@ -102,10 +135,10 @@ const AuthModal: React.FC<AuthModalProps> = ({
               required
             />
           </div>
-
+  
           {mode === 'register' && (
-            <div>
-              <label>Email:</label>
+            <div className="form-group">
+              <label>Email</label>
               <input
                 type="email"
                 autoComplete="email"
@@ -115,9 +148,9 @@ const AuthModal: React.FC<AuthModalProps> = ({
               />
             </div>
           )}
-
-          <div>
-            <label>Password:</label>
+  
+          <div className="form-group">
+            <label>Password</label>
             <input
               type="password"
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
@@ -126,11 +159,11 @@ const AuthModal: React.FC<AuthModalProps> = ({
               required
             />
           </div>
-
+  
           {mode === 'register' && (
             <>
-              <div>
-                <label>Location:</label>
+              <div className="form-group">
+                <label>Location</label>
                 <input
                   type="text"
                   value={location}
@@ -138,8 +171,8 @@ const AuthModal: React.FC<AuthModalProps> = ({
                   required
                 />
               </div>
-              <div>
-                <label>Preferred Unit:</label>
+              <div className="form-group">
+                <label>Preferred Unit</label>
                 <select
                   value={preferredTemperatureUnit}
                   onChange={(e) => setPreferredTemperatureUnit(e.target.value)}
@@ -150,26 +183,24 @@ const AuthModal: React.FC<AuthModalProps> = ({
               </div>
             </>
           )}
-
-          {error && <p style={{ color: 'red' }}>{error}</p>}
-          <button type="submit">{mode === 'login' ? 'Login' : 'Sign Up'}</button>
+  
+          <button type="submit" className="submit-button">
+            {mode === 'login' ? 'Login' : 'Sign Up'}
+          </button>
         </form>
-
-        <p>
-          {mode === 'login' 
-            ? "Don't have an account? "
-            : "Already have an account? "}
+  
+        <div className="mode-toggle">
+          {mode === 'login' ? "Don't have an account? " : "Already have an account? "}
           <button 
             type="button"
             onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-            style={{ background: 'none', border: 'none', color: 'blue', cursor: 'pointer' }}
           >
             {mode === 'login' ? 'Sign Up' : 'Login'}
           </button>
-        </p>
+        </div>
       </div>
     </div>
-  );
-};
+  )
+;}
 
 export default AuthModal;

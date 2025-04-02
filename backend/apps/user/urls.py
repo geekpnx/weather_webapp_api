@@ -10,6 +10,6 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     path('profile/', UserProfileView.as_view(), name='user-profile'),
     path('profile/delete/', DeleteAccountView.as_view(), name='delete-account'),
-    path('profile/favorites/', FavoriteLocationView.as_view(), name='favorite-locations'),
+    path('favorites/', FavoriteLocationView.as_view(), name='favorite-locations'),
     path('profile/theme/', ThemePreferenceView.as_view(), name='theme-preference'),
 ] 

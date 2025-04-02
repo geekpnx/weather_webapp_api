@@ -105,6 +105,8 @@
 /* Maps Card */
 .maps {
   text-align: center;
+  position: relative;
+  z-index: 1;
 }
 
 .layer-buttons {
@@ -154,4 +156,15 @@
   margin: 0;
   color: #333;
   font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .logged-in-layout, .two-column-layout {
+    flex-direction: column;
+  }
+  .left-half, .right-half, .left-column, .right-column {
+    flex: none;
+    width: 100%;
+  }
 }

@@ -49,7 +49,7 @@ export interface NewsDisplayProps {
     location: string;
     preferred_temperature_unit: 'C' | 'F';
     preferred_theme: string;
-    favorite_locations: string[]; // Add this line
+    favorite_locations?: string[]; // Add this line
   }
   
   export interface PreferencesData {
@@ -62,3 +62,12 @@ export interface NewsDisplayProps {
     profile_picture: string;
   }
   
+
+  export interface MapComponentProps {
+    lat: number;
+    lon: number;
+    zoom: number;
+    boundary: [number, number][];
+    layer: string;
+    apiKey: string;
+  }

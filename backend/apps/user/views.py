@@ -15,6 +15,11 @@ from .serializer import UserProfileSerializer, UserSerializer
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
+from django.http import FileResponse, HttpResponseNotFound
+from django.conf import settings
+import os
+
+import mimetypes
 
 class RegisterView(APIView):
     """Allows new users to register and get a token for authentication."""
@@ -219,3 +224,32 @@ class ThemePreferenceView(APIView):
         profile.save()
         return Response(UserProfileSerializer(profile, context={'request': request}).data)
     
+
+# Add this new view class at the bottom of the file
+class ServeImageView(APIView):
+    """Secure media file serving"""
+    permission_classes = [AllowAny]
+
+    def get(self, request, path):
+        # Security: Validate path is within MEDIA_ROOT
+        safe_path = os.path.normpath(path).lstrip('/')
+        full_path = os.path.abspath(os.path.join(settings.MEDIA_ROOT, safe_path))
+        
+        # Prevent directory traversal
+        if not full_path.startswith(os.path.abspath(settings.MEDIA_ROOT)):
+            return HttpResponseNotFound("Invalid path")
+            
+        # Check file existence
+        if not os.path.isfile(full_path):
+            return HttpResponseNotFound("File not found")
+
+        # Get MIME type
+        content_type, _ = mimetypes.guess_type(full_path)
+        if not content_type:
+            content_type = 'application/octet-stream'
+
+        return FileResponse(
+            open(full_path, 'rb'),
+            content_type=content_type,
+            as_attachment=False
+        )

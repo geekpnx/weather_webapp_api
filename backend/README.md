@@ -1,6 +1,6 @@
 # WEATHER WEBAPP API
 
-These steps below is only when you have cloned the repo.
+These steps below is only when you have cloned the repo. (Need to be changed)
 
 ## **STEP 1**
 

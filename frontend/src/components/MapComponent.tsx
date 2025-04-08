@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MapComponentProps } from '../types/types';
-import '../../../static/css/MapComponent.css'
-import pinIcon from '../../../static/images/pin/pin-icon.svg'
+import '../../../backend/static/css/MapComponent.css'
+import pinIcon from '../../../backend/static/images/pin/pin-icon.svg'
 
 
 const defaultIcon = L.icon({
@@ -22,7 +22,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
   boundary,
   layer,
   apiKey,
+  onLayerChange,
 }) => {
+  const [showLayerControls, setShowLayerControls] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
 
@@ -32,6 +34,15 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const markerRef = useRef<L.Marker | null>(null);
   const imageOverlayRef = useRef<L.ImageOverlay | null>(null);
   const boundaryPolygonRef = useRef<L.Polygon | null>(null);
+
+  const layerOptions = [
+    { value: 'temp_new', label: 'Temperature' },
+    { value: 'wind_new', label: 'Wind' },
+    { value: 'clouds_new', label: 'Clouds' },
+    { value: 'precipitation_new', label: 'Precipitation' },
+  ];
+
+
 
   useEffect(() => {
     if (!mapRef.current || leafletMapRef.current) return;
@@ -97,7 +108,32 @@ const MapComponent: React.FC<MapComponentProps> = ({
   }, [lat, lon, zoom, layer, apiKey, boundary]);
 
   return (
-    <div ref={mapRef} className="map-container">  
+    <div ref={mapRef} className="map-container">
+      <div className="layer-controls">
+        <button 
+          className="layer-toggle"
+          onClick={() => setShowLayerControls(!showLayerControls)}
+        >
+          Layers ▾
+        </button>
+        
+        {showLayerControls && (
+          <div className="layer-dropdown">
+            {layerOptions.map((option) => (
+              <button
+                key={option.value}
+                className={layer === option.value ? 'active' : ''}
+                onClick={() => {
+                  onLayerChange(option.value);
+                  setShowLayerControls(false);
+                }}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

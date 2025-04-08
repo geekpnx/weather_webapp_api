@@ -1,21 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../../static/css/NavBar.css';
-import logo from '../../../static/images/logo/logo_WA.svg';
-import searchIcon from '../../../static/images/icons/search-icon.svg';
-import profileIcon from '../../../static/images/propic/user_propic.svg';
-import favoriteIcon from '../../../static/images/icons/favorite-icon.svg';
-import addIcon from '../../../static/images/icons/add-icon.svg';
+import '../../../backend/static/css/NavBar.css';
+import logo from '../../../backend/static/images/logo/logo_WA.svg';
+import searchIcon from '../../../backend/static/images/icons/search-icon.svg';
+import profileIcon from '../../../backend/static/images/propic/user_propic.svg';
+import favoriteIcon from '../../../backend/static/images/icons/favorite-icon.svg';
+import trashIcon from '../../../backend/static/images/icons/trash-icon.svg';
+import addIcon from '../../../backend/static/images/icons/add-icon.svg';
 import ProfileModal from './ProfileModal';
 import { useAuth } from '../context/AuthContext';
-import { addFavoriteLocation, removeFavoriteLocation } from '../api/user';
+import { removeFromFavorites, fetchCurrentWeather, fetchCoordinates, fetchFavoriteLocations, addToFavorites} from '../api/weather';
+import { FavoriteLocation } from '../types/types';
+import AlertsDisplay from './AlertsDisplay';
+
 
 interface NavBarProps {
   onSearch: (location: string) => void;
   onLogin: () => void;
   onRegister: () => void;
-  favoriteLocations: string[];  // Add this line
-  onAddFavorite?: (location: string) => void;  // Add this line (optional)
+  favoriteLocations: string[]; // Add this line
+  onAddFavorite?: (location: string) => void; // Make it optional
 }
 
 const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
@@ -25,10 +29,11 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
   const [showFavorites, setShowFavorites] = useState<boolean>(false);
-  const [localFavorites, setLocalFavorites] = useState<string[]>([]);
+  const [localFavorites, setLocalFavorites] = useState<FavoriteLocation[]>([]);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [modalInitialTab, setModalInitialTab] = useState<'profile' | 'settings'>('profile');
   const [modalKey, setModalKey] = useState(0);
+  const [isLoadingFavorites, setIsLoadingFavorites] = useState<boolean>(false);
 
 
   // Refs for click outside detection
@@ -37,12 +42,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const profileButtonRef = useRef<HTMLButtonElement>(null);
   const favoriteButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Sync local favorites with profile
-  useEffect(() => {
-    if (userProfile?.favorite_locations) {
-      setLocalFavorites(userProfile.favorite_locations);
-    }
-  }, [userProfile]);
 
   // Notification timeout
   useEffect(() => {
@@ -51,56 +50,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
       return () => clearTimeout(timer);
     }
   }, [notification]);
-
-  const handleSearch = () => {
-    const location = searchLocation.trim();
-    if (location) {
-      onSearch(location);
-    } else {
-      setNotification({ message: 'Please enter a valid location', type: 'error' });
-    }
-  };
-
-  const handleAddFavorite = async () => {
-    const location = searchLocation.trim();
-    if (!location) {
-      setNotification({ message: 'Please enter a location before adding', type: 'error' });
-      return;
-    }
-
-    // Check for duplicates
-    if (localFavorites.includes(location) || userProfile?.favorite_locations?.includes(location)) {
-      setNotification({ message: `${location} is already in favorites`, type: 'error' });
-      return;
-    }
-
-    try {
-      // Optimistic update
-      const newFavorites = [location, ...localFavorites].slice(0, 5);
-      setLocalFavorites(newFavorites);
-      
-      await addFavoriteLocation(location);
-      await refreshProfile();
-      setNotification({ message: `${location} added to favorites!`, type: 'success' });
-    } catch (error) {
-      setLocalFavorites(userProfile?.favorite_locations || []);
-      setNotification({ message: 'Failed to add favorite location', type: 'error' });
-    }
-  };
-
-  const handleRemoveFavorite = async (location: string) => {
-    try {
-      const newFavorites = localFavorites.filter(l => l !== location);
-      setLocalFavorites(newFavorites);
-      
-      await removeFavoriteLocation(location);
-      await refreshProfile();
-      setNotification({ message: `${location} removed from favorites`, type: 'success' });
-    } catch (error) {
-      setLocalFavorites(userProfile?.favorite_locations || []);
-      setNotification({ message: 'Failed to remove favorite location', type: 'error' });
-    }
-  };
 
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
@@ -159,6 +108,163 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
     setModalInitialTab('profile'); // Reset to default tab
   };
 
+  // Fetch weather data for favorites
+  useEffect(() => {
+    const fetchFavoritesWeather = async () => {
+      if (!isAuthenticated) {
+        setLocalFavorites([]);
+        return;
+      }
+
+      setIsLoadingFavorites(true);
+      try {
+        // First get the raw favorite locations from the backend
+        const favoritesResponse = await fetchFavoriteLocations();
+        const favoriteLocations = favoritesResponse.favorites || [];
+
+        // If no favorites, set empty array and return
+        if (favoriteLocations.length === 0) {
+          setLocalFavorites([]);
+          return;
+        }
+
+        // Then fetch weather for each
+        const favoritesWithWeather = await Promise.all(
+          favoriteLocations.map(async (location: any) => {
+            try {
+              const weatherData = await fetchCurrentWeather(location.city_name);
+              return {
+                name: location.city_name,
+                temp: Math.round(weatherData.main.temp),
+                icon: weatherData.weather[0].icon,
+                weatherDescription: weatherData.weather[0].description,
+                country_code: location.country_code || '',
+                lat: location.latitude,
+                lon: location.longitude
+              } as FavoriteLocation;
+            } catch (error) {
+              console.error(`Failed to fetch weather for ${location.city_name}:`, error);
+              return {
+                name: location.city_name,
+                country_code: location.country_code || '',
+                lat: location.latitude,
+                lon: location.longitude
+              } as FavoriteLocation;
+            }
+          })
+        );
+        setLocalFavorites(favoritesWithWeather);
+      } catch (error) {
+        console.error("Error fetching favorites:", error);
+        setLocalFavorites([]);
+      } finally {
+        setIsLoadingFavorites(false);
+      }
+    };
+
+    fetchFavoritesWeather();
+  }, [isAuthenticated]); // Removed userProfile?.favorite_locations dependency
+
+  // Notification timeout
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
+  const handleSearch = () => {
+    const location = searchLocation.trim();
+    if (location) {
+      onSearch(location);
+    } else {
+      setNotification({ message: 'Please enter a valid location', type: 'error' });
+    }
+  };
+
+  const handleAddFavorite = async () => {
+    const location = searchLocation.trim();
+    if (!location) {
+      setNotification({ message: 'Please enter a location', type: 'error' });
+      return;
+    }
+  
+    try {
+      // First get coordinates
+      const { lat, lon } = await fetchCoordinates(location);
+      
+      // Add to backend
+      await addToFavorites(location, '', lat, lon);
+      
+      // If we get here, the add was successful
+      const newFavorite = {
+        name: location,
+        temp: 0, // Temporary value
+        icon: '', // Temporary value
+        weatherDescription: '',
+        country_code: '',
+        lat,
+        lon
+      };
+      
+      // Update local state optimistically
+      setLocalFavorites(prev => [newFavorite, ...prev]);
+      
+      // Now fetch weather data
+      const weatherData = await fetchCurrentWeather(location);
+      
+      // Update with actual weather data
+      setLocalFavorites(prev => 
+        prev.map(fav => 
+          fav.name === location 
+            ? { 
+                ...fav, 
+                temp: Math.round(weatherData.main.temp),
+                icon: weatherData.weather[0].icon,
+                weatherDescription: weatherData.weather[0].description
+              } 
+            : fav
+        )
+      );
+      
+      setNotification({ 
+        message: `${location} added to favorites!`, 
+        type: 'success' 
+      });
+      
+    } catch (error) {
+      let errorMessage = 'Failed to add favorite location';
+      if (error instanceof Error) {
+        errorMessage = error.message.includes('already in favorites') 
+          ? `${location} is already in your favorites`
+          : error.message;
+      }
+      
+      setNotification({ 
+        message: errorMessage, 
+        type: 'error' 
+      });
+    }
+  };
+
+
+  const handleRemoveFavorite = async (favorite: FavoriteLocation) => {
+    try {
+      await removeFromFavorites(favorite);
+      setLocalFavorites(prev => prev.filter(fav => fav.name !== favorite.name));
+      if (refreshProfile) {
+        await refreshProfile();
+      }  
+      setNotification({ message: `${favorite.name} removed from favorites`, type: 'success' });
+    } catch (error) {
+      console.error("Error removing favorite:", error);
+      setNotification({ 
+        message: error instanceof Error ? error.message : 'Failed to remove favorite location', 
+        type: 'error' 
+      });
+    }
+  };
+
   return (
     <div className="navbar">
       <div className="logo" onClick={() => navigate('/')}>
@@ -177,7 +283,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
             className="search-input"
           />
           {isAuthenticated && (
-            <button 
+            <button
               onClick={handleAddFavorite}
               className="add-button"
               title="Add to favorites"
@@ -192,61 +298,77 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
       </div>
 
       <div className="nav-icons">
+      {isAuthenticated && <AlertsDisplay />}
         {isAuthenticated && (
           <div className="favorite-notification-container">
             <div className="dropdown-container" ref={favoriteDropdownRef}>
-            {notification && (
-              <div className={`notification-bubble ${notification.type}`}>
-                {notification.message}
-              </div>
-            )}
-              <button 
-                className="icon-button" 
+              {notification && (
+                <div className={`notification-bubble ${notification.type}`}>
+                  {notification.message}
+                </div>
+              )}
+              <button
+                className="icon-button"
                 onClick={toggleFavorites}
                 ref={favoriteButtonRef}
                 type="button"
                 aria-haspopup="true"
                 aria-expanded={showFavorites}
               >
-                <img 
-                  src={favoriteIcon} 
-                  alt="Favorite locations" 
-                  className="favorite-icon" 
+                <img
+                  src={favoriteIcon}
+                  alt="Favorite locations"
+                  className="favorite-icon"
                   style={{ pointerEvents: 'none' }}
                 />
               </button>
               {showFavorites && (
-                <div className="dropdown-menu">
-                  {localFavorites.length === 0 && (
+                <div className="dropdown-menu favorites-dropdown">
+                  {isLoadingFavorites && (
+                    <div className="loading-spinner">Loading...</div>
+                  )}
+
+                  {!isLoadingFavorites && localFavorites.length === 0 && (
                     <div className="dropdown-item empty-state">
                       No favorite locations saved yet
                     </div>
                   )}
 
-                  {localFavorites.map((location, index) => (
+                  {!isLoadingFavorites && localFavorites.map((favorite, index) => (
                     <div
-                      key={index}
-                      className="dropdown-item"
-                      role="button"
-                      tabIndex={0}
+                      key={`${favorite.name}-${index}`}
+                      className="favorite-card"
                     >
-                      <span
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleFavoriteSelect(location);
+                      <div
+                        className="favorite-content"
+                        onClick={() => {
+                          handleFavoriteSelect(favorite.name);
+                          setShowFavorites(false);
                         }}
                       >
-                        {location}
-                      </span>
-                      <button 
+                        <div className="favorite-location">{favorite.name}</div>
+                        {favorite.temp && (
+                          <div className="favorite-weather">
+                            <div className="favorite-temp">{favorite.temp}°</div>
+                            {favorite.icon && (
+                              <img
+                                src={`https://openweathermap.org/img/wn/${favorite.icon}.png`}
+                                alt={favorite.weatherDescription || 'Weather icon'}
+                                className="favorite-icon"
+                              />
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleRemoveFavorite(location);
+                          handleRemoveFavorite(favorite);
                         }}
                         className="remove-favorite"
                         title="Remove from favorites"
                       >
-                        x
+                        <img src={trashIcon} alt="Remove" className="trash-icon" />
                       </button>
                     </div>
                   ))}
@@ -257,21 +379,21 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
         )}
 
         <div className="dropdown-container" ref={profileDropdownRef}>
-          <button 
-            className="icon-button" 
+          <button
+            className="icon-button"
             onClick={toggleProfileMenu}
             ref={profileButtonRef}
           >
             <img
               src={
-                isAuthenticated && userProfile?.profile_picture 
+                isAuthenticated && userProfile?.profile_picture
                   ? `${userProfile.profile_picture}?ts=${Date.now()}`
                   : profileIcon
               }
               alt="Profile"
               className={`profile-icon ${isAuthenticated ? 'authenticated' : ''}`}
               key={
-                isAuthenticated && userProfile?.profile_picture 
+                isAuthenticated && userProfile?.profile_picture
                   ? `${userProfile.profile_picture}-${Date.now()}`
                   : `default-${Date.now()}`
               }

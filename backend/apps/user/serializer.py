@@ -45,7 +45,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
 
         if obj.profile_picture:
-            print("Profile Picture URL:", obj.profile_picture.url) # If user has uploaded a profile picture
             if request:
                 return request.build_absolute_uri(obj.profile_picture.url)
             return f"{settings.MEDIA_URL}{obj.profile_picture}"

@@ -15,9 +15,12 @@ interface ApiError {
 const handleResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
     const errorData: ApiError = await response.json().catch(() => ({}));
-    const errorMessage = errorData.message || 
+    const errorMessage = errorData.message ||
       errorData.details ||
       Object.entries(errorData.profile_errors || {})
+        .flatMap(([field, errors]) => errors.map(e => `${field}: ${e}`))
+        .join(', ') ||
+      Object.entries(errorData.user_errors || {})
         .flatMap(([field, errors]) => errors.map(e => `${field}: ${e}`))
         .join(', ') ||
       'Request failed';
@@ -74,13 +77,10 @@ export const loginUser = async (username: string, password: string) => {
     body: JSON.stringify({ username, password }),
   });
 
-  const data = await response.json();
-  if (response.status === 200) {
+  return handleResponse<{ token: string }>(response).then(data => {
     localStorage.setItem('auth_token', data.token); // Store token in localStorage
     return data;
-  } else {
-    throw new Error(data.error || 'Login failed. Please check your credentials.');
-  }
+  });
 };
 
 // Register user
@@ -105,31 +105,19 @@ export const registerUser = async (
     }),
   });
 
-  const data = await response.json();
-  if (response.status === 201) {
-    return data;
-  } else {
-    throw new Error(data.error || 'Registration failed. Please try again.');
-  }
+  return handleResponse<any>(response);
 };
 
 // Fetch user profile
-export const fetchUserProfile = async () => {
+export const fetchUserProfile = async (): Promise<UserProfileData> => {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated. Please log in.');
 
   const response = await fetch(`${BASE_URL}/profile/`, {
-    headers: {
-      Authorization: `Token ${token}`,
-    },
+    headers: getAuthHeader(),
   });
 
-  const data = await response.json();
-  if (response.status === 200) {
-    return data;
-  } else {
-    throw new Error(data.error || 'Unable to fetch user profile.');
-  }
+  return handleResponse<UserProfileData>(response);
 };
 
 // Logout user
@@ -139,23 +127,18 @@ export const logoutUser = async () => {
 
   const response = await fetch(`${BASE_URL}/logout/`, {
     method: 'POST',
-    headers: {
-      Authorization: `Token ${token}`,
-    },
+    headers: getAuthHeader(),
   });
 
-  const data = await response.json();
-  if (response.status === 200) {
+  return handleResponse<any>(response).then(data => {
     localStorage.removeItem('auth_token'); // Remove token from localStorage
     return data;
-  } else {
-    throw new Error(data.error || 'Failed to log out.');
-  }
+  });
 };
 
 
 // Add this new function for account deletion
-export const deleteAccount = async (password: string) => {
+export const deleteAccount = async (password: string): Promise<boolean> => {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated. Please log in.');
 
@@ -163,7 +146,7 @@ export const deleteAccount = async (password: string) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Token ${token}`,
+      ...getAuthHeader(),
     },
     body: JSON.stringify({ password }),
   });
@@ -172,13 +155,12 @@ export const deleteAccount = async (password: string) => {
     localStorage.removeItem('auth_token');
     return true;
   } else {
-    const data = await response.json();
-    throw new Error(data.error || 'Failed to delete account.');
+    return handleResponse<any>(response).then(() => false); // Ensure promise resolves with a boolean
   }
 };
 
 // Update API functions to use the single handleResponse
-export const updateUserProfile = async (data: UserProfileData): Promise<UserProfileData> => {
+export const updateUserProfile = async (data: Partial<UserProfileData>): Promise<UserProfileData> => {
   const response = await fetch(`${BASE_URL}/profile/`, {
     method: 'PUT',
     headers: {
@@ -214,7 +196,7 @@ export const removeProfilePicture = async (): Promise<ProfilePictureResponse> =>
   return handleResponse<ProfilePictureResponse>(response);
 };
 
-export const updatePreferences = async (preferences: PreferencesData): Promise<PreferencesData> => {
+export const updatePreferences = async (preferences: Partial<PreferencesData>): Promise<PreferencesData> => {
   const response = await fetch(`${BASE_URL}/profile/`, {
     method: 'PUT',
     headers: {

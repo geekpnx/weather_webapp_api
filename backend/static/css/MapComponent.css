@@ -1,0 +1,88 @@
+/* Map container styling */
+.map-container {
+    height: 350px;
+    width: 100%;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    background: #f8f9fa; /* Fallback background */
+  }
+
+  .layer-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.layer-toggle {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #343434;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.layer-toggle:hover {
+    background-color: #6e6e6e;
+}
+
+.layer-dropdown {
+  position: absolute; /* Add this */
+  top: 100%; /* Position below the toggle button */
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  overflow: hidden;
+  margin-top: 5px; /* Add spacing from toggle */
+}
+
+.layer-dropdown button {
+    padding: 8px 15px;
+    border: none;
+    background: none;
+    color: #343434;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.layer-dropdown button:hover {
+    background-color: #f0f0f0;
+}
+
+.layer-dropdown button.active {
+    background-color: #343434;
+    color: white;
+}
+
+  /* Ensure marker appears above all layers */
+  .leaflet-marker-icon {
+    z-index: 700 !important;
+  }
+  
+  /* Boundary polygon styling */
+  .leaflet-polygon {
+    z-index: 600 !important;
+    stroke: #2563eb !important; /* Boundary color */
+    fill-opacity: 0.1 !important;
+  }
+  
+  /* Weather layer positioning */
+  .leaflet-tile-pane .leaflet-layer:last-child {
+    z-index: 500 !important;
+  }
+  
+  /* Base map layer positioning */
+  .leaflet-tile-pane .leaflet-layer:first-child {
+    z-index: 400 !important;
+  }

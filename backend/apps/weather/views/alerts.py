@@ -9,20 +9,28 @@ from apps.weather.serializers.alerts import AlertSerializer
 from apps.user.models import UserProfile  # Import UserProfile
 
 class AlertsView(APIView):
-    """Fetches weather alerts based on the user's saved location (requires authentication)."""
+    """Fetches weather alerts based on the provided location or the user's saved location (requires authentication)."""
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        user = request.user
-        user_profile = UserProfile.objects.filter(user=user).first()
-        
-        if user_profile and user_profile.location:
-            city = user_profile.location
-        else:
-            return Response({'error': 'User location not set. Please update your profile.'}, status=status.HTTP_400_BAD_REQUEST)
+        # Try to get the location from the query parameters first
+        city = request.query_params.get('location')
+        if not city:
+            # If not provided, fall back to the user's profile
+            user = request.user
+            user_profile = UserProfile.objects.filter(user=user).first()
+            if user_profile and user_profile.location:
+                city = user_profile.location
+            else:
+                return Response(
+                    {'error': 'User location not set. Please update your profile.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
         api_key = os.getenv('WEATHER_API_KEY')
+        if not api_key:
+            return Response({'error': 'Weather API key not configured.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         url = 'http://api.weatherapi.com/v1/forecast.json'
         params = {
             'key': api_key,
@@ -33,12 +41,12 @@ class AlertsView(APIView):
         response = requests.get(url, params=params)
         if response.status_code == 200:
             alerts_data = response.json().get('alerts', {}).get('alert', [])
-            if not alerts_data:
-                return Response({'error': 'No alerts found for your location.'}, status=status.HTTP_404_NOT_FOUND)
-
             serialized_data = [
                 {
                     "headline": alert.get("headline"),
+                    "msgtype": alert.get("msgtype"),
+                    "urgency": alert.get("urgency"),
+                    "event": alert.get("event"),
                     "desc": alert.get("desc"),
                     "effective": alert.get("effective"),
                     "expires": alert.get("expires")
@@ -50,5 +58,6 @@ class AlertsView(APIView):
             if serializer.is_valid():
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+        if response.status_code == 404:
+            return Response({'error': 'No alerts found for your location!!!'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'error': 'Failed to fetch alerts'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

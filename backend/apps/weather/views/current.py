@@ -4,49 +4,80 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
 from apps.user.models import UserProfile
 
 class CurrentWeatherView(APIView):
-    """Fetches current weather for a user's saved location, searched location, or geolocation."""
+    """Fetches current weather with UV index for a location"""
     authentication_classes = [TokenAuthentication]
-    permission_classes = [AllowAny]  # Guests can access, but they can't save favorites
+    permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
-        # Check if a location name or geolocation is provided
-        location_name = request.query_params.get('location', None)
-        lat = request.query_params.get('lat', None)
-        lon = request.query_params.get('lon', None)
+        # Get location parameters
+        location_name = request.query_params.get('location')
+        lat = request.query_params.get('lat')
+        lon = request.query_params.get('lon')
+        api_key = os.getenv('OPENWEATHERMAP_API_KEY')
 
-        # If no location or geolocation provided, use the user's saved location
+        # Fallback to user's saved location if authenticated
         if not location_name and not (lat and lon) and request.user.is_authenticated:
             user_profile = UserProfile.objects.filter(user=request.user).first()
             if user_profile and user_profile.location:
                 location_name = user_profile.location
             else:
-                return Response({'error': 'No location provided and no saved location found.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {'error': 'No location provided and no saved location found.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        api_key = os.getenv('OPENWEATHERMAP_API_KEY')
-        url = None
+        # Get coordinates if location name is provided
+        if location_name and not (lat and lon):
+            try:
+                geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={location_name}&limit=1&appid={api_key}"
+                geo_response = requests.get(geo_url)
+                if geo_response.status_code == 200 and geo_response.json():
+                    geo_data = geo_response.json()[0]
+                    lat, lon = geo_data['lat'], geo_data['lon']
+            except Exception as e:
+                return Response(
+                    {'error': f'Error getting coordinates: {str(e)}'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
 
-        # Build the API URL based on the provided input
-        if location_name:
-            url = f"http://api.openweathermap.org/data/2.5/weather?q={location_name}&appid={api_key}&units=metric"
-        elif lat and lon:
-            url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
-        else:
-            return Response({'error': 'Please provide a location or geolocation.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not (lat and lon):
+            return Response(
+                {'error': 'Could not determine location coordinates.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
-            response = requests.get(url)
+            # Get current weather
+            weather_url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
+            weather_response = requests.get(weather_url)
+            
+            if weather_response.status_code != 200:
+                return Response(
+                    {'error': 'Failed to fetch weather data'},
+                    status=weather_response.status_code
+                )
 
-            # Handle invalid location response (e.g., "city not found")
-            if response.status_code == 404:
-                return Response({'error': f'Location "{location_name}" not found.'}, status=status.HTTP_404_NOT_FOUND)
-            elif response.status_code != 200:
-                return Response({'error': f'Failed to fetch weather data for {location_name or "geolocation"}.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            weather_data = weather_response.json()
 
-            return Response(response.json(), status=status.HTTP_200_OK)
+            # Get UV index
+            uv_url = f"http://api.openweathermap.org/data/2.5/uvi?lat={lat}&lon={lon}&appid={api_key}"
+            uv_response = requests.get(uv_url)
+            uv_data = uv_response.json() if uv_response.status_code == 200 else {'value': None}
+
+            # Combine responses
+            combined_data = {
+                **weather_data,
+                'uvi': uv_data.get('value')
+            }
+
+            return Response(combined_data, status=status.HTTP_200_OK)
 
         except requests.exceptions.RequestException as e:
-            return Response({'error': f'Error fetching weather data: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {'error': f'Error fetching weather data: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

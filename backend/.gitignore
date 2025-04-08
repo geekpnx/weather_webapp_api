@@ -4,6 +4,10 @@ samples.py
 json_format.py
 test.rest
 .env
+.env.prod
 .venv/
+
+# Testing files
+
 endpoint_testing.rest
-Test.py
+testing.py

@@ -1,54 +1,112 @@
 import React from 'react';
-import '../../../static/css/WeatherDisplay.css'; // Import CSS for WeatherDisplay
+import ForecastDisplay from './ForecastDisplay';
+import '../../../backend/static/css/WeatherDisplay.css';
 
 interface WeatherDisplayProps {
-  data: any; // This will hold the current weather or forecast data
+  data: any;
+  uvi?: number; 
+  current?: {
+    uvi?: number;
+  };
+  forecastData: any[];
 }
 
-const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ data }) => {
+const getUvIntensity = (uvi: number): string => {
+  if (uvi <= 2) return 'Low';
+  if (uvi <= 5) return 'Moderate';
+  if (uvi <= 7) return 'High';
+  if (uvi <= 10) return 'Very High';
+  return 'Extreme';
+};
+
+
+const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ data, forecastData }) => {
   const weather = data?.weather ? data.weather[0] : null;
   const main = data?.main;
-  const wind = data?.wind;
   const sys = data?.sys;
 
-  const formatTemperature = (temp: number) => `${temp.toFixed(1)}°C`;
+  // Add this function at the top of your component
+  const formatFullDate = (timestamp: number): string => {
+    const date = new Date(timestamp * 1000);
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${dayName}, ${day}-${month}-${year}`;
+  };
+
+  const formatTime = (timestamp: number): string => {
+    return new Date(timestamp * 1000).toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    });
+  };
+
+  const formatTemperature = (temp: number) => `${Math.round(temp)}°C`;
 
   return (
-    <div className="weather-display">
-      {weather ? (
-        <div className="weather-content">
-          <div className="weather-icon">
-            <img
-              src={`http://openweathermap.org/img/wn/${weather.icon}.png`}
-              alt={weather.description}
-              width={10}
-            />
-            <span><strong>{weather.description}</strong></span>
+    <div className="weather-card">
+      <div className="current-weather">
+        {/* Left Section */}
+        <div className="weather-main">
+          <h1 className="location">{data?.name?.toUpperCase()}</h1>
+          <div className="temperature-container">
+            <span className="temperature">{formatTemperature(main?.temp)}</span>
+            <div className="temp-range">
+              <span className="high">H: {formatTemperature(main?.temp_max)}</span>
+              <span className="low">L: {formatTemperature(main?.temp_min)}</span>
+            </div>
           </div>
-          {main && (
-            <div className="weather-details">
-              <p><strong>Temperature:</strong> {formatTemperature(main.temp)}</p>
-              <p><strong>Feels Like:</strong> {formatTemperature(main.feels_like)}</p>
-              <p><strong>Min Temp:</strong> {formatTemperature(main.temp_min)}</p>
-              <p><strong>Max Temp:</strong> {formatTemperature(main.temp_max)}</p>
-              <p><strong>Humidity:</strong> {main.humidity}%</p>
-            </div>
-          )}
-          {wind && (
-            <div className="weather-details">
-              <p><strong>Wind Speed:</strong> {wind.speed} m/s</p>
-            </div>
-          )}
-          {sys && (
-            <div className="weather-details">
-              <p><strong>Sunrise:</strong> {new Date(sys.sunrise * 1000).toLocaleTimeString()}</p>
-              <p><strong>Sunset:</strong> {new Date(sys.sunset * 1000).toLocaleTimeString()}</p>
-            </div>
-          )}
+          <span className="feels-like">
+            Feels like {formatTemperature(main?.feels_like)}
+          </span>
         </div>
-      ) : (
-        <div>No weather data available</div>
-      )}
+
+        {/* Right Section */}
+        {weather && (
+          <div className="weather-status">
+            <img
+              src={`http://openweathermap.org/img/wn/${weather.icon}@2x.png`}
+              alt={weather.description}
+              className="weather-icon"
+            />
+            <span className="weather-description">{weather.description}</span>
+            {data?.dt && (
+              <div className="datetime-info">
+                <span className="date">{formatFullDate(data.dt)}</span>
+                <span className="time">{formatTime(data.dt)}</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Additional Current Weather Info */}
+      <div className="additional-info">
+        <div className="info-item">
+          <span className="label">Humidity</span>
+          <span className="value">{main?.humidity}%</span>
+        </div>
+        <div className="info-item">
+          <span className="label">Wind Speed</span>
+          <span className="value">{data?.wind?.speed} m/s</span>
+        </div>
+        <div className="info-item">
+          <span className="label">UV Index</span>
+           {data?.uvi !== undefined ? `${data.uvi} (${getUvIntensity(data.uvi)})` : 'N/A'} 
+        </div>
+        <div className="info-item">
+          <span className="label">Sunrise</span>
+          <span className="value">{sys?.sunrise ? formatTime(sys.sunrise) : 'N/A'}</span>
+        </div>
+        <div className="info-item">
+          <span className="label">Sunset</span>
+          <span className="value">{sys?.sunset ? formatTime(sys.sunset) : 'N/A'}</span>
+        </div>
+      </div>
+
+      <ForecastDisplay data={forecastData} />
     </div>
   );
 };

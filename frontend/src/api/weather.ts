@@ -1,5 +1,6 @@
-import { ForecastItem } from '../types/types'; // Import the ForecastItem interface
-import { NewsArticle } from '../types/types'; // Import the NewsArticle interface
+
+import { FavoriteLocation, ForecastItem } from '../types/types'; // Import the ForecastItem interface
+import { NewsArticle, WeatherAlert } from '../types/types'; // Import the NewsArticle interface
 
 const BASE_URL = 'http://127.0.0.1:8000/api/v1/weather'; // Django backend URL
 
@@ -258,7 +259,14 @@ export const fetchRadarImage = async (
 };
 
 // Fetch user's favorite locations
-export const fetchFavoriteLocations = async () => {
+export const fetchFavoriteLocations = async (): Promise<{
+  favorites: Array<{
+    city_name: string;
+    country_code?: string;
+    latitude: number;
+    longitude: number;
+  }>
+}> => {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated. Please log in.');
 
@@ -276,35 +284,49 @@ export const fetchFavoriteLocations = async () => {
   }
 };
 
+
 // Add location to favorites
 export const addToFavorites = async (city_name: string, country_code: string, latitude: number, longitude: number) => {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated. Please log in.');
 
-  const response = await fetch(`${BASE_URL}/favorites/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Token ${token}`,
-    },
-    body: JSON.stringify({
-      city_name,
-      country_code,
-      latitude,
-      longitude,
-    }),
-  });
+  try {
+    const response = await fetch(`${BASE_URL}/favorites/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`,
+      },
+      body: JSON.stringify({
+        city_name,
+        country_code: country_code || '',
+        latitude,
+        longitude
+      }),
+    });
 
-  const data = await response.json();
-  if (response.status === 201) {
-    return data;
-  } else {
-    throw new Error(data.error || 'Failed to add location to favorites.');
+    // Handle HTML error responses
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Invalid server response');
+    }
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      throw new Error(responseData.error || 'Failed to add location to favorites');
+    }
+
+    return responseData;
+  } catch (error) {
+    console.error('Error in addToFavorites:', error);
+    throw error;
   }
 };
 
 // Remove location from favorites
-export const removeFromFavorites = async (city_name: string, country_code: string, latitude: number, longitude: number) => {
+export const removeFromFavorites = async (favorite: FavoriteLocation) => {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated. Please log in.');
 
@@ -315,17 +337,50 @@ export const removeFromFavorites = async (city_name: string, country_code: strin
       Authorization: `Token ${token}`,
     },
     body: JSON.stringify({
-      city_name,
-      country_code,
-      latitude,
-      longitude,
+      city_name: favorite.name,
+      country_code: favorite.country_code || '',
+      latitude: favorite.lat || 0,
+      longitude: favorite.lon || 0
     }),
   });
 
-  const data = await response.json();
-  if (response.status === 200) {
-    return data;
-  } else {
-    throw new Error(data.error || 'Failed to remove location from favorites.');
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to remove location from favorites.');
+  }
+
+  return await response.json();
+};
+
+export const fetchWeatherAlerts = async (authToken: string, location?: string): Promise<WeatherAlert[]> => {
+  try {
+    let url = `${BASE_URL}/alerts/`;
+    if (location) {
+      url += `?location=${location}`;
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Token ${authToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.json();
+      throw new Error(errorBody.error || 'Failed to fetch weather alerts');
+    }
+
+    const data = await response.json();
+
+    // The backend now returns a 404 if no alerts are found for a specific location.
+    // We can return an empty array in this case to simplify handling in the component.
+    if (response.status === 404 && data && data.error === 'No alerts found for your location!!!') {
+      return [];
+    }
+
+    return data as WeatherAlert[];
+  } catch (error: any) {
+    console.error('Error fetching weather alerts:', error);
+    throw error;
   }
 };

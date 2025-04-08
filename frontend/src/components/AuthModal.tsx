@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { loginUser, registerUser } from '../api/user';
 import { useAuth } from '../context/AuthContext';
-import '../../../static/css/AuthModal.css';
+import '../../../backend/static/css/AuthModal.css';
 
 interface AuthModalProps {
   isOpen: boolean;

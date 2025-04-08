@@ -11,12 +11,14 @@
   font-family: 'Abel';
   font-style: normal;
   font-weight: 400;
+  font-size: 14px;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   align-items: center; /* Center horizontally */
   justify-content: center; /* Center vertically */
   text-decoration: none;
+  
 }
 
 
@@ -32,16 +34,46 @@
   background-color: #f9f9f9;
 }
 
+/* Add these styles to HomePage.css */
+.top-messages {
+  position: relative;
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.fetching-message {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+/* Update existing error message style */
+.error-message {
+  color: rgb(197, 41, 41);
+  text-align: center;
+  margin: 20px 0;
+  width: 100%;
+}
+
 /* Content Container */
 .content-container {  
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Center horizontally */
-  gap: 20px; /* Add spacing between cards */
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* 2:1 ratio */
+  grid-template-rows: auto;
+  gap: 20px;
   width: 100%;
-  max-width: 1200px; /* Limit the maximum width of the content */
-  margin-top: 17px;
+  max-width: 1200px;
+  margin: 17px auto 40px;
+  align-items: start; /* Align all items at the top */
 }
+
 
 /* Card Styling */
 .card {
@@ -50,16 +82,42 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
   width: 100%;
-  max-width: 800px; /* Limit the maximum width of each card */
+  max-width: 850px;
+  min-height: 400px; /* Set minimum height for cards */
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto; /* Center cards within their containers */
 }
 
-/* Weather Current Card */
+/* Weather current card */
 .weather-current {
-  text-align: center;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* Adjust sidebar visibility */
+.sidebar-container {
+  flex: 1 1 35%;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: auto;
+}
+
+/* Centered layout when logged out */
+.weather-current.centered {
+  grid-column: 1 / -1; /* Span all columns */
+  justify-self: center;
+  width: 100%;
+  max-width: 800px; /* Fixed maximum width */
+  min-width: 300px; /* Minimum width */
+  margin: 0.5rem auto;
 }
 
 .weather-current h1 {
   color: black;
+  font-size: 60px;
 }
 
 /* Forecast Card */
@@ -69,6 +127,9 @@
 
 /* Weather News Card */
 .weather-news {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   color: #343434;
   text-align: center;
 }
@@ -94,12 +155,13 @@
 }
 
 .weather-news h3 {
-  font-size:1.5em;
+  font-size:1.3em;
   font-weight:bolder;
 }
 
 .weather-news p {
-  font-size:1em;
+  font-size:1.1em;
+  padding-top: 7px;
 }
 
 /* Maps Card */
@@ -107,6 +169,8 @@
   text-align: center;
   position: relative;
   z-index: 1;
+  height: 100%;
+  min-height: 350px;
 }
 
 .layer-buttons {
@@ -134,12 +198,83 @@
   border-radius: 10px;
 }
 
+
 /* Error Message */
 .error-message {
   color: rgb(197, 41, 41);
   text-align: center;
   margin-bottom: 20px;
 }
+
+
+
+/* Sidebar container */
+.sidebar-container {
+  flex: 1 1 35%;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center; /* Center sidebar items */
+}
+
+/* Adjust card widths in sidebar */
+.sidebar-container .card {
+  width: 100%;
+}
+
+/* News slideshow styles */
+.news-slideshow {
+  position: relative;
+  height: 368px; /* Fixed height for slideshow */
+  overflow: hidden;
+}
+
+.news-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.news-slide.active {
+  opacity: 1;
+}
+
+.slide-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 28px;
+}
+
+.slide-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #ccc;
+  margin: 0 5px;
+  cursor: pointer;
+}
+
+.slide-dot.active {
+  background-color: #343434;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .content-container {
+    flex-direction: column;
+  }
+  
+  .weather-current, 
+  .sidebar-container {
+    flex: 1 1 100%;
+  }
+}
+
 
 
 /* Footer Styling */

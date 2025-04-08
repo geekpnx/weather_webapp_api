@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { fetchCoordinates, fetchCurrentWeather, fetchForecast, fetchNews, fetchRadarImage } from '../api/weather';
 import WeatherDisplay from '../components/WeatherDisplay';
-import ForecastDisplay from '../components/ForecastDisplay';
 import NewsDisplay from '../components/NewsDisplay';
 import NavBar from '../components/NavBar';
-import '../../../static/css/HomePage.css';
+import '../../../backend/static/css/HomePage.css';
 import { ForecastItem } from '../types/types';
 import { NewsArticle } from '../types/types';
 import { useAuth } from '../context/AuthContext';
@@ -19,14 +18,14 @@ const HomePage = () => {
   const [lat, setLat] = useState<number | undefined>(undefined);
   const [lon, setLon] = useState<number | undefined>(undefined);
   const [zoom, setZoom] = useState<number>(10);
-  const [layer, setLayer] = useState<string>('map');
+  const [layer, setLayer] = useState<string>('temp_new');
   const [isFetchingLocation, setIsFetchingLocation] = useState<boolean>(false);
   const [forecast, setForecast] = useState<ForecastItem[]>([]);
   const [radarData, setRadarData] = useState<{ imageUrl: string; center: { lat: number; lon: number }; boundary: [number, number][] } | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
   const [favoriteLocations, setFavoriteLocations] = useState<string[]>(() => {
-  const saved = localStorage.getItem('favoriteLocations');
+    const saved = localStorage.getItem('favoriteLocations');
     return saved ? JSON.parse(saved) : [];
   });
 
@@ -61,50 +60,49 @@ const HomePage = () => {
     try {
       let current;
       let cityName = '';
-
+      let coordinates;
+  
       if (typeof location === 'string') {
-        setLocation(location);
-        current = await fetchCurrentWeather(location);
+        coordinates = await fetchCoordinates(location);
         cityName = location;
       } else {
-        current = await fetchCurrentWeather(undefined, location.lat, location.lon);
-        cityName = current.name || 'Your Location';
-        setLocation(cityName);
+        coordinates = location;
       }
-
+  
+      current = await fetchCurrentWeather(
+        typeof location === 'string' ? location : undefined,
+        coordinates.lat,
+        coordinates.lon
+      );
+      
+      cityName = current.name || (typeof location === 'string' ? location : 'Your Location');
+      setLocation(cityName);
+  
+      // Get already transformed forecast data
       const forecastData = await fetchForecast(
         typeof location === 'string' ? location : undefined,
-        typeof location === 'string' ? undefined : location.lat,
-        typeof location === 'string' ? undefined : location.lon
+        coordinates.lat,
+        coordinates.lon
       );
-
+  
       setCurrentWeather(current);
       setForecast(forecastData);
-
-      if (typeof location === 'string') {
-        const { lat, lon } = await fetchCoordinates(location);
-        setLat(lat);
-        setLon(lon);
-        setZoom(10);
-      } else {
-        setLat(location.lat);
-        setLon(location.lon);
-        setZoom(10);
-      }
-
+      setLat(coordinates.lat);
+      setLon(coordinates.lon);
+      setZoom(10);
+  
       if (isAuthenticated) {
         try {
           const newsData = await fetchNews(cityName);
           setNews(newsData.slice(0, 5));
         } catch (error) {
-          if (error instanceof Error && error.message.includes('News API request limit reached')) {
-            setError(error.message);
-          }
+          console.error('News fetch error:', error);
+          setError('Failed to fetch news. Please try again later.');
         }
       }
     } catch (error) {
       console.error('Search error:', error);
-      setError(`Location "${location}" not found.`);
+      setError(`Error fetching data for "${location}". Please try again.`);
       setCurrentWeather(null);
       setForecast([]);
       setNews([]);
@@ -113,56 +111,63 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      setIsFetchingLocation(true);
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
+    const getInitialLocation = async () => {
+      if (navigator.geolocation) {
+        setIsFetchingLocation(true);
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+          });
+          
           const { latitude, longitude } = position.coords;
-          handleSearch({ lat: latitude, lon: longitude });
-          setIsFetchingLocation(false);
-        },
-        (error) => {
+          await handleSearch({ lat: latitude, lon: longitude });
+        } catch (error) {
           console.error('Geolocation error:', error);
           setError('Unable to retrieve your location. Please enable location access or search manually.');
+        } finally {
           setIsFetchingLocation(false);
         }
-      );
-    } else {
-      setError('Geolocation is not supported by your browser. Please search manually.');
-    }
+      } else {
+        setError('Geolocation is not supported by your browser. Please search manually.');
+      }
+    };
+
+    getInitialLocation();
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated && lat !== undefined && lon !== undefined) {
-      fetchRadarImage(lat, lon, zoom, layer)
-        .then((data) => {
+    const loadRadarData = async () => {
+      if (isAuthenticated && lat !== undefined && lon !== undefined) {
+        try {
+          const data = await fetchRadarImage(lat, lon, zoom, layer);
           setRadarData(data);
           setError(null);
-        })
-        .catch((error) => {
+        } catch (error) {
           console.error('Radar fetch error:', error);
           setError('Failed to fetch radar image. Please try again later.');
           setRadarData(null);
-        });
-    } else {
-      setRadarData(null);
-    }
+        }
+      }
+    };
+
+    loadRadarData();
   }, [isAuthenticated, lat, lon, zoom, layer]);
 
   useEffect(() => {
-    if (isAuthenticated && lat !== undefined && lon !== undefined) {
-      fetchNews()
-        .then((newsData) => {
+    const loadNews = async () => {
+      if (isAuthenticated && location) {
+        try {
+          const newsData = await fetchNews(location);
           setNews(newsData.slice(0, 5));
-        })
-        .catch((error) => {
+        } catch (error) {
           console.error('News fetch error:', error);
           setError('Failed to fetch news. Please try again later.');
-        });
-    } else {
-      setNews([]);
-    }
-  }, [isAuthenticated, lat, lon]);
+        }
+      }
+    };
+
+    loadNews();
+  }, [isAuthenticated, location]);
 
   const handleLayerChange = (newLayer: string) => {
     setLayer(newLayer);
@@ -178,57 +183,49 @@ const HomePage = () => {
         onAddFavorite={isAuthenticated ? handleAddFavorite : undefined}
       />
 
-      <div className="content-container">
+      <div className="top-messages">
         {error && <div className="error-message">{error}</div>}
-        {isFetchingLocation && <p>Fetching your location...</p>}
-
+        {isFetchingLocation && <p className="fetching-message">Fetching your location...</p>}
+      </div>
+  
+      <div className="content-container">
         {currentWeather && (
-          <div className="card weather-current">
-            <h1>{location}</h1>
-            <WeatherDisplay data={currentWeather} />
+          <div className={`card weather-current ${!isAuthenticated ? 'centered' : ''}`}>
+            <WeatherDisplay data={currentWeather} forecastData={forecast} />
           </div>
         )}
-
-        {forecast.length > 0 && (
-          <div className="card forecast">
-            <ForecastDisplay data={forecast} />
-          </div>
-        )}
-
-        {news.length > 0 && (
-          <div className="card weather-news">
-            <NewsDisplay articles={news} />
-          </div>
-        )}
-
-        {isAuthenticated && radarData && (
-          <div className="card maps">
-            <div className="layer-buttons">
-              <button onClick={() => handleLayerChange('temp_new')}>Temperature</button>
-              <button onClick={() => handleLayerChange('wind_new')}>Wind</button>
-              <button onClick={() => handleLayerChange('clouds_new')}>Clouds</button>
-              <button onClick={() => handleLayerChange('precipitation_new')}>Precipitation</button>
-            </div>
-            {lat !== undefined && lon !== undefined && (
+  
+        <div className="sidebar-container">
+          {isAuthenticated && radarData && (
+            <div className="card maps">
+              {lat !== undefined && lon !== undefined && (
                 <MapComponent
                   lat={lat}
                   lon={lon}
                   zoom={zoom}
                   layer={layer}
                   apiKey={import.meta.env.VITE_OPENWEATHERMAP_API_KEY || ''}
-                  boundary={radarData.boundary}  
+                  boundary={radarData.boundary} 
+                  onLayerChange={handleLayerChange}  
                 />
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
+  
+          {isAuthenticated && news.length > 0 && (
+            <div className="card weather-news">
+              <NewsDisplay articles={news} />
+            </div>
+          )}
+        </div>
       </div>
-
+  
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         initialMode={authModalMode}
       />
-
+  
       <footer className="footer">
         <p>© 2024 Weather WebApp made with ♡</p>
       </footer>

@@ -1,50 +1,141 @@
-import React from 'react';
-import '../../../static/css/ForecastDisplay.css'; // Import CSS for ForecastDisplay
-import { ForecastItem } from '../types/types'; // Import the ForecastItem interface
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import '../../../backend/static/css/ForecastDisplay.css';
+import { ForecastItem } from '../types/types';
 
-// Define the props for the ForecastDisplay component
 interface ForecastDisplayProps {
-  data: ForecastItem[]; // Array of forecast data
+  data: ForecastItem[];
 }
+
 const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
-  const formatTemperature = (temp: number) => `${temp.toFixed(1)}°C`;
+  const [expandedDayIndex, setExpandedDayIndex] = useState<number | null>(null);
+  const expandedRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Initialize tab refs array
+  useEffect(() => {
+    tabRefs.current = tabRefs.current.slice(0, data.length);
+  }, [data]);
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  const formatTime = (datetime: string): string => {
+    return new Date(datetime).toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    });
+  };
+
+  const formatTemperature = (temp: number) => `${Math.round(temp)}°C`;
+
+  // Handle click outside to close expanded card
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (expandedRef.current && !expandedRef.current.contains(event.target as Node)) {
+        setExpandedDayIndex(null);
+      }
+    };
+
+    if (expandedDayIndex !== null) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [expandedDayIndex]);
+
+  // Calculate popup position based on active tab
+  const getPopupStyle = useCallback(() => {
+    if (expandedDayIndex !== null && tabRefs.current[expandedDayIndex]) {
+      const tab = tabRefs.current[expandedDayIndex];
+      if (tab) {
+        const tabRect = tab.getBoundingClientRect();
+        const containerRect = tab.parentElement?.getBoundingClientRect();
+        if (containerRect) {
+          const arrowPos = (tabRect.left + tabRect.width / 2) - containerRect.left;
+          return {
+            '--arrow-pos': `${arrowPos}px`
+          } as React.CSSProperties;
+        }
+      }
+    }
+    return {};
+  }, [expandedDayIndex]);
+
+  // Proper ref callback function
+  const setTabRef = useCallback((index: number) => (el: HTMLDivElement | null) => {
+    tabRefs.current[index] = el;
+  }, []);
 
   return (
-    <div className="forecast-display">
-      <h2>5-Day Forecast</h2>
-      {data.map((day, index) => (
-        <div key={index} className="forecast-day">
-          <h3>
-            {day.day_name}, {day.date} {/* Display day name and date */}
-          </h3>
-          <div className="day-info">
-            <p><strong>UV Index:</strong> {day.uv_index}</p>
-            {day.sunrise && <p><strong>Sunrise:</strong> {day.sunrise}</p>}
-            {day.sunset && <p><strong>Sunset:</strong> {day.sunset}</p>}
+    <div className="forecast-container">
+      <div className="forecast-tabs">
+        {data.map((day, index) => {
+          const maxTemp = Math.max(...day.forecasts.map(f => f.temp_max));
+          const minTemp = Math.min(...day.forecasts.map(f => f.temp_min));
+          const firstForecast = day.forecasts[0];
+          return (
+            <div
+              key={index}
+              ref={setTabRef(index)}
+              className={`forecast-tab ${index === expandedDayIndex ? 'active' : ''}`}
+              onClick={() => setExpandedDayIndex(index === expandedDayIndex ? null : index)}
+            >
+              <div className="tab-day">{day.day_name}</div>
+              <div className="tab-date">{formatDate(day.date)}</div>
+              <img
+                src={`http://openweathermap.org/img/wn/${firstForecast.weather_icon}.png`}
+                alt={firstForecast.weather_description}
+                width={40}
+                loading="lazy"
+              />
+              <div className="tab-temp">{formatTemperature(firstForecast.temperature)}</div>
+              <div className="tab-high-low">
+                <span>H: {formatTemperature(maxTemp)}</span>
+                <span>L: {formatTemperature(minTemp)}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {expandedDayIndex !== null && (
+        <div 
+          className="forecast-expanded" 
+          ref={expandedRef}
+          style={getPopupStyle()}
+        >
+          <div className="day-additional-info">
+            <p><strong>UV Index:</strong> {data[expandedDayIndex].uv_index}</p>
+            <p><strong>Sunrise:</strong> {data[expandedDayIndex].sunrise}</p>
+            <p><strong>Sunset:</strong> {data[expandedDayIndex].sunset}</p>
           </div>
-          <div className="forecast-items">
-            {day.forecasts.map((forecast, idx) => (
-              <div key={idx} className="forecast-item">
-                <p><strong>Time:</strong> {forecast.datetime.split(' ')[1]}</p>
-                <div className="weather-icon">
-                  <img
-                    src={`http://openweathermap.org/img/wn/${forecast.weather_icon}@2x.png`}
-                    alt={forecast.weather_description}
-                    width={50}
-                  />
-                  <span>{forecast.weather_description}</span>
+          <div className="hourly-forecasts">
+            {data[expandedDayIndex].forecasts.map((hourly, idx) => (
+              <div key={idx} className="hourly-item">
+                <p className="hourly-time">{formatTime(hourly.datetime)}</p>
+                <img
+                  src={`http://openweathermap.org/img/wn/${hourly.weather_icon}.png`}
+                  alt={hourly.weather_description}
+                  width={50}
+                />
+                <p>{formatTemperature(hourly.temperature)}</p>
+                <div className="hourly-details">
+                  <p>Feels Like: {formatTemperature(hourly.feels_like)}</p>
+                  <p>Humidity: {hourly.humidity}%</p>
+                  <p>Wind: {hourly.wind_speed} m/s</p>
                 </div>
-                <p><strong>Temperature:</strong> {formatTemperature(forecast.temperature)}</p>
-                <p><strong>Feels Like:</strong> {formatTemperature(forecast.feels_like)}</p>
-                <p><strong>Min Temperature:</strong> {formatTemperature(forecast.temp_min)}</p>
-                <p><strong>Max Temperature:</strong> {formatTemperature(forecast.temp_max)}</p>
-                <p><strong>Humidity:</strong> {forecast.humidity}%</p>
-                <p><strong>Wind Speed:</strong> {forecast.wind_speed} m/s</p>
               </div>
             ))}
           </div>
         </div>
-      ))}
+      )}
     </div>
   );
 };

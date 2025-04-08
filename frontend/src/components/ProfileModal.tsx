@@ -1,7 +1,7 @@
 // components/ProfileModal.tsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import '../../../static/css/ProfileModal.css';
+import '../../../backend/static/css/ProfileModal.css';
 import {
   fetchUserProfile,
   deleteAccount,

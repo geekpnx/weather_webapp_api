@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import { removeFromFavorites, fetchCurrentWeather, fetchCoordinates, fetchFavoriteLocations, addToFavorites} from '../api/weather';
 import { FavoriteLocation } from '../types/types';
 import AlertsDisplay from './AlertsDisplay';
+import { usePreferences } from '../context/PreferencesContext'; 
 
 
 interface NavBarProps {
@@ -34,6 +35,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const [modalInitialTab, setModalInitialTab] = useState<'profile' | 'settings'>('profile');
   const [modalKey, setModalKey] = useState(0);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState<boolean>(false);
+  const { temperatureUnit, toggleTemperatureUnit } = usePreferences();
 
 
   // Refs for click outside detection
@@ -272,6 +274,19 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
       </div>
 
       <div className="search-container">
+      <div className="temperature-toggle">
+                <span className="unit">°C</span>
+                <button
+                  type="button"
+                  className={`toggle-button ${temperatureUnit === 'F' ? 'active' : ''}`}
+                  onClick={toggleTemperatureUnit}
+                >
+                  <div className="toggle-switch">
+                    <div className="toggle-knob" />
+                  </div>
+                </button>
+                <span className="unit">°F</span>
+              </div>
         <div className="input-with-add">
           <input
             type="text"

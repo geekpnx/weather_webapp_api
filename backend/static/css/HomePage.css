@@ -62,6 +62,23 @@
   width: 100%;
 }
 
+.location-button {
+  padding: 8px 16px;
+  background: #dbdbdb;
+  color: rgb(84, 84, 84);
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  margin: 10px 0;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.location-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
 /* Content Container */
 .content-container {  
   display: grid;

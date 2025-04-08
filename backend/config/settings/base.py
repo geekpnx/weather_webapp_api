@@ -58,6 +58,14 @@ CORS_ALLOWED_ORIGINS = [
 
 ]
 
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",  # Ensure PATCH is included
+    "DELETE",
+    "OPTIONS",
+]
 
 
 CORS_EXPOSE_HEADERS = ['Content-Type', 'Content-Length', 'Content-Disposition']

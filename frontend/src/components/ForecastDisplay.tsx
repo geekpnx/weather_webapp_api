@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import '../../../backend/static/css/ForecastDisplay.css';
 import { ForecastItem } from '../types/types';
+import { usePreferences } from '../context/PreferencesContext';
 
 interface ForecastDisplayProps {
   data: ForecastItem[];
@@ -10,6 +11,8 @@ const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
   const [expandedDayIndex, setExpandedDayIndex] = useState<number | null>(null);
   const expandedRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const { temperatureUnit } = usePreferences();
+  const { convertTemp } = usePreferences(); 
 
   // Initialize tab refs array
   useEffect(() => {
@@ -32,7 +35,17 @@ const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
     });
   };
 
-  const formatTemperature = (temp: number) => `${Math.round(temp)}°C`;
+  const formatTemperature = (temp: number) => {
+    const convertedTemp = convertTemp(temp);
+    return `${Math.round(convertedTemp)}°`;
+  };
+
+  // Convert wind speed based on unit (m/s for metric, mph for imperial)
+  const formatWindSpeed = (speed: number) => {
+    return temperatureUnit === 'F' 
+      ? `${(speed * 2.237).toFixed(1)} mph` // Convert m/s to mph
+      : `${speed} m/s`;
+  };
 
   // Handle click outside to close expanded card
   useEffect(() => {
@@ -129,7 +142,7 @@ const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
                 <div className="hourly-details">
                   <p>Feels Like: {formatTemperature(hourly.feels_like)}</p>
                   <p>Humidity: {hourly.humidity}%</p>
-                  <p>Wind: {hourly.wind_speed} m/s</p>
+                  <p>Wind: {formatWindSpeed(hourly.wind_speed)}</p>
                 </div>
               </div>
             ))}

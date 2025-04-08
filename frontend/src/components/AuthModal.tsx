@@ -14,16 +14,24 @@ const AuthModal: React.FC<AuthModalProps> = ({
   onClose,
   initialMode = 'login',
 }) => {
-  const { login } = useAuth();
+  const { login, userProfile } = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [location, setLocation] = useState('');
-  const [preferredTemperatureUnit, setPreferredTemperatureUnit] = useState('C');
+  const [preferredTemperatureUnit, setPreferredTemperatureUnit] = useState<'C'|'F'>(
+    userProfile?.preferred_temperature_unit || 'C'
+  );
+  
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  useEffect(() => {
+    if (userProfile?.preferred_temperature_unit) {
+      setPreferredTemperatureUnit(userProfile.preferred_temperature_unit);
+    }
+  }, [userProfile?.preferred_temperature_unit]);
 
   // Clear messages after timeout
   useEffect(() => {
@@ -172,14 +180,20 @@ const AuthModal: React.FC<AuthModalProps> = ({
                 />
               </div>
               <div className="form-group">
-                <label>Preferred Unit</label>
-                <select
-                  value={preferredTemperatureUnit}
-                  onChange={(e) => setPreferredTemperatureUnit(e.target.value)}
-                >
-                  <option value="C">Celsius</option>
-                  <option value="F">Fahrenheit</option>
-                </select>
+              <label>Preferred Unit</label>
+                <div className="temperature-toggle">
+                  <span className="unit">°C</span>
+                  <button
+                    type="button"
+                    className={`toggle-button ${preferredTemperatureUnit === 'F' ? 'active' : ''}`}
+                    onClick={() => setPreferredTemperatureUnit(prev => prev === 'C' ? 'F' : 'C')}
+                  >
+                    <div className="toggle-switch">
+                      <div className="toggle-knob" />
+                    </div>
+                  </button>
+                  <span className="unit">°F</span>
+                </div>
               </div>
             </>
           )}

@@ -17,7 +17,11 @@ class CurrentWeatherView(APIView):
         location_name = request.query_params.get('location')
         lat = request.query_params.get('lat')
         lon = request.query_params.get('lon')
+        unit = request.query_params.get('unit', 'metric')
         api_key = os.getenv('OPENWEATHERMAP_API_KEY')
+
+        if unit not in ['metric', 'imperial']:
+            unit = 'metric'
 
         # Fallback to user's saved location if authenticated
         if not location_name and not (lat and lon) and request.user.is_authenticated:
@@ -52,7 +56,7 @@ class CurrentWeatherView(APIView):
 
         try:
             # Get current weather
-            weather_url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
+            weather_url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units={unit}"
             weather_response = requests.get(weather_url)
             
             if weather_response.status_code != 200:
@@ -71,7 +75,8 @@ class CurrentWeatherView(APIView):
             # Combine responses
             combined_data = {
                 **weather_data,
-                'uvi': uv_data.get('value')
+                'uvi': uv_data.get('value'),
+                'unit': unit 
             }
 
             return Response(combined_data, status=status.HTTP_200_OK)
@@ -81,3 +86,5 @@ class CurrentWeatherView(APIView):
                 {'error': f'Error fetching weather data: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+        
+        

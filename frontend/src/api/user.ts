@@ -207,3 +207,53 @@ export const updatePreferences = async (preferences: Partial<PreferencesData>): 
   });
   return handleResponse<PreferencesData>(response);
 };
+
+
+export const updateTemperatureUnit = async (unit: 'C' | 'F'): Promise<PreferencesData> => {
+  const response = await fetch(`${BASE_URL}/profile/`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeader(),
+    },
+    body: JSON.stringify({ preferred_temperature_unit: unit }),
+  });
+  return handleResponse<PreferencesData>(response);
+};
+
+
+export const updateUserPreferences = async (preferences: { preferred_temperature_unit: 'C' | 'F' }) => {
+  const token = getAuthToken();
+  if (!token) throw new Error('User is not authenticated');
+
+  // Try PUT if PATCH fails
+  let method = 'PATCH';
+  let response = await fetch(`${BASE_URL}/profile/`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Token ${token}`,
+    },
+    body: JSON.stringify(preferences),
+  });
+
+  // If PATCH fails, try PUT
+  if (response.status === 405) {
+    method = 'PUT';
+    response = await fetch(`${BASE_URL}/profile/`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`,
+      },
+      body: JSON.stringify(preferences),
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to update preferences');
+  }
+
+  return await response.json();
+};

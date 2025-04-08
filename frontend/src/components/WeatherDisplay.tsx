@@ -1,6 +1,9 @@
 import React from 'react';
 import ForecastDisplay from './ForecastDisplay';
 import '../../../backend/static/css/WeatherDisplay.css';
+import { usePreferences } from '../context/PreferencesContext';
+
+
 
 interface WeatherDisplayProps {
   data: any;
@@ -11,6 +14,8 @@ interface WeatherDisplayProps {
   forecastData: any[];
 }
 
+
+
 const getUvIntensity = (uvi: number): string => {
   if (uvi <= 2) return 'Low';
   if (uvi <= 5) return 'Moderate';
@@ -19,13 +24,13 @@ const getUvIntensity = (uvi: number): string => {
   return 'Extreme';
 };
 
-
 const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ data, forecastData }) => {
+  const { convertTemp } = usePreferences(); 
+  const { temperatureUnit } = usePreferences();
   const weather = data?.weather ? data.weather[0] : null;
   const main = data?.main;
   const sys = data?.sys;
 
-  // Add this function at the top of your component
   const formatFullDate = (timestamp: number): string => {
     const date = new Date(timestamp * 1000);
     const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
@@ -43,7 +48,17 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ data, forecastData }) =
     });
   };
 
-  const formatTemperature = (temp: number) => `${Math.round(temp)}°C`;
+  const formatTemperature = (temp: number) => {
+    const convertedTemp = convertTemp(temp);
+    return `${Math.round(convertedTemp)}°`;
+  };
+
+  // Convert wind speed based on unit (m/s for metric, mph for imperial)
+  const formatWindSpeed = (speed: number) => {
+    return temperatureUnit === 'F' 
+      ? `${(speed * 2.237).toFixed(1)} mph` 
+      : `${speed.toFixed(1)} m/s`;
+  };
 
   return (
     <div className="weather-card">
@@ -90,11 +105,11 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ data, forecastData }) =
         </div>
         <div className="info-item">
           <span className="label">Wind Speed</span>
-          <span className="value">{data?.wind?.speed} m/s</span>
+          <span className="value">{formatWindSpeed(data?.wind?.speed)}</span>
         </div>
         <div className="info-item">
           <span className="label">UV Index</span>
-           {data?.uvi !== undefined ? `${data.uvi} (${getUvIntensity(data.uvi)})` : 'N/A'} 
+          {data?.uvi !== undefined ? `${data.uvi} (${getUvIntensity(data.uvi)})` : 'N/A'} 
         </div>
         <div className="info-item">
           <span className="label">Sunrise</span>

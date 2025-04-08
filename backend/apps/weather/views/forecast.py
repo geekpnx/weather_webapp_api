@@ -17,6 +17,11 @@ class ForecastListView(APIView):
         location_name = request.query_params.get('location', None)
         lat = request.query_params.get('lat', None)
         lon = request.query_params.get('lon', None)
+        unit = request.query_params.get('unit', 'metric')
+        api_key = os.getenv('OPENWEATHERMAP_API_KEY')
+
+        if unit not in ['metric', 'imperial']:
+            unit = 'metric'
 
         # If no location or geolocation is provided, use the user's saved location
         if not location_name and not (lat and lon) and request.user.is_authenticated:
@@ -29,52 +34,60 @@ class ForecastListView(APIView):
         if not location_name and not (lat and lon):
             return Response({'error': 'Please provide a location or geolocation coordinates.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        api_key = os.getenv('OPENWEATHERMAP_API_KEY')
+        
         url = None
 
         # Build the API URL based on the provided input
-        if location_name:
-            url = f'http://api.openweathermap.org/data/2.5/forecast?q={location_name}&appid={api_key}&units=metric'
-        elif lat and lon:
-            url = f'http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={api_key}&units=metric'
-        else:
-            return Response({'error': 'Invalid input. Please provide a location or geolocation coordinates.'}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
+            # Build the API URL with the specified unit
+            if location_name:
+                url = f'http://api.openweathermap.org/data/2.5/forecast?q={location_name}&appid={api_key}&units={unit}'
+            elif lat and lon:
+                url = f'http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={api_key}&units={unit}'
+            else:
+                return Response(
+                    {'error': 'Invalid input. Please provide a location or geolocation coordinates.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             response = requests.get(url)
-
-            # Handle invalid location response (e.g., "city not found")
+            
             if response.status_code == 404:
-                return Response({'error': f'Location "{location_name}" not found.'}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {'error': f'Location "{location_name}" not found.'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
             elif response.status_code != 200:
-                return Response({'error': f'Failed to fetch forecast for {location_name or "geolocation"}.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(
+                    {'error': f'Failed to fetch forecast for {location_name or "geolocation"}.'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
 
-            # Parse the OpenWeather API response
             data = response.json()
             forecast_data = []
-
-            # Get today's date for comparison
             today = datetime.now().date()
 
-            # Extract relevant data from the response
             for entry in data['list']:
-                # Parse the datetime string from the API
                 entry_datetime = datetime.strptime(entry['dt_txt'], '%Y-%m-%d %H:%M:%S')
                 entry_date = entry_datetime.date()
 
-                # Determine the day name
                 if entry_date == today:
                     day_name = "Today"
                 else:
-                    day_name = entry_datetime.strftime('%A')  # Full day name (e.g., "Tuesday")
+                    day_name = entry_datetime.strftime('%A')
 
                 forecast_data.append({
                     'day_name': day_name,
                     'datetime': entry['dt_txt'],
                     'temperature': entry['main']['temp'],
+                    'feels_like': entry['main']['feels_like'],
+                    'temp_min': entry['main']['temp_min'],
+                    'temp_max': entry['main']['temp_max'],
                     'weather_description': entry['weather'][0]['description'],
+                    'weather_icon': entry['weather'][0]['icon'],
                     'humidity': entry['main']['humidity'],
                     'wind_speed': entry['wind']['speed'],
+                    'unit': unit  # Include the unit in the response
                 })
 
             return Response(forecast_data, status=status.HTTP_200_OK)

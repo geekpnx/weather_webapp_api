@@ -83,12 +83,14 @@ class LogoutView(APIView):
         request.user.auth_token.delete()  # Delete the user's token
         return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
 
-
 class UserProfileView(APIView):
     """Handle profile updates and retrieval"""
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+    
+    # Explicitly allow PATCH (optional but good practice)
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
 
     def get_profile(self):
         return get_object_or_404(UserProfile, user=self.request.user)
@@ -99,6 +101,14 @@ class UserProfileView(APIView):
         return Response(serializer.data)
 
     def put(self, request):
+        return self.update_profile(request)
+    
+    # Add this method to handle PATCH requests
+    def patch(self, request):
+        return self.update_profile(request)
+    
+    # Refactored common update logic
+    def update_profile(self, request):
         profile = self.get_profile()
         data = request.data.copy()
         
@@ -163,7 +173,6 @@ class UserProfileView(APIView):
             'profile': profile_serializer.data
         }, status=status.HTTP_200_OK)
     
-
 class DeleteAccountView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]

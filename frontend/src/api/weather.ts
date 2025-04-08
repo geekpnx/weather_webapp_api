@@ -13,7 +13,6 @@ const getAuthToken = (): string | null => {
 export const fetchCoordinates = async (location: string): Promise<{ lat: number; lon: number }> => {
   try {
     const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY; // For Vite
-    // const api_key = process.env.REACT_APP_OPENWEATHERMAP_API_KEY; // For Create React App
     if (!api_key) {
       throw new Error('OpenWeatherMap API key is not configured.');
     }
@@ -44,13 +43,13 @@ export const fetchCoordinates = async (location: string): Promise<{ lat: number;
 };
 
 // Fetch current weather by location name or geolocation
-export const fetchCurrentWeather = async (location?: string, lat?: number, lon?: number) => {
+export const fetchCurrentWeather = async (location?: string, lat?: number, lon?: number, unit: 'metric' | 'imperial' = 'metric') => {
   try {
     let url = `${BASE_URL}/current/`;
     if (location) {
-      url += `?location=${location}`;
+      url += `?location=${location}&unit=${unit}`;
     } else if (lat !== undefined && lon !== undefined) {
-      url += `?lat=${lat}&lon=${lon}`;
+      url += `?lat=${lat}&lon=${lon}&unit=${unit}`;
     } else {
       throw new Error('Please provide a location or geolocation coordinates.');
     }
@@ -76,7 +75,6 @@ export const fetchCurrentWeather = async (location?: string, lat?: number, lon?:
 const fetchUVIndex = async (lat: number, lon: number): Promise<number> => {
   try {
     const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY; // For Vite
-    // const api_key = process.env.REACT_APP_OPENWEATHERMAP_API_KEY; // For Create React App
     if (!api_key) {
       throw new Error('OpenWeatherMap API key is not configured.');
     }
@@ -105,7 +103,6 @@ const fetchUVIndex = async (lat: number, lon: number): Promise<number> => {
 export const fetchForecast = async (location?: string, lat?: number, lon?: number): Promise<ForecastItem[]> => {
   try {
     const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY; // For Vite
-    // const api_key = process.env.REACT_APP_OPENWEATHERMAP_API_KEY; // For Create React App
     if (!api_key) {
       throw new Error('OpenWeatherMap API key is not configured.');
     }

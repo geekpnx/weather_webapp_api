@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../../backend/static/css/NavBar.css';
-import logo from '../../../backend/static/images/logo/logo_WA.svg';
-import searchIcon from '../../../backend/static/images/icons/search-icon.svg';
-import profileIcon from '../../../backend/static/images/propic/user_propic.svg';
-import favoriteIcon from '../../../backend/static/images/icons/favorite-icon.svg';
-import trashIcon from '../../../backend/static/images/icons/trash-icon.svg';
-import addIcon from '../../../backend/static/images/icons/add-icon.svg';
+import '../assets/css/NavBar.css';
+import logo from '../assets/images/logo/logo_WA.svg';
+import searchIcon from '../assets/images/icons/search-icon.svg';
+import defaultProPic from '../assets/images/propic/user_propic.svg';
+import favoriteIcon from '../assets/images/icons/favorite-icon.svg';
+import trashIcon from '../assets/images/icons/trash-icon.svg';
+import addIcon from '../assets/images/icons/add-icon.svg';
 import ProfileModal from './ProfileModal';
 import { useAuth } from '../context/AuthContext';
 import { removeFromFavorites, fetchCurrentWeather, fetchCoordinates, fetchFavoriteLocations, addToFavorites} from '../api/weather';
@@ -403,7 +403,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
               src={
                 isAuthenticated && userProfile?.profile_picture
                   ? `${userProfile.profile_picture}?ts=${Date.now()}`
-                  : profileIcon
+                  : defaultProPic
               }
               alt="Profile"
               className={`profile-icon ${isAuthenticated ? 'authenticated' : ''}`}

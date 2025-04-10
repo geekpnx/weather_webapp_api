@@ -3,7 +3,7 @@ import { fetchCoordinates, fetchCurrentWeather, fetchForecast, fetchNews, fetchR
 import WeatherDisplay from '../components/WeatherDisplay';
 import NewsDisplay from '../components/NewsDisplay';
 import NavBar from '../components/NavBar';
-import '../../../backend/static/css/HomePage.css';
+import '../assets/css/HomePage.css';
 import { ForecastItem } from '../types/types';
 import { NewsArticle } from '../types/types';
 import { useAuth } from '../context/AuthContext';

@@ -1,0 +1,89 @@
+.news-container {
+position: relative;
+width: 100%;
+height: 100%;
+padding: 0px;  /* Reduce vertical padding */
+}
+
+.news-container h2 {
+margin-top: 0;
+padding-top: 10px;
+margin-bottom: 20px;
+}
+
+
+.news-slideshow {
+  display: flex;
+  width: 100%;
+  transition: transform 0.5s ease-in-out;
+}
+
+.news-slide {
+  min-width: 100%;
+  flex-shrink: 0;
+}
+
+.slide-dot {
+  /* Your existing dot styles */
+  cursor: pointer;
+}
+
+.slide-dot.active {
+  background: #333; /* Active dot color */
+}
+
+.news-content-wrapper {
+display: flex;
+flex-direction: column;
+align-items: center;
+height: calc(100% - 40px); /* Account for heading height */
+padding: 10px;
+}
+
+.news-image-container {
+width: 100%;
+max-height: 200px;
+overflow: hidden;
+margin-bottom: 15px;
+}
+
+.news-image {
+width: 100%;
+height: auto;
+object-fit: cover;
+display: block;
+margin: 0 auto;
+}
+
+.news-text-container {
+text-align: left;
+width: 100%;
+padding: 10px 10px;
+}
+
+.news-title {
+font-size: 1.2rem;
+margin-bottom: 10px;
+color: #333;
+}
+
+.news-content {
+    font-size: 0.95rem;
+    line-height: 1.2;
+    margin-bottom: 5px;
+    color: #666;
+    
+    /* Add these lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Number of lines to show */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 2.8em; /* line-height * number of lines */
+  }
+
+.news-published {
+font-size: 0.85rem;
+color: #999;
+padding-top: 10px;
+}

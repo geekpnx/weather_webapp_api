@@ -1,7 +1,7 @@
 // components/ProfileModal.tsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import '../../../backend/static/css/ProfileModal.css';
+import '../assets/css/ProfileModal.css';
 import {
   fetchUserProfile,
   deleteAccount,
@@ -10,8 +10,7 @@ import {
   removeProfilePicture,
   updatePreferences,
 } from '../api/user';
-
-
+import defaultProPic from '../assets/images/propic/user_propic.svg';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -27,7 +26,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
   const [success, setSuccess] = useState<string>('');
   const [password, setPassword] = useState('');
   const isDefaultImage = () => {
-  const defaultImageUrl = 'http://127.0.0.1:8000/static/images/propic/user_propic.svg';
+  const defaultImageUrl = defaultProPic;
     return !userData?.profile_picture || userData.profile_picture === defaultImageUrl;
   };
 
@@ -196,7 +195,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
               alt="Profile"
               className="profile-picture"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = 'http://127.0.0.1:8000/static/images/propic/user_propic.svg';
+                (e.target as HTMLImageElement).src = defaultProPic;
               }}
               key={userData?.profile_picture ? `${userData.profile_picture}?ts=${Date.now()}` : 'default'}
             />

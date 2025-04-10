@@ -27,7 +27,7 @@ DATABASES = {
         "USER": os.environ.get('DB_USER'),
         "PASSWORD": os.environ.get('DB_PWD'),
         "PORT": os.environ.get('DB_PORT'),
-        "HOST": os.environ.get('DB_HOST', 'db'),  # 'db' is your Docker service name
+        "HOST": os.environ.get('DB_HOST'),  
     }
 }
 

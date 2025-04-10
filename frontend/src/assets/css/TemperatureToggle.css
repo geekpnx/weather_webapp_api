@@ -1,0 +1,52 @@
+.temperature-toggle {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 20px;
+    background-color: #f0f0f0;
+    transition: all 0.3s ease;
+  }
+  
+  .temperature-toggle:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .unit {
+    padding: 0 8px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #999;
+    transition: color 0.3s ease;
+  }
+  
+  .unit.active {
+    color: #303030;
+  }
+  
+  .toggle-switch {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    background-color: #ccc;
+    border-radius: 10px;
+    margin: 0 5px;
+  }
+  
+  .slider {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background-color: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+  
+  .slider.fahrenheit {
+    transform: translateX(20px);
+  }

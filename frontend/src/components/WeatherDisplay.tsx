@@ -1,6 +1,6 @@
 import React from 'react';
 import ForecastDisplay from './ForecastDisplay';
-import '../../../backend/static/css/WeatherDisplay.css';
+import '../assets/css/WeatherDisplay.css';
 import { usePreferences } from '../context/PreferencesContext';
 
 

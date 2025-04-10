@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NewsDisplayProps } from '../types/types';
-import '../../../backend/static/css/NewsDisplay.css';
+import '../assets/css/NewsDisplay.css';
 
 const NewsDisplay: React.FC<NewsDisplayProps> = ({ articles }) => {
   const [currentSlide, setCurrentSlide] = useState(0);

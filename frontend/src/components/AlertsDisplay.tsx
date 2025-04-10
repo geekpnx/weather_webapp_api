@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import '../../../backend/static/css/AlertsDisplay.css';
-import warningIcon from '../../../backend/static/images/icons/warning-icon.svg';
+import '../assets/css/AlertsDisplay.css';
+import warningIcon from '../assets/images/icons/warning-icon.svg';
 import { useAuth } from '../context/AuthContext';
 import { fetchWeatherAlerts } from '../api/weather';
 import { WeatherAlert } from '../types/types';

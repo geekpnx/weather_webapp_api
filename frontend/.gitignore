@@ -29,3 +29,4 @@ dist-ssr
 # Testing file
 
 testing.tsx
+.DS_Store 

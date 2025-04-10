@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PWD}
+    networks:
+      - weather_net
+    ports:
+      - "5433:5432"
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PWD: ${DB_PWD}
+      DB_HOST: db
+      DB_PORT: ${DB_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      WEATHER_API_KEY: ${WEATHER_API_KEY}
+      OPENWEATHERMAP_API_KEY: ${OPENWEATHERMAP_API_KEY}
+      NEWS_API_KEY: ${NEWS_API_KEY}
+    depends_on:
+      - db
+    networks:
+      - weather_net
+    ports:
+      - "8022:8000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    environment:
+      VITE_OPENWEATHERMAP_API_KEY: ${VITE_OPENWEATHERMAP_API_KEY}
+    networks:
+      - weather_net
+    ports:
+      - "85:80"
+
+networks:
+  weather_net:
+    driver: bridge

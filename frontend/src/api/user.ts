@@ -1,6 +1,6 @@
 import { UserProfileData, PreferencesData, ProfilePictureResponse } from '../types/types';
 
-const BASE_URL = 'http://127.0.0.1:8000/api/v1/user'; // Base URL for user-related endpoints
+const USER_BASE_URL = import.meta.env.VITE_USER_API_BASE_URL;
 
 
 // Add proper error handling interface
@@ -43,7 +43,7 @@ const getAuthHeader = (): { Authorization: string } => {
 
 
 export const addFavoriteLocation = async (location: string): Promise<UserProfileData> => {
-  const response = await fetch(`${BASE_URL}/favorites/`, {
+  const response = await fetch(`${USER_BASE_URL}/favorites/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ export const addFavoriteLocation = async (location: string): Promise<UserProfile
 };
 
 export const removeFavoriteLocation = async (location: string): Promise<UserProfileData> => {
-  const response = await fetch(`${BASE_URL}/favorites/`, {
+  const response = await fetch(`${USER_BASE_URL}/favorites/`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export const removeFavoriteLocation = async (location: string): Promise<UserProf
 
 // Login user
 export const loginUser = async (username: string, password: string) => {
-  const response = await fetch(`${BASE_URL}/login/`, {
+  const response = await fetch(`${USER_BASE_URL}/login/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ export const registerUser = async (
   location: string,
   preferredTemperatureUnit: string
 ) => {
-  const response = await fetch(`${BASE_URL}/register/`, {
+  const response = await fetch(`${USER_BASE_URL}/register/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -113,7 +113,7 @@ export const fetchUserProfile = async (): Promise<UserProfileData> => {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated. Please log in.');
 
-  const response = await fetch(`${BASE_URL}/profile/`, {
+  const response = await fetch(`${USER_BASE_URL}/profile/`, {
     headers: getAuthHeader(),
   });
 
@@ -125,7 +125,7 @@ export const logoutUser = async () => {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated. Please log in.');
 
-  const response = await fetch(`${BASE_URL}/logout/`, {
+  const response = await fetch(`${USER_BASE_URL}/logout/`, {
     method: 'POST',
     headers: getAuthHeader(),
   });
@@ -142,7 +142,7 @@ export const deleteAccount = async (password: string): Promise<boolean> => {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated. Please log in.');
 
-  const response = await fetch(`${BASE_URL}/profile/delete/`, {
+  const response = await fetch(`${USER_BASE_URL}/profile/delete/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -161,7 +161,7 @@ export const deleteAccount = async (password: string): Promise<boolean> => {
 
 // Update API functions to use the single handleResponse
 export const updateUserProfile = async (data: Partial<UserProfileData>): Promise<UserProfileData> => {
-  const response = await fetch(`${BASE_URL}/profile/`, {
+  const response = await fetch(`${USER_BASE_URL}/profile/`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -176,7 +176,7 @@ export const uploadProfilePicture = async (file: File): Promise<UserProfileData>
   const formData = new FormData();
   formData.append('profile_picture', file);
 
-  const response = await fetch(`${BASE_URL}/profile/`, {
+  const response = await fetch(`${USER_BASE_URL}/profile/`, {
     method: 'PUT',
     headers: getAuthHeader(),
     body: formData,
@@ -185,7 +185,7 @@ export const uploadProfilePicture = async (file: File): Promise<UserProfileData>
 };
 
 export const removeProfilePicture = async (): Promise<ProfilePictureResponse> => {
-  const response = await fetch(`${BASE_URL}/profile/`, {
+  const response = await fetch(`${USER_BASE_URL}/profile/`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -197,7 +197,7 @@ export const removeProfilePicture = async (): Promise<ProfilePictureResponse> =>
 };
 
 export const updatePreferences = async (preferences: Partial<PreferencesData>): Promise<PreferencesData> => {
-  const response = await fetch(`${BASE_URL}/profile/`, {
+  const response = await fetch(`${USER_BASE_URL}/profile/`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -210,7 +210,7 @@ export const updatePreferences = async (preferences: Partial<PreferencesData>): 
 
 
 export const updateTemperatureUnit = async (unit: 'C' | 'F'): Promise<PreferencesData> => {
-  const response = await fetch(`${BASE_URL}/profile/`, {
+  const response = await fetch(`${USER_BASE_URL}/profile/`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -228,7 +228,7 @@ export const updateUserPreferences = async (preferences: { preferred_temperature
 
   // Try PUT if PATCH fails
   let method = 'PATCH';
-  let response = await fetch(`${BASE_URL}/profile/`, {
+  let response = await fetch(`${USER_BASE_URL}/profile/`, {
     method,
     headers: {
       'Content-Type': 'application/json',
@@ -240,7 +240,7 @@ export const updateUserPreferences = async (preferences: { preferred_temperature
   // If PATCH fails, try PUT
   if (response.status === 405) {
     method = 'PUT';
-    response = await fetch(`${BASE_URL}/profile/`, {
+    response = await fetch(`${USER_BASE_URL}/profile/`, {
       method,
       headers: {
         'Content-Type': 'application/json',

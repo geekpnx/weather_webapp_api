@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MapComponentProps } from '../types/types';
-import '../../../backend/static/css/MapComponent.css'
-import pinIcon from '../../../backend/static/images/pin/pin-icon.svg'
+import '../assets/css/MapComponent.css'
+import pinIcon from '../assets/images/pin/pin-icon.svg'
 
 
 const defaultIcon = L.icon({

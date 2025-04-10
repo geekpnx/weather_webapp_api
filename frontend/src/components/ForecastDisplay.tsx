@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import '../../../backend/static/css/ForecastDisplay.css';
+import '../assets/css/ForecastDisplay.css';
 import { ForecastItem } from '../types/types';
 import { usePreferences } from '../context/PreferencesContext';
 

@@ -2,7 +2,7 @@
 import { FavoriteLocation, ForecastItem } from '../types/types'; // Import the ForecastItem interface
 import { NewsArticle, WeatherAlert } from '../types/types'; // Import the NewsArticle interface
 
-const BASE_URL = 'http://127.0.0.1:8000/api/v1/weather'; // Django backend URL
+const WEATHER_BASE_URL = import.meta.env.VITE_WEATHER_API_BASE_URL;
 
 // Helper function to get the authentication token
 const getAuthToken = (): string | null => {
@@ -45,7 +45,7 @@ export const fetchCoordinates = async (location: string): Promise<{ lat: number;
 // Fetch current weather by location name or geolocation
 export const fetchCurrentWeather = async (location?: string, lat?: number, lon?: number, unit: 'metric' | 'imperial' = 'metric') => {
   try {
-    let url = `${BASE_URL}/current/`;
+    let url = `${WEATHER_BASE_URL}/current/`;
     if (location) {
       url += `?location=${location}&unit=${unit}`;
     } else if (lat !== undefined && lon !== undefined) {
@@ -189,7 +189,7 @@ export const fetchNews = async (location?: string): Promise<NewsArticle[]> => {
     const token = getAuthToken();
     if (!token) throw new Error("User is not authenticated. Please log in.");
 
-    const url = `${BASE_URL}/news/${location ? `?location=${location}` : ''}`;
+    const url = `${WEATHER_BASE_URL}/news/${location ? `?location=${location}` : ''}`;
     const response = await fetch(url, {
       headers: { 'Authorization': `Token ${token}`, 'Content-Type': 'application/json' },
     });
@@ -232,7 +232,7 @@ export const fetchRadarImage = async (
     const token = getAuthToken();
     if (!token) throw new Error("User is not authenticated. Please log in.");
 
-    const url = `${BASE_URL}/radar/?lat=${lat}&lon=${lon}&zoom=${zoom}&layer=${layer}`;
+    const url = `${WEATHER_BASE_URL}/radar/?lat=${lat}&lon=${lon}&zoom=${zoom}&layer=${layer}`;
 
     const response = await fetch(url, {
       headers: { 'Authorization': `Token ${token}` },
@@ -267,7 +267,7 @@ export const fetchFavoriteLocations = async (): Promise<{
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated. Please log in.');
 
-  const response = await fetch(`${BASE_URL}/favorites/`, {
+  const response = await fetch(`${WEATHER_BASE_URL}/favorites/`, {
     headers: {
       Authorization: `Token ${token}`,
     },
@@ -288,7 +288,7 @@ export const addToFavorites = async (city_name: string, country_code: string, la
   if (!token) throw new Error('User is not authenticated. Please log in.');
 
   try {
-    const response = await fetch(`${BASE_URL}/favorites/`, {
+    const response = await fetch(`${WEATHER_BASE_URL}/favorites/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -327,7 +327,7 @@ export const removeFromFavorites = async (favorite: FavoriteLocation) => {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated. Please log in.');
 
-  const response = await fetch(`${BASE_URL}/favorites/`, {
+  const response = await fetch(`${WEATHER_BASE_URL}/favorites/`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -351,7 +351,7 @@ export const removeFromFavorites = async (favorite: FavoriteLocation) => {
 
 export const fetchWeatherAlerts = async (authToken: string, location?: string): Promise<WeatherAlert[]> => {
   try {
-    let url = `${BASE_URL}/alerts/`;
+    let url = `${WEATHER_BASE_URL}/alerts/`;
     if (location) {
       url += `?location=${location}`;
     }

@@ -5,7 +5,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import AllowAny
-from apps.user.models import UserProfile
 
 class CurrentWeatherView(APIView):
     """Fetches current weather with UV index for a location"""
@@ -25,7 +24,7 @@ class CurrentWeatherView(APIView):
 
         # Fallback to user's saved location if authenticated
         if not location_name and not (lat and lon) and request.user.is_authenticated:
-            user_profile = UserProfile.objects.filter(user=request.user).first()
+            user_profile = request.user.userprofile
             if user_profile and user_profile.location:
                 location_name = user_profile.location
             else:
@@ -60,6 +59,8 @@ class CurrentWeatherView(APIView):
             weather_response = requests.get(weather_url)
             
             if weather_response.status_code != 200:
+                print(f"Weather API failed with status code: {weather_response.status_code}")
+                print(weather_response.text)  # Log the error message from OpenWeatherMap
                 return Response(
                     {'error': 'Failed to fetch weather data'},
                     status=weather_response.status_code

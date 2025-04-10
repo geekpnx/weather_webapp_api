@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from apps.user.models import UserProfile
 import os
 import logging
 import time
@@ -30,7 +29,7 @@ class RadarView(APIView):
     def get(self, request, *args, **kwargs):
         try:
             user = request.user
-            user_profile = UserProfile.objects.filter(user=user).first()
+            user_profile = request.user.userprofile
 
             # Get latitude, longitude, zoom level, and layer from query parameters
             lat = request.query_params.get('lat')

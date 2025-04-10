@@ -6,7 +6,6 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 import requests
 from apps.weather.serializers.news import NewsSerializer
-from apps.user.models import UserProfile  # Import UserProfile
 
 class NewsView(APIView):
     """Fetches weather-related news based on the user's location (requires authentication)."""
@@ -15,7 +14,7 @@ class NewsView(APIView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        user_profile = UserProfile.objects.filter(user=user).first()
+        user_profile = request.user.userprofile
 
         # Get location from query parameters or user profile
         location = request.query_params.get('location', None)

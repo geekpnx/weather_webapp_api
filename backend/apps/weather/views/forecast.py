@@ -3,7 +3,6 @@ import requests
 from datetime import datetime, timedelta
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from apps.user.models import UserProfile
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -25,7 +24,7 @@ class ForecastListView(APIView):
 
         # If no location or geolocation is provided, use the user's saved location
         if not location_name and not (lat and lon) and request.user.is_authenticated:
-            user_profile = UserProfile.objects.filter(user=request.user).first()
+            user_profile = request.user.userprofile
             if user_profile and user_profile.location:
                 location_name = user_profile.location
             else:

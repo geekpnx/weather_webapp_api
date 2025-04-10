@@ -55,6 +55,9 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
+    'http://localhost:85',
+    'http://127.0.0.1:85',
+
 
 ]
 
@@ -116,22 +119,6 @@ USE_TZ = True
 
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(BASE_DIR.parent, 'static')  # Project-level static
-STATICFILES_DIRS = [
-     os.path.join(BASE_DIR, "static"), 
-]
-
-
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Project-level media
-
-
-
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
@@ -156,56 +143,3 @@ REST_FRAMEWORK = {
     ],
 }
 
-
-# import logging
-
-# class SensitiveDataFilter(logging.Filter):
-#     def filter(self, record):
-#         # Replace any occurrence of sensitive data (like api_key) with '[REDACTED]'
-#         if 'api_key' in record.getMessage():
-#             record.msg = record.msg.replace('api_key', '[REDACTED]')
-#         return True
-    
-
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }
-
-# # Add the filter to the logger in views.py or globally in settings
-# logger = logging.getLogger(__name__)
-# logger.addFilter(SensitiveDataFilter())
-
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#         'apps.user': {  # Add app-specific logging
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#         },
-#     },
-# }

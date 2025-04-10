@@ -31,3 +31,14 @@ DATABASES = {
 WEATHER_API_KEY = env('WEATHER_API_KEY')
 OPENWEATHERMAP_API_KEY = env('OPENWEATHERMAP_API_KEY')
 NEWS_API_KEY = env('NEWS_API_KEY')
+
+STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR.parent, 'static')  # Project-level static
+STATICFILES_DIRS = [
+     os.path.join(BASE_DIR, "static"), 
+]
+
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Project-level media

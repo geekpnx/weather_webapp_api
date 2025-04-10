@@ -6,7 +6,6 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 import requests
 from apps.weather.serializers.alerts import AlertSerializer
-from apps.user.models import UserProfile  # Import UserProfile
 
 class AlertsView(APIView):
     """Fetches weather alerts based on the provided location or the user's saved location (requires authentication)."""
@@ -19,7 +18,7 @@ class AlertsView(APIView):
         if not city:
             # If not provided, fall back to the user's profile
             user = request.user
-            user_profile = UserProfile.objects.filter(user=user).first()
+            user_profile = request.user.userprofile
             if user_profile and user_profile.location:
                 city = user_profile.location
             else:

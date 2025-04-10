@@ -11,3 +11,4 @@ test.rest
 
 endpoint_testing.rest
 testing.py
+.gitignore

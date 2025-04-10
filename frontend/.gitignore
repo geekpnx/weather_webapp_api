@@ -30,3 +30,4 @@ dist-ssr
 
 testing.tsx
 .DS_Store 
+.gitignore

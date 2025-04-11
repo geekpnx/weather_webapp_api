@@ -6,7 +6,7 @@ WORKDIR /app
 COPY frontend/ . 
 
 # Ensure the .env file is copied as well (in case it's being ignored)
-COPY frontend/.env ./
+COPY frontend/.env .
 
 RUN npm install
 RUN npm run build

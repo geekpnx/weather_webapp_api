@@ -45,13 +45,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const favoriteButtonRef = useRef<HTMLButtonElement>(null);
 
 
-  // Notification timeout
-  useEffect(() => {
-    if (notification) {
-      const timer = setTimeout(() => setNotification(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [notification]);
 
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
@@ -236,10 +229,14 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
       
     } catch (error) {
       let errorMessage = 'Failed to add favorite location';
-      if (error instanceof Error) {
-        errorMessage = error.message.includes('already in favorites') 
-          ? `${location} is already in your favorites`
-          : error.message;
+      // if (error instanceof Error) {
+      //   errorMessage = error.message.includes('already in favorites') 
+      //     ? `${location} is already in your favorites`
+      //     : error.message;
+      // }
+      if (localFavorites.some(fav => fav.name.toLowerCase() === location.toLowerCase())) {
+        setNotification({ message: `${location} is already in your favorites`, type: 'error' });
+        return;
       }
       
       setNotification({ 
@@ -302,6 +299,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
               onClick={handleAddFavorite}
               className="add-button"
               title="Add to favorites"
+              aria-label="Add location to favorites"
             >
               <img src={addIcon} alt="Add" className="add-icon" />
             </button>

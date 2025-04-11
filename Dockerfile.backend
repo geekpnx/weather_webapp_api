@@ -1,13 +1,13 @@
 FROM python:3.10-slim AS backend-build
+
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-# Set the Django settings module (adjust if needed)
 ENV DJANGO_SETTINGS_MODULE=config.settings.prod
+
 WORKDIR /app/backend
-# Copy the entire requirements folder so that any includes (like -r base.txt) are available
+
 COPY backend/requirements /app/backend/requirements
-# Install backend dependencies using your production requirements file
-# Install system dependencies
+
 RUN apt-get update && apt-get install -y \
     build-essential \
     gcc \
@@ -17,9 +17,9 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip install -r requirements/prod.txt
 
-# Copy your backend source code into the container
 COPY backend/ .
-# (Optionally, if you use WhiteNoise to serve static files, you can run collectstatic here)
-RUN python3 manage.py collectstatic --noinput --settings=config.settings.prod
+
 EXPOSE 8000
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+
+# Custom entrypoint script to collect static and run gunicorn
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"]

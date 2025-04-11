@@ -49,7 +49,6 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5173',
     'http://localhost:85',
     'http://127.0.0.1:85',
-    'http://141.147.30.217:85',
 ]
 
 

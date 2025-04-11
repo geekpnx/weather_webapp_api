@@ -16,6 +16,7 @@ export const fetchCoordinates = async (location: string): Promise<{ lat: number;
     if (!api_key) {
       throw new Error('OpenWeatherMap API key is not configured.');
     }
+    console.log('OpenWeatherMap API Key:', api_key);
 
     const geo_url = `http://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=${api_key}`;
     const response = await fetch(geo_url);
@@ -46,6 +47,8 @@ export const fetchCoordinates = async (location: string): Promise<{ lat: number;
 export const fetchCurrentWeather = async (location?: string, lat?: number, lon?: number, unit: 'metric' | 'imperial' = 'metric') => {
   try {
     let url = `${WEATHER_BASE_URL}/current/`;
+    console.log('Weather API Base URL:', WEATHER_BASE_URL);
+
     if (location) {
       url += `?location=${location}&unit=${unit}`;
     } else if (lat !== undefined && lon !== undefined) {

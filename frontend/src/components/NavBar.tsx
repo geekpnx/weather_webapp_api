@@ -168,12 +168,25 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
     }
   }, [notification]);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     const location = searchLocation.trim();
-    if (location) {
-      onSearch(location);
-    } else {
+    if (!location) {
       setNotification({ message: 'Please enter a valid location', type: 'error' });
+      return;
+    }
+  
+    try {
+      // First validate it's a real city by getting coordinates
+      await fetchCoordinates(location);
+      // If we get here, the city is valid
+      onSearch(location);
+    } catch (error) {
+      setNotification({ 
+        message: error instanceof Error ? 
+          error.message : 
+          `${location} is not a valid city name`, 
+        type: 'error' 
+      });
     }
   };
 
@@ -185,42 +198,58 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
     }
   
     try {
-      // First get coordinates
+      // First validate the city exists by fetching coordinates
       const { lat, lon } = await fetchCoordinates(location);
+      
+      // Check for duplicates (case-insensitive)
+      const normalizedInput = location.toLowerCase().trim();
+      const isDuplicate = localFavorites.some(fav => 
+        fav.name.toLowerCase() === normalizedInput
+      );
+      
+      if (isDuplicate) {
+        setNotification({ 
+          message: `${location} is already in your favorites`, 
+          type: 'error' 
+        });
+        return;
+      }
       
       // Add to backend
       await addToFavorites(location, '', lat, lon);
       
-      // If we get here, the add was successful
+      // Update local state optimistically
       const newFavorite = {
         name: location,
-        temp: 0, // Temporary value
-        icon: '', // Temporary value
+        temp: 0,
+        icon: '',
         weatherDescription: '',
         country_code: '',
         lat,
         lon
       };
       
-      // Update local state optimistically
       setLocalFavorites(prev => [newFavorite, ...prev]);
       
-      // Now fetch weather data
-      const weatherData = await fetchCurrentWeather(location);
-      
-      // Update with actual weather data
-      setLocalFavorites(prev => 
-        prev.map(fav => 
-          fav.name === location 
-            ? { 
-                ...fav, 
-                temp: Math.round(weatherData.main.temp),
-                icon: weatherData.weather[0].icon,
-                weatherDescription: weatherData.weather[0].description
-              } 
-            : fav
-        )
-      );
+      // Now fetch weather data to update the favorite
+      try {
+        const weatherData = await fetchCurrentWeather(location);
+        setLocalFavorites(prev => 
+          prev.map(fav => 
+            fav.name === location 
+              ? { 
+                  ...fav, 
+                  temp: Math.round(weatherData.main.temp),
+                  icon: weatherData.weather[0].icon,
+                  weatherDescription: weatherData.weather[0].description
+                } 
+              : fav
+          )
+        );
+      } catch (weatherError) {
+        console.error("Couldn't fetch weather for new favorite:", weatherError);
+        // Keep the favorite even if weather fetch fails
+      }
       
       setNotification({ 
         message: `${location} added to favorites!`, 
@@ -229,14 +258,14 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
       
     } catch (error) {
       let errorMessage = 'Failed to add favorite location';
-      // if (error instanceof Error) {
-      //   errorMessage = error.message.includes('already in favorites') 
-      //     ? `${location} is already in your favorites`
-      //     : error.message;
-      // }
-      if (localFavorites.some(fav => fav.name.toLowerCase() === location.toLowerCase())) {
-        setNotification({ message: `${location} is already in your favorites`, type: 'error' });
-        return;
+      if (error instanceof Error) {
+        if (error.message.includes('404')) {
+          errorMessage = `${location} is not a valid city name`;
+        } else if (error.message.includes('already in favorites')) {
+          errorMessage = `${location} is already in your favorites`;
+        } else {
+          errorMessage = error.message;
+        }
       }
       
       setNotification({ 

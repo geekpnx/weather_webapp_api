@@ -35,10 +35,12 @@ class FavoriteLocationView(APIView):
             )
 
         try:
-            # Check for existing location first
+            city_name = request.data['city_name']
+            
+            # Case-insensitive duplicate check
             exists = FavoriteLocation.objects.filter(
                 user=request.user,
-                city_name=request.data['city_name']
+                city_name__iexact=city_name  # Case-insensitive match
             ).exists()
             
             if exists:
@@ -50,7 +52,7 @@ class FavoriteLocationView(APIView):
             # Create the favorite location
             favorite = FavoriteLocation.objects.create(
                 user=request.user,
-                city_name=request.data['city_name'],
+                city_name=city_name,
                 country_code=request.data.get('country_code', ''),
                 latitude=request.data['latitude'],
                 longitude=request.data['longitude']
@@ -63,7 +65,6 @@ class FavoriteLocationView(APIView):
             )
             
         except IntegrityError as e:
-            # This handles any other database integrity errors
             return Response(
                 {'error': 'Database error: ' + str(e)},
                 status=status.HTTP_400_BAD_REQUEST

@@ -3,6 +3,8 @@ import { FavoriteLocation, ForecastItem } from '../types/types'; // Import the F
 import { NewsArticle, WeatherAlert } from '../types/types'; // Import the NewsArticle interface
 
 const WEATHER_BASE_URL = import.meta.env.VITE_WEATHER_API_BASE_URL;
+const OPENWEATHER_BASE_URL = import.meta.env.VITE_OPENWEATHERMAP_API_BASE_URL;
+
 
 // Helper function to get the authentication token
 const getAuthToken = (): string | null => {
@@ -12,18 +14,16 @@ const getAuthToken = (): string | null => {
 // Fetch coordinates (latitude and longitude) for a given city name
 export const fetchCoordinates = async (location: string): Promise<{ lat: number; lon: number }> => {
   try {
-    const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY; // For Vite
+    const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
     if (!api_key) {
       throw new Error('OpenWeatherMap API key is not configured.');
     }
-  
 
-    const geo_url = `http://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=${api_key}`;
+    const geo_url = `${OPENWEATHER_BASE_URL}/geo/1.0/direct?q=${location}&limit=1&appid=${api_key}`;
     const response = await fetch(geo_url);
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Error fetching coordinates');
+      throw new Error('Error fetching coordinates');
     }
 
     const geo_data = await response.json();
@@ -31,15 +31,14 @@ export const fetchCoordinates = async (location: string): Promise<{ lat: number;
       const { lat, lon } = geo_data[0];
       return { lat, lon };
     } else {
-      throw new Error(`Could not determine coordinates for ${location}.`);
+      throw new Error(`Could not find coordinates for ${location}. Please check the city name.`);
     }
   } catch (error) {
     console.error("Error fetching coordinates:", error);
     if (error instanceof Error) {
       throw new Error(error.message || 'Error fetching coordinates');
-    } else {
-      throw new Error('Error fetching coordinates');
     }
+    throw new Error('Error fetching coordinates');
   }
 };
 
@@ -82,7 +81,7 @@ const fetchUVIndex = async (lat: number, lon: number): Promise<number> => {
       throw new Error('OpenWeatherMap API key is not configured.');
     }
 
-    const url = `http://api.openweathermap.org/data/2.5/uvi?lat=${lat}&lon=${lon}&appid=${api_key}`;
+    const url = `${OPENWEATHER_BASE_URL}/data/2.5/uvi?lat=${lat}&lon=${lon}&appid=${api_key}`;
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -112,9 +111,9 @@ export const fetchForecast = async (location?: string, lat?: number, lon?: numbe
 
     let url;
     if (location) {
-      url = `http://api.openweathermap.org/data/2.5/forecast?q=${location}&appid=${api_key}&units=metric`;
+      url = `${OPENWEATHER_BASE_URL}/data/2.5/forecast?q=${location}&appid=${api_key}&units=metric`;
     } else if (lat !== undefined && lon !== undefined) {
-      url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${api_key}&units=metric`;
+      url = `${OPENWEATHER_BASE_URL}/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${api_key}&units=metric`;
     } else {
       throw new Error('Please provide a location or geolocation coordinates.');
     }

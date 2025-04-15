@@ -660,3 +660,56 @@
 .favorite-card:nth-child(3) { animation-delay: 0.15s; }
 .favorite-card:nth-child(4) { animation-delay: 0.2s; }
 .favorite-card:nth-child(5) { animation-delay: 0.25s; }
+
+/* Search Suggestions */
+.search-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  margin-top: 5px;
+}
+
+.suggestion-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 14px;
+  color: #303030;
+}
+
+.suggestion-item:hover {
+  background-color: #f5f5f5;
+}
+
+/* Update the search input container to include the suggestions */
+.input-with-add {
+  position: relative;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Update the search input to match the new structure */
+.search-input {
+  padding: 8px 40px 8px 15px;
+  width: 100%;
+  min-width: 300px;
+  height: 40px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  font-size: 16px;
+  background-color: lemonchiffon;
+}

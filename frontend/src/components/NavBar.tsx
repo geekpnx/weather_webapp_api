@@ -13,6 +13,7 @@ import { removeFromFavorites, fetchCurrentWeather, fetchCoordinates, fetchFavori
 import { FavoriteLocation } from '../types/types';
 import AlertsDisplay from './AlertsDisplay';
 import { usePreferences } from '../context/PreferencesContext'; 
+import { searchCities } from '../api/weather';
 
 
 interface NavBarProps {
@@ -36,6 +37,15 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const [modalKey, setModalKey] = useState(0);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState<boolean>(false);
   const { temperatureUnit, toggleTemperatureUnit } = usePreferences();
+
+  const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const selectSuggestion = (city: string) => {
+    setSearchLocation(city);
+    onSearch(city);
+    setShowSuggestions(false);
+  };
 
 
   // Refs for click outside detection
@@ -168,18 +178,75 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
     }
   }, [notification]);
 
+
+  // Fetch city suggestions when search location changes
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (searchLocation.trim().length > 2) { // Only fetch after 3 characters
+        try {
+          const suggestions = await searchCities(searchLocation);
+          setCitySuggestions(suggestions);
+          setShowSuggestions(true);
+        } catch (error) {
+          console.error("Error fetching city suggestions:", error);
+          setCitySuggestions([]);
+        }
+      } else {
+        setCitySuggestions([]);
+        setShowSuggestions(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchSuggestions, 300); // Debounce to avoid too many API calls
+    
+    return () => clearTimeout(debounceTimer);
+  }, [searchLocation]);
+
+  // Handle click outside to close suggestions
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchInputRef.current && !searchInputRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Format the search input to capitalize first letter
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.length === 0) {
+      setSearchLocation('');
+      return;
+    }
+    
+    // Capitalize first letter and keep the rest as-is
+    const formattedValue = value.charAt(0).toUpperCase() + value.slice(1);
+    setSearchLocation(formattedValue);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+      setShowSuggestions(false);
+    }
+  };
+
   const handleSearch = async () => {
     const location = searchLocation.trim();
     if (!location) {
       setNotification({ message: 'Please enter a valid location', type: 'error' });
       return;
     }
-  
+
     try {
       // First validate it's a real city by getting coordinates
       await fetchCoordinates(location);
       // If we get here, the city is valid
       onSearch(location);
+      setShowSuggestions(false);
     } catch (error) {
       setNotification({ 
         message: error instanceof Error ? 
@@ -189,6 +256,8 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
       });
     }
   };
+
+
 
   const handleAddFavorite = async () => {
     const location = searchLocation.trim();
@@ -313,31 +382,47 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
                 </button>
                 <span className="unit">°F</span>
               </div>
-        <div className="input-with-add">
-          <input
-            type="text"
-            id="location-input"
-            name="location"
-            value={searchLocation}
-            onChange={(e) => setSearchLocation(e.target.value)}
-            placeholder="Enter location"
-            className="search-input"
-          />
-          {isAuthenticated && (
-            <button
-              onClick={handleAddFavorite}
-              className="add-button"
-              title="Add to favorites"
-              aria-label="Add location to favorites"
-            >
-              <img src={addIcon} alt="Add" className="add-icon" />
-            </button>
-          )}
-        </div>
-        <button onClick={handleSearch} className="search-button">
-          <img src={searchIcon} alt="Search" className="search-icon" />
-        </button>
-      </div>
+              <div className="input-with-add">
+                <div className="search-input-container" ref={searchInputRef}>
+                  <input
+                    type="text"
+                    id="location-input"
+                    name="location"
+                    value={searchLocation}
+                    onChange={handleSearchChange}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Enter location"
+                    className="search-input"
+                    autoComplete="off"
+                  />
+                  {showSuggestions && citySuggestions.length > 0 && (
+                    <div className="suggestions-dropdown">
+                      {citySuggestions.map((city, index) => (
+                        <div 
+                          key={index} 
+                          className="suggestion-item"
+                          onClick={() => selectSuggestion(city)}
+                        >
+                          {city}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {isAuthenticated && (
+                  <button
+                    onClick={handleAddFavorite}
+                    className="add-button"
+                    title="Add to favorites"
+                  >
+                    <img src={addIcon} alt="Add" className="add-icon" />
+                  </button>
+                )}
+              </div>
+              <button onClick={handleSearch} className="search-button">
+                <img src={searchIcon} alt="Search" className="search-icon" />
+              </button>
+            </div>
 
       <div className="nav-icons">
       {isAuthenticated && <AlertsDisplay />}

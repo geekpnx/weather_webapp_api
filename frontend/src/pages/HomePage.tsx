@@ -112,61 +112,61 @@ const HomePage = () => {
     }
   };
 
-  const handleUseMyLocation = async () => {
-    if (!navigator.geolocation) {
-      setError('Geolocation is not supported by your browser. Please search manually.');
-      return;
-    }
+  // const handleUseMyLocation = async () => {
+  //   if (!navigator.geolocation) {
+  //     setError('Geolocation is not supported by your browser. Please search manually.');
+  //     return;
+  //   }
 
-    setIsFetchingLocation(true);
-    setError(null);
+  //   setIsFetchingLocation(true);
+  //   setError(null);
     
-    try {
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      });
+  //   try {
+  //     const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+  //       navigator.geolocation.getCurrentPosition(resolve, reject);
+  //     });
       
-      const { latitude, longitude } = position.coords;
-      await handleSearch({ lat: latitude, lon: longitude });
-    } catch (error) {
-      console.error('Geolocation error:', error);
-      setError('Unable to retrieve your location. Please enable location access or search manually.');
-    } finally {
-      setIsFetchingLocation(false);
-    }
-  };
-
-  useEffect(() => {
-    // If no location is set after component mounts, show default location
-    if (!location && !isFetchingLocation) {
-      handleSearch('New York'); // or any other default city
-    }
-  }, []);
+  //     const { latitude, longitude } = position.coords;
+  //     await handleSearch({ lat: latitude, lon: longitude });
+  //   } catch (error) {
+  //     console.error('Geolocation error:', error);
+  //     setError('Unable to retrieve your location. Please enable location access or search manually.');
+  //   } finally {
+  //     setIsFetchingLocation(false);
+  //   }
+  // };
 
   // useEffect(() => {
-  //   const getInitialLocation = async () => {
-  //     if (navigator.geolocation) {
-  //       setIsFetchingLocation(true);
-  //       try {
-  //         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-  //           navigator.geolocation.getCurrentPosition(resolve, reject);
-  //         });
-          
-  //         const { latitude, longitude } = position.coords;
-  //         await handleSearch({ lat: latitude, lon: longitude });
-  //       } catch (error) {
-  //         console.error('Geolocation error:', error);
-  //         setError('Unable to retrieve your location. Please enable location access or search manually.');
-  //       } finally {
-  //         setIsFetchingLocation(false);
-  //       }
-  //     } else {
-  //       setError('Geolocation is not supported by your browser. Please search manually.');
-  //     }
-  //   };
-
-  //   getInitialLocation();
+  //   // If no location is set after component mounts, show default location
+  //   if (!location && !isFetchingLocation) {
+  //     handleSearch('New York'); // or any other default city
+  //   }
   // }, []);
+
+  useEffect(() => {
+    const getInitialLocation = async () => {
+      if (navigator.geolocation) {
+        setIsFetchingLocation(true);
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+          });
+          
+          const { latitude, longitude } = position.coords;
+          await handleSearch({ lat: latitude, lon: longitude });
+        } catch (error) {
+          console.error('Geolocation error:', error);
+          setError('Unable to retrieve your location. Please enable location access or search manually.');
+        } finally {
+          setIsFetchingLocation(false);
+        }
+      } else {
+        setError('Geolocation is not supported by your browser. Please search manually.');
+      }
+    };
+
+    getInitialLocation();
+  }, []);
 
   useEffect(() => {
     const loadRadarData = async () => {
@@ -219,13 +219,13 @@ const HomePage = () => {
       <div className="top-messages">
         {error && <div className="error-message">{error}</div>}
         {isFetchingLocation && <p className="fetching-message">Fetching your location...</p>}
-        <button 
+        {/* <button 
           onClick={handleUseMyLocation} 
           className="location-button"
           disabled={isFetchingLocation}
         >
           {isFetchingLocation ? 'Locating...' : 'Use My Current Location'}
-        </button>
+        </button> */}
       </div>
   
       <div className="content-container">

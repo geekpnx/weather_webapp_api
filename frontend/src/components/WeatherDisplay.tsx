@@ -3,7 +3,7 @@ import ForecastDisplay from './ForecastDisplay';
 import '../assets/css/WeatherDisplay.css';
 import { usePreferences } from '../context/PreferencesContext';
 
-
+const OPENWEATHER_URL = import.meta.env.VITE_OPENWEATHERMAP_BASE_URL;
 
 interface WeatherDisplayProps {
   data: any;
@@ -82,7 +82,7 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ data, forecastData }) =
         {weather && (
           <div className="weather-status">
             <img
-              src={`http://openweathermap.org/img/wn/${weather.icon}@2x.png`}
+              src={`${OPENWEATHER_URL}/img/wn/${weather.icon}@2x.png`}
               alt={weather.description}
               className="weather-icon"
             />

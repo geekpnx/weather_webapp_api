@@ -3,6 +3,7 @@ import '../assets/css/ForecastDisplay.css';
 import { ForecastItem } from '../types/types';
 import { usePreferences } from '../context/PreferencesContext';
 
+const OPENWEATHER_URL = import.meta.env.VITE_OPENWEATHERMAP_BASE_URL;
 interface ForecastDisplayProps {
   data: ForecastItem[];
 }
@@ -104,7 +105,7 @@ const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
               <div className="tab-day">{day.day_name}</div>
               <div className="tab-date">{formatDate(day.date)}</div>
               <img
-                src={`http://openweathermap.org/img/wn/${firstForecast.weather_icon}.png`}
+                src={`${OPENWEATHER_URL}/img/wn/${firstForecast.weather_icon}.png`}
                 alt={firstForecast.weather_description}
                 width={40}
                 loading="lazy"
@@ -134,7 +135,7 @@ const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
               <div key={idx} className="hourly-item">
                 <p className="hourly-time">{formatTime(hourly.datetime)}</p>
                 <img
-                  src={`http://openweathermap.org/img/wn/${hourly.weather_icon}.png`}
+                  src={`${OPENWEATHER_URL}/img/wn/${hourly.weather_icon}.png`}
                   alt={hourly.weather_description}
                   width={50}
                 />

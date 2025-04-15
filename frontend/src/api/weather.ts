@@ -383,3 +383,46 @@ export const fetchWeatherAlerts = async (authToken: string, location?: string): 
     throw error;
   }
 };
+
+
+// Add this to your frontend/src/api/weather.ts file
+export const searchCities = async (query: string): Promise<string[]> => {
+  try {
+    const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
+    if (!api_key) {
+      throw new Error('OpenWeatherMap API key is not configured.');
+    }
+
+    const response = await fetch(
+      `${OPENWEATHER_BASE_URL}/geo/1.0/direct?q=${query}&limit=5&appid=${api_key}`
+    );
+
+    if (!response.ok) {
+      throw new Error('Error fetching city suggestions');
+    }
+
+    const data = await response.json();
+    
+    // Create a Set to store unique city names
+    const uniqueCities = new Set<string>();
+    
+    return data
+      .map((city: any) => {
+        let name = city.name;
+        if (city.state) name += `, ${city.state}`;
+        if (city.country) name += `, ${city.country}`;
+        return name;
+      })
+      // Filter out duplicates
+      .filter((city: string) => {
+        if (!uniqueCities.has(city)) {
+          uniqueCities.add(city);
+          return true;
+        }
+        return false;
+      });
+  } catch (error) {
+    console.error("Error fetching city suggestions:", error);
+    return [];
+  }
+};

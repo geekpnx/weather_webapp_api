@@ -10,7 +10,6 @@ import {
   removeProfilePicture,
   updatePreferences,
 } from '../api/user';
-import defaultProPic from '../assets/images/propic/user_propic.svg';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -25,9 +24,12 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [password, setPassword] = useState('');
+
+  
+  const STATIC_BASE_URL = import.meta.env.VITE_STATIC_BASE_URL;
+  const defaultProPic = `${STATIC_BASE_URL}/images/propic/user_propic.svg`;
   const isDefaultImage = () => {
-  const defaultImageUrl = defaultProPic;
-    return !userData?.profile_picture || userData.profile_picture === defaultImageUrl;
+    return !userData?.profile_picture || userData.profile_picture === defaultProPic;
   };
 
 

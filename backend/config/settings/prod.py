@@ -18,7 +18,6 @@ THIRD_PARTY_APPS = [
     
 ]
 
-import os
 
 DATABASES = {
     "default": {

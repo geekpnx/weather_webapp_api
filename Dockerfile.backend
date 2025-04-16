@@ -6,6 +6,7 @@ ENV DJANGO_SETTINGS_MODULE=config.settings.prod
 
 WORKDIR /app/backend
 
+# Install dependencies
 COPY backend/requirements /app/backend/requirements
 
 RUN apt-get update && apt-get install -y \
@@ -17,9 +18,19 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip install -r requirements/prod.txt
 
+# Copy the backend code
 COPY backend/ .
+
+# Add wait-for-it.sh script to check for DB readiness
+COPY backend/wait-for-it.sh /app/backend/wait-for-it.sh
+RUN chmod +x /app/backend/wait-for-it.sh
 
 EXPOSE 8000
 
-# Custom entrypoint script to collect static and run gunicorn
-CMD ["sh", "-c", "python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"]
+CMD ["sh", "-c", "\
+    /app/backend/wait-for-it.sh db:5432 -- \
+    sh -c '\
+      python manage.py makemigrations && \
+      python manage.py migrate && \
+      python manage.py collectstatic --noinput && \
+      gunicorn config.wsgi:application --bind 0.0.0.0:8000'"]

@@ -6,22 +6,25 @@ ENV DJANGO_SETTINGS_MODULE=config.settings.prod
 
 WORKDIR /app/backend
 
-# Install dependencies
-COPY backend/requirements /app/backend/requirements
-
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
-    gcc \
-    libffi-dev \
-    libssl-dev \
-    && pip install --upgrade pip setuptools wheel
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pip install -r requirements/prod.txt
+# Install Python dependencies
+COPY backend/requirements /app/backend/requirements
+RUN pip install --upgrade pip && \
+    pip install -r requirements/prod.txt
 
-# Copy the backend code
+# Copy backend code
 COPY backend/ .
 
-# Add wait-for-it.sh script to check for DB readiness
+# Create media directory and set permissions
+RUN mkdir -p /app/backend/media && \
+    chmod -R 755 /app/backend/media
+
+# Add wait-for-it script
 COPY backend/wait-for-it.sh /app/backend/wait-for-it.sh
 RUN chmod +x /app/backend/wait-for-it.sh
 

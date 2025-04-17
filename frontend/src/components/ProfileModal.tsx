@@ -53,12 +53,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
     if (!file) return;
   
     try {
+      console.log('Uploading file:', file.name, file.size, file.type); // Add this
       await uploadProfilePicture(file);
       await loadProfile();
       setSuccess('Profile picture updated');
       setError('');
-      refreshProfile(); // Add this from useAuth context
+      refreshProfile();
     } catch (error) {
+      console.error('Upload error:', error); // Add this
       setError('Failed to upload image');
     }
   };

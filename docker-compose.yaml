@@ -7,52 +7,68 @@ services:
       POSTGRES_PASSWORD: ${DB_PWD}
     ports:
       - "5433:5432"
-    networks:
-      - weather_net
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - weather_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
       context: .
       dockerfile: Dockerfile.backend
     environment:
-      SECRET_KEY: ${SECRET_KEY}
-      DJANGO_SETTINGS_MODULE: config.settings.prod
-      DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      DB_PWD: ${DB_PWD}
-      DB_HOST: db
-      DB_PORT: ${DB_PORT}
-      DATABASE_URL: ${DATABASE_URL}
-      WEATHER_API_KEY: ${WEATHER_API_KEY}
-      OPENWEATHERMAP_API_KEY: ${OPENWEATHERMAP_API_KEY}
-      NEWS_API_KEY: ${NEWS_API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - DJANGO_SETTINGS_MODULE=config.settings.prod
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PWD=${DB_PWD}
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT}
+      - DATABASE_URL=${DATABASE_URL}
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY}
+      - NEWS_API_KEY=${NEWS_API_KEY}
     ports:
       - "8022:8000"
+    volumes:
+      - media_volume:/app/backend/media
+      - static_volume:/app/backend/staticfiles
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - weather_net
-    volumes:
-      - media_volume:/app/backend/media               # ✅ Shared media volume
-      - static_volume:/app/backend/staticfiles        # ✅ Shared static volume
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   frontend:
     build:
       context: .
       dockerfile: Dockerfile.frontend
     environment:
-      VITE_OPENWEATHERMAP_API_KEY: ${VITE_OPENWEATHERMAP_API_KEY}
+      - VITE_OPENWEATHERMAP_API_KEY=${VITE_OPENWEATHERMAP_API_KEY}
+      - VITE_STATIC_BASE_URL=/static 
+      - VITE_WEATHER_API_BASE_URL=/api/v1/weather
+      - VITE_USER_API_BASE_URL=/api/v1/user
     ports:
       - "85:80"
-    networks:
-      - weather_net
+      - "443:443"
+    volumes:
+      - media_volume:/usr/share/nginx/html/media
+      - static_volume:/usr/share/nginx/html/static
     depends_on:
       - backend
-    volumes:
-      - media_volume:/media                           # ✅ Same media volume as backend
-      - static_volume:/usr/share/nginx/html/static    # ✅ Same static volume as backend
+    networks:
+      - weather_net
+    restart: unless-stopped
 
 networks:
   weather_net:

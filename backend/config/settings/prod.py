@@ -62,10 +62,9 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # Force HTTPS redirects (requires proper proxy headers)
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True
-
-# Cookie security settings
+ECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 

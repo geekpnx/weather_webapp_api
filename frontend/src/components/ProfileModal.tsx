@@ -195,7 +195,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
         <div className="profile-picture-section">
           <div className="profile-picture-container">
             <img 
-              src={userData?.profile_picture }
+              src={userData?.profile_picture?.replace('http://', 'https://') || defaultProPic}
               alt="Profile"
               className="profile-picture"
               onError={(e) => {

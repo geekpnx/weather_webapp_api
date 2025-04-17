@@ -43,16 +43,20 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_profile_picture(self, obj):
         request = self.context.get('request')
-
+        
         if obj.profile_picture:
             if request:
-                return request.build_absolute_uri(obj.profile_picture.url)
-            return f"{settings.MEDIA_URL}{obj.profile_picture}"
-
-        # Default profile picture (from STATIC_URL)
-        default_picture_path = settings.STATIC_URL + 'images/propic/user_propic.svg'
-        return request.build_absolute_uri(default_picture_path) if request else default_picture_path
+                # Force HTTPS URL if the request is secure
+                url = request.build_absolute_uri(obj.profile_picture.url)
+                return url.replace('http://', 'https://') if request.is_secure() else url
+            return f"{settings.MEDIA_URL}{obj.profile_picture.url.lstrip('/')}"
         
+        # Default profile picture
+        default_path = f"{settings.STATIC_URL}images/propic/user_propic.svg"
+        if request:
+            url = request.build_absolute_uri(default_path)
+            return url.replace('http://', 'https://') if request.is_secure() else url
+        return default_path
     
     def update(self, instance, validated_data):
         user_data = validated_data.pop('user', {})

@@ -36,12 +36,12 @@ OPENWEATHERMAP_API_KEY = env('OPENWEATHERMAP_API_KEY')
 NEWS_API_KEY = env('NEWS_API_KEY')
 
 
-STATIC_URL = '/static/'
+STATIC_URL = os.getenv('STATIC_URL', '/static/')
 STATIC_ROOT = str(BASE_DIR /"staticfiles")
 STATICFILES_DIRS = ["static"]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_URL = '/media/'
+MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
 MEDIA_ROOT = os.path.join(BASE_DIR, '/app/backend/media/')  # Project-level media
 
 

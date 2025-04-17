@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import '../assets/css/NavBar.css';
 import logo from '../assets/images/logo/logo_WA.svg';
 import searchIcon from '../assets/images/icons/search-icon.svg';
-import defaultProPic from '../assets/images/propic/user_propic.svg';
 import favoriteIcon from '../assets/images/icons/favorite-icon.svg';
 import trashIcon from '../assets/images/icons/trash-icon.svg';
 import addIcon from '../assets/images/icons/add-icon.svg';
@@ -47,6 +46,10 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
     setShowSuggestions(false);
   };
 
+  const OPENWEATHER_URL = import.meta.env.VITE_OPENWEATHERMAP_BASE_URL;
+
+  const STATIC_BASE_URL = import.meta.env.VITE_STATIC_BASE_URL;
+  const defaultProPic = `${STATIC_BASE_URL}/images/propic/user_propic.svg`;
 
   // Refs for click outside detection
   const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -479,7 +482,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
                             <div className="favorite-temp">{favorite.temp}°</div>
                             {favorite.icon && (
                               <img
-                                src={`https://openweathermap.org/img/wn/${favorite.icon}.png`}
+                                src={`${OPENWEATHER_URL}/img/wn/${favorite.icon}.png`}
                                 alt={favorite.weatherDescription || 'Weather icon'}
                                 className="favorite-icon"
                               />
@@ -514,7 +517,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
             <img
               src={
                 isAuthenticated && userProfile?.profile_picture
-                  ? `${userProfile.profile_picture}?ts=${Date.now()}`
+                  ? `${userProfile.profile_picture.replace('http://', 'https://')}?ts=${Date.now()}`
                   : defaultProPic
               }
               alt="Profile"

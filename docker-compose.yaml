@@ -34,9 +34,6 @@ services:
     volumes:
       - media_volume:/app/backend/media
       - static_volume:/app/backend/staticfiles
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
       - weather_net
 
@@ -55,8 +52,6 @@ services:
     volumes:
       - media_volume:/usr/share/nginx/html/media
       - static_volume:/usr/share/nginx/html/static
-    depends_on:
-      - backend
     networks:
       - weather_net
     restart: unless-stopped

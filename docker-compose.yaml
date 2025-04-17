@@ -48,7 +48,6 @@ services:
       - VITE_USER_API_BASE_URL=/api/v1/user
     ports:
       - "85:80"
-      - "443:443"
     volumes:
       - media_volume:/usr/share/nginx/html/media
       - static_volume:/usr/share/nginx/html/static

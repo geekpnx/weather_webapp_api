@@ -7,7 +7,7 @@
     "start": "concurrently \"npm run dev\" \"npm run backend\"",
     "dev": "vite --mode development",
     "backend": "cd ../backend && .venv/bin/python3 manage.py runserver --settings=config.settings.dev",
-    "build": "tsc -b && vite build",
+    "build": "vite build --mode production",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "check": "npm run lint && npm run type-check",

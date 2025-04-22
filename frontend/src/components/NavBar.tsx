@@ -80,10 +80,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
     setShowProfileMenu(false);
   };
 
-  const handleFavoriteSelect = (location: string) => {
-    onSearch(location);
-    setShowFavorites(false);
-  };
 
   // Click outside detection
   useEffect(() => {
@@ -480,7 +476,13 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
 
                   {!isLoadingFavorites && localFavorites.map((favorite, index) => (
                     <div key={`${favorite.name}-${index}`} className="favorite-card">
-                      <div className="favorite-content">
+                      <div 
+                        className="favorite-content"
+                        onClick={() => {
+                          onSearch(favorite.name);
+                          setShowFavorites(false);
+                        }}
+                      >
                         <div className="favorite-location">{favorite.name}</div>
                         {favorite.temp && (
                           <div className="favorite-weather">

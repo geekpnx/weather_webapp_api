@@ -11,6 +11,9 @@ import {
   updatePreferences,
 } from '../api/user';
 
+import { sanitizeImageUrl } from '../utils/utils';
+import { useProfile } from '../context/ProfileContext';
+
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -24,7 +27,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [password, setPassword] = useState('');
-
+  const { triggerProfileUpdate } = useProfile();
   
   const STATIC_BASE_URL = import.meta.env.VITE_STATIC_BASE_URL;
   const defaultProPic = `${STATIC_BASE_URL}/images/propic/user_propic.svg`;
@@ -55,6 +58,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
     try {
       console.log('Uploading file:', file.name, file.size, file.type); // Add this
       await uploadProfilePicture(file);
+      triggerProfileUpdate();
       await loadProfile();
       setSuccess('Profile picture updated');
       setError('');
@@ -69,6 +73,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
   const handleRemovePicture = async () => {
     try {
       await removeProfilePicture();
+      triggerProfileUpdate(); 
       await loadProfile();
       setSuccess('Profile picture removed successfully');
       setError('');
@@ -195,7 +200,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
         <div className="profile-picture-section">
           <div className="profile-picture-container">
             <img 
-              src={userData?.profile_picture?.replace('http://', 'https://') || defaultProPic}
+              src={sanitizeImageUrl(userData?.profile_picture, defaultProPic)}
               alt="Profile"
               className="profile-picture"
               onError={(e) => {
@@ -352,21 +357,36 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
 
         {/* Danger Zone - Moved outside tabs */}
         <div className="danger-zone">
-          <div className="form-group"> 
-             <h3>Delete Account</h3>
-          </div>
+          <h3>Delete Account</h3>
           <form onSubmit={(e) => e.preventDefault()}>
-            <div className="form-group">  
+            {/* Add hidden username field for password managers */}
+            <input
+              type="text"
+              name="username"
+              autoComplete="username"
+              className="visually-hidden"
+              aria-hidden="true"
+              tabIndex={-1}
+            />
+            
+            <div className="form-group">
+              <label htmlFor="confirm-password">Confirm Password</label>
               <input
                 type="password"
+                id="confirm-password"
+                name="current-password"  // Changed from confirm-password
                 placeholder="Enter password to confirm"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                autoComplete="new-password"
+                autoComplete="current-password"
                 required
               />
             </div>
-            <button onClick={handleDeleteAccount} className="btn-delete">
+            <button 
+              onClick={handleDeleteAccount} 
+              className="btn-delete"
+              type="submit"
+            >
               Delete Account
             </button>
           </form>

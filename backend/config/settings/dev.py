@@ -1,9 +1,9 @@
 from .base import *
 import environs
 
-env = environs.Env()
+env = environs.Env() 
 
-env.read_env(str(BASE_DIR / '.env'))
+env.read_env(str(BASE_DIR / '.env.dev'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str('SECRET_KEY')

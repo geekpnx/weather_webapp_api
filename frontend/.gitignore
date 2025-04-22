@@ -24,7 +24,8 @@ dist-ssr
 *.sw?
 
 # Secret Keys
-.env
+.env.development
+.env.production
 
 # Testing file
 

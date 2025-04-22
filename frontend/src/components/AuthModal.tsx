@@ -133,47 +133,56 @@ const AuthModal: React.FC<AuthModalProps> = ({
         </div>
   
         <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="username">Username</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            autoComplete="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
+
+        {mode === 'register' && (
           <div className="form-group">
-            <label>Username</label>
+            <label htmlFor="email">Email</label>
             <input
-              type="text"
-              autoComplete="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              id="email"
+              name="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
-  
-          {mode === 'register' && (
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-          )}
-  
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+        )}
+
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name={mode === 'login' ? 'current-password' : 'new-password'}
+            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
   
           {mode === 'register' && (
             <>
               <div className="form-group">
-                <label>Location</label>
+                <label htmlFor="location">Location</label>
                 <input
                   type="text"
+                  id="location"
+                  name="location"
+                  autoComplete="off"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   required

@@ -3,7 +3,7 @@ frontend_design/
 samples.py
 json_format.py
 test.rest
-.env
+.env.dev
 .env.prod
 .venv/
 .DS_Store 

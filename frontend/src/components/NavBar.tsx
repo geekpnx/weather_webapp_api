@@ -13,6 +13,9 @@ import { FavoriteLocation } from '../types/types';
 import AlertsDisplay from './AlertsDisplay';
 import { usePreferences } from '../context/PreferencesContext'; 
 import { searchCities } from '../api/weather';
+import { sanitizeImageUrl } from '../utils/utils';
+import { useProfile } from '../context/ProfileContext';
+
 
 
 interface NavBarProps {
@@ -35,7 +38,10 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const [modalInitialTab, setModalInitialTab] = useState<'profile' | 'settings'>('profile');
   const [modalKey, setModalKey] = useState(0);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState<boolean>(false);
-  const { temperatureUnit, toggleTemperatureUnit } = usePreferences();
+  const { temperatureUnit, toggleTemperatureUnit, convertTemp } = usePreferences();
+  const { profileVersion } = useProfile();
+  
+
 
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
@@ -50,6 +56,11 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
 
   const STATIC_BASE_URL = import.meta.env.VITE_STATIC_BASE_URL;
   const defaultProPic = `${STATIC_BASE_URL}/images/propic/user_propic.svg`;
+
+  const profileImageUrl = isAuthenticated && userProfile?.profile_picture
+    ? `${sanitizeImageUrl(userProfile.profile_picture, defaultProPic)}?v=${profileVersion}`
+    : defaultProPic;
+
 
   // Refs for click outside detection
   const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -216,6 +227,9 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+
+
 
   // Format the search input to capitalize first letter
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -465,27 +479,23 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
                   )}
 
                   {!isLoadingFavorites && localFavorites.map((favorite, index) => (
-                    <div
-                      key={`${favorite.name}-${index}`}
-                      className="favorite-card"
-                    >
-                      <div
-                        className="favorite-content"
-                        onClick={() => {
-                          handleFavoriteSelect(favorite.name);
-                          setShowFavorites(false);
-                        }}
-                      >
+                    <div key={`${favorite.name}-${index}`} className="favorite-card">
+                      <div className="favorite-content">
                         <div className="favorite-location">{favorite.name}</div>
                         {favorite.temp && (
                           <div className="favorite-weather">
-                            <div className="favorite-temp">{favorite.temp}°</div>
+                            <span className="favorite-temp">{Math.round(convertTemp(favorite.temp))}°</span>
                             {favorite.icon && (
-                              <img
-                                src={`${OPENWEATHER_URL}/img/wn/${favorite.icon}.png`}
-                                alt={favorite.weatherDescription || 'Weather icon'}
-                                className="favorite-icon"
-                              />
+                              <>
+                                <img
+                                  src={`${OPENWEATHER_URL}/img/wn/${favorite.icon}.png`}
+                                  alt={favorite.weatherDescription || 'Weather icon'}
+                                  className="favorite-icon"
+                                />
+                                <span className="weather-description-fav">
+                                  {favorite.weatherDescription}
+                                </span>
+                              </>
                             )}
                           </div>
                         )}
@@ -514,19 +524,14 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
             onClick={toggleProfileMenu}
             ref={profileButtonRef}
           >
-            <img
-              src={
-                isAuthenticated && userProfile?.profile_picture
-                  ? `${userProfile.profile_picture.replace('http://', 'https://')}?ts=${Date.now()}`
-                  : defaultProPic
-              }
+          <img
+              src={profileImageUrl}
               alt="Profile"
               className={`profile-icon ${isAuthenticated ? 'authenticated' : ''}`}
-              key={
-                isAuthenticated && userProfile?.profile_picture
-                  ? `${userProfile.profile_picture}-${Date.now()}`
-                  : `default-${Date.now()}`
-              }
+              key={`profile-img-${profileVersion}`} // Key now uses profileVersion from context
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = defaultProPic;
+              }}
             />
           </button>
           {showProfileMenu && (

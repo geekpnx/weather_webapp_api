@@ -173,12 +173,11 @@ export const updateUserProfile = async (data: Partial<UserProfileData>): Promise
 };
 
 export const uploadProfilePicture = async (file: File): Promise<UserProfileData> => {
-  // Validate file size (2MB max)
+  // Keep your existing validations
   if (file.size > 2 * 1024 * 1024) {
     throw new Error('File size must be less than 2MB');
   }
 
-  // Validate file type
   if (!file.type.match(/image\/(jpeg|png|gif)/)) {
     throw new Error('Only JPEG, PNG, and GIF images are allowed');
   }
@@ -188,30 +187,33 @@ export const uploadProfilePicture = async (file: File): Promise<UserProfileData>
 
   try {
     const response = await fetch(`${USER_BASE_URL}/profile/`, {
-      method: 'PATCH', // Use PATCH instead of PUT for partial updates
-      headers: {
-        ...getAuthHeader(),
-        // Explicitly let browser set Content-Type with boundary
-      },
+      method: 'PATCH',
+      headers: getAuthHeader(),
       body: formData,
     });
 
     if (!response.ok) {
-      // Enhanced error logging
       const errorText = await response.text();
       console.error('Upload failed:', {
         status: response.status,
         statusText: response.statusText,
         error: errorText,
-        headers: Object.fromEntries(response.headers.entries())
       });
       throw new Error(errorText || 'Upload failed');
     }
 
-    return await response.json();
+    const data = await response.json();
+    
+    // Dispatch custom event to notify all components of profile update
+    window.dispatchEvent(new CustomEvent('profile-updated', {
+      detail: { newProfile: data }
+    }));
+    
+    return data;
+    
   } catch (error) {
-    console.error('Network error during upload:', error);
-    throw new Error('Network error during upload');
+    console.error('Upload error:', error);
+    throw error;
   }
 };
 

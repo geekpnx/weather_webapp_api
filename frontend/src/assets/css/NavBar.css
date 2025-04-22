@@ -588,18 +588,24 @@
   flex-direction: column;
   flex-grow: 1;
   cursor: pointer;
+  align-items: flex-start;
+  padding-left: 8px
 }
 
 .favorite-location {
-  font-weight: 600;
+  font-weight: bolder;
   margin-bottom: 4px;
-  color: #303030;
+  color: #000000;
+  width: 100%;
+  text-align: left;
 }
 
 .favorite-weather {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
+  width: 100%; /* Take full width */
+  justify-content: flex-start; /* Align items to the left */
 }
 
 .favorite-temp {
@@ -611,7 +617,19 @@
 .favorite-icon {
   width: 30px;
   height: 30px;
+  margin: 0 2px;
 }
+
+.weather-description-fav {
+  font-size: 1rem;
+  text-transform: capitalize;
+  color: #666;
+  line-height: 1; /* Prevents extra space from line height */
+  margin: 0;
+  padding: 0;
+}
+
+
 
 .remove-favorite {
   background: none;

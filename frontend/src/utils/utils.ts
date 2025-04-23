@@ -1,3 +1,4 @@
+// Utils
 export const sanitizeImageUrl = (
   url: string | undefined | null,
   defaultUrl: string

@@ -1,59 +1,74 @@
 import { defineConfig, loadEnv, ConfigEnv, UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// Function to load configuration based on mode
 export default ({ mode }: ConfigEnv): UserConfig => {
   const env = loadEnv(mode, process.cwd());
 
+  const commonConfig = {
+    plugins: [react()],
+    build: {
+      outDir: 'dist',
+      emptyOutDir: true,
+      rollupOptions: {
+        output: {
+          assetFileNames: 'assets/[name]-[hash][extname]',
+          chunkFileNames: 'js/[name]-[hash].js',
+          entryFileNames: 'js/[name]-[hash].js',
+        },
+      },
+    },
+  };
+
   if (mode === 'production') {
     return defineConfig({
-      plugins: [react()],
+      ...commonConfig,
+      base: '/',
       server: {
         host: '0.0.0.0',
         port: 8022,
         proxy: {
-          '/api': {
-            target: env.VITE_USER_API_BASE_URL || 'http://backend:8000',
+          // Proxy for external API calls (preserves your frontend URLs)
+          '/api/v1/weather': {
+            target: env.VITE_WEATHER_API_BASE_URL,
             changeOrigin: true,
             secure: false,
-            rewrite: (path) => path.replace(/^\/api/, ''),
+            rewrite: (path) => path.replace(/^\/api\/v1\/weather/, ''),
+          },
+          '/api/v1/user': {
+            target: env.VITE_USER_API_BASE_URL,
+            changeOrigin: true,
+            secure: false,
+            rewrite: (path) => path.replace(/^\/api\/v1\/user/, ''),
+          },
+          // Internal routing for Nginx
+          '/internal-api': {
+            target: 'http://backend:8000',
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/internal-api/, ''),
           },
           '/media': {
-            target: env.VITE_MEDIA_BASE_URL || 'http://backend:8000',
+            target: 'http://backend:8000',
             changeOrigin: true,
           },
           '/static': {
-            target: env.VITE_STATIC_BASE_URL || 'http://backend:8000',
+            target: 'http://backend:8000',
             changeOrigin: true,
-          },
-        },
-      },
-      build: {
-        outDir: 'dist',
-        emptyOutDir: true,
-        rollupOptions: {
-          output: {
-            assetFileNames: 'assets/[name]-[hash][extname]',
-            chunkFileNames: 'js/[name]-[hash].js',
-            entryFileNames: 'js/[name]-[hash].js',
           },
         },
       },
     });
   }
 
-  // Development config
+  // Development config remains the same
   return defineConfig({
-    plugins: [react()],
+    ...commonConfig,
     server: {
       proxy: {
-        '/api': env.VITE_USER_API_BASE_URL || 'http://localhost:8000',
-        '/media': env.VITE_MEDIA_BASE_URL || 'http://localhost:8000',
-        '/static':env.VITE_STATIC_BASE_URL || 'http://localhost:8000',
+        '/api/v1/weather': env.VITE_WEATHER_API_BASE_URL || 'http://localhost:8000/api/v1/weather',
+        '/api/v1/user': env.VITE_USER_API_BASE_URL || 'http://localhost:8000/api/v1/user',
+        '/media': env.VITE_MEDIA_BASE_URL || 'http://localhost:8000/media',
+        '/static': env.VITE_STATIC_BASE_URL || 'http://localhost:8000/static',
       },
-    },
-    build: {
-      outDir: 'dist',
     },
   });
 };

@@ -83,7 +83,7 @@
   padding: 8px 15px;
   border: 1px solid #ccc;
   border-radius: 10px;
-  font-size: 16px;
+  font-size: 14px;
   background-color: lemonchiffon;
   color: #303030;
   transition: all 0.3s ease;
@@ -237,7 +237,7 @@
 .toggle-knob {
   position: absolute;
   top: 2px;
-  left: -5px;
+  left: -6px;
   width: 20px;
   height: 20px;
   border-radius: 50%;

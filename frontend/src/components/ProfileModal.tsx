@@ -28,11 +28,16 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
   const [success, setSuccess] = useState<string>('');
   const [password, setPassword] = useState('');
   const { triggerProfileUpdate } = useProfile();
+  const { profileVersion } = useProfile();
   
   const STATIC_BASE_URL = import.meta.env.VITE_STATIC_BASE_URL;
   const defaultProPic = `${STATIC_BASE_URL}/images/propic/user_propic.svg`;
   const isDefaultImage = () => {
-    return !userData?.profile_picture || userData.profile_picture === defaultProPic;
+    if (!userData?.profile_picture) return true;
+    
+    // Compare only the path part of the URL
+    const extractPath = (url: string) => url.split('/').slice(3).join('/');
+    return extractPath(userData.profile_picture) === extractPath(defaultProPic);
   };
 
 
@@ -199,15 +204,15 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
         {/* Profile Picture Section - Now outside tabs */}
         <div className="profile-picture-section">
           <div className="profile-picture-container">
-            <img 
-              src={sanitizeImageUrl(userData?.profile_picture, defaultProPic)}
-              alt="Profile"
-              className="profile-picture"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = defaultProPic;
-              }}
-              key={userData?.profile_picture ? `${userData.profile_picture}?ts=${Date.now()}` : 'default'}
-            />
+          <img 
+            src={`${sanitizeImageUrl(userData?.profile_picture, defaultProPic)}?v=${profileVersion}`}
+            alt="Profile"
+            className="profile-picture"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = `${defaultProPic}?v=${profileVersion}`;
+            }}
+            key={`profile-pic-${userData?.profile_picture ? 'custom' : 'default'}-${profileVersion}`}
+          />
             <div className="picture-control-overlay">
               <input
                 type="file"

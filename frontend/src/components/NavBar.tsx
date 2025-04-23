@@ -58,8 +58,8 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const defaultProPic = `${STATIC_BASE_URL}/images/propic/user_propic.svg`;
 
   const profileImageUrl = isAuthenticated && userProfile?.profile_picture
-    ? `${sanitizeImageUrl(userProfile.profile_picture, defaultProPic)}?v=${profileVersion}`
-    : defaultProPic;
+  ? `${sanitizeImageUrl(userProfile.profile_picture, defaultProPic)}?v=${profileVersion}`
+  : `${defaultProPic}?v=${profileVersion}`;
 
 
   // Refs for click outside detection
@@ -527,14 +527,14 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
             ref={profileButtonRef}
           >
           <img
-              src={profileImageUrl}
-              alt="Profile"
-              className={`profile-icon ${isAuthenticated ? 'authenticated' : ''}`}
-              key={`profile-img-${profileVersion}`} // Key now uses profileVersion from context
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src = defaultProPic;
-              }}
-            />
+            src={profileImageUrl}
+            alt="Profile"
+            className={`profile-icon ${isAuthenticated ? 'authenticated' : ''}`}
+            key={`profile-img-${profileVersion}`}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = `${defaultProPic}?v=${profileVersion}`;
+            }}
+          />
           </button>
           {showProfileMenu && (
             <div className="dropdown-menu">

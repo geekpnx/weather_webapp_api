@@ -1,46 +1,33 @@
-export const sanitizeImageUrl = (
-  url: string | undefined | null,
-  defaultUrl: string
-): string => {
+export const sanitizeImageUrl = (url: string | undefined | null, defaultUrl: string): string => {
   if (!url) return defaultUrl;
 
-  // In development, return as-is
-  if (import.meta.env.DEV) {
+  // Handle data URIs and already secure URLs
+  if (url.startsWith('data:') || url.startsWith('https://')) {
     return url;
   }
 
-  // In production, use your existing env vars
-  const domain = import.meta.env.DOMAIN || window.location.hostname; // Using DOMAIN from your .env
-  const baseUrl = import.meta.env.BASE_URL || `https://${domain}`; // Using your BASE_URL or fallback
-
-  // Case 1: Already HTTPS
-  if (url.startsWith('https://')) return url;
-  
-  // Case 2: HTTP URL
-  if (url.startsWith('http://')) {
-    return url.replace(/^http:\/\//i, 'https://');
+  // Docker production environment
+  if (import.meta.env.PROD) {
+    // Get current protocol and host
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    
+    // Convert all URLs to current protocol
+    if (url.startsWith('http://') || url.startsWith('//')) {
+      return `${protocol}//${host}${url.replace(/^https?:\/\/[^/]+/, '')}`;
+    }
+    
+    // Handle relative paths
+    if (url.startsWith('/')) {
+      return `${protocol}//${host}${url}`;
+    }
+    
+    // Handle media URLs
+    if (url.startsWith('media/')) {
+      return `${protocol}//${host}/media/${url.replace('media/', '')}`;
+    }
   }
 
-  // Case 3: Protocol-relative URL (//example.com)
-  if (url.startsWith('//')) {
-    return `https:${url}`;
-  }
-
-  // Case 4: Relative path
-  if (url.startsWith('/')) {
-    return `${baseUrl}${url}`;
-  }
-
-  // Case 5: Media URLs (using your VITE_MEDIA_BASE_URL)
-  if (url.startsWith('media/')) {
-    return `${import.meta.env.VITE_MEDIA_BASE_URL || baseUrl + '/media'}/${url.replace('media/', '')}`;
-  }
-
-  // Case 6: For any other relative paths
-  if (!/^https?:\/\//i.test(url)) {
-    return `${baseUrl}/${url}`;
-  }
-
-  // Default case (data URIs, etc)
+  // Development environment - allow HTTP
   return url;
 };

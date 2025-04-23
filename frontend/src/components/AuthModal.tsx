@@ -189,24 +189,26 @@ const AuthModal: React.FC<AuthModalProps> = ({
                 />
               </div>
               <div className="form-group">
-              <label>Preferred Unit</label>
-                <div className="temperature-toggle">
-                  <span className="unit">°C</span>
-                  <button
-                    type="button"
-                    className={`toggle-button ${preferredTemperatureUnit === 'F' ? 'active' : ''}`}
-                    onClick={() => setPreferredTemperatureUnit(prev => prev === 'C' ? 'F' : 'C')}
-                  >
-                    <div className="toggle-switch">
-                      <div className="toggle-knob" />
-                    </div>
-                  </button>
-                  <span className="unit">°F</span>
+                <div className="temperature-control">
+                  <label>Preferred Unit</label>
+                  <div className="temperature-toggle">
+                    <span className="unit">°C</span>
+                    <button
+                      type="button"
+                      className={`toggle-button ${preferredTemperatureUnit === 'F' ? 'active' : ''}`}
+                      onClick={() => setPreferredTemperatureUnit(prev => prev === 'C' ? 'F' : 'C')}
+                    >
+                      <div className="toggle-switch">
+                        <div className="toggle-knob" />
+                      </div>
+                    </button>
+                    <span className="unit">°F</span>
+                  </div>
                 </div>
               </div>
             </>
           )}
-  
+
           <button type="submit" className="submit-button">
             {mode === 'login' ? 'Login' : 'Sign Up'}
           </button>

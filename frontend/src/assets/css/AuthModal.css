@@ -82,7 +82,7 @@
   width: 100%;
   padding: 8px 15px;
   border: 1px solid #ccc;
-  border-radius: 20px;
+  border-radius: 10px;
   font-size: 16px;
   background-color: lemonchiffon;
   color: #303030;
@@ -106,8 +106,8 @@
 
 .submit-button {
   width: 100%;
-  padding: 8px 15px;
-  border-radius: 20px;
+  padding: 12px 5px;
+  border-radius: 10px;
   border: none;
   cursor: pointer;
   font-size: 16px;
@@ -187,4 +187,69 @@
 @keyframes fadeOut {
   from { opacity: 1; }
   to { opacity: 0; }
+}
+
+
+.form-group {
+  display: block;
+  grid-template-columns: 120px 1fr; /* Match other form labels */
+  align-items: center;
+  margin-bottom: 1.5rem; /* Match other form groups */
+}
+
+.form-group label {
+  color: #303030; /* Match your other labels */
+  font-size: 16px;
+}
+
+
+/* Temperature control styles */
+.temperature-control {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10rem;
+  
+}
+
+.temperature-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toggle-button {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  border-radius: 12px;
+  background: #ccc;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: -5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgb(47, 47, 47);
+  transition: transform 0.3s ease;
+}
+
+.toggle-button.active .toggle-knob {
+  transform: translateX(26px);
+}
+
+.unit {
+  font-size: 14px;
+  color: #303030;
 }

@@ -496,10 +496,11 @@
 /* Empty state */
 .empty-state {
   color: #666;
-  font-style: italic;
+  font-style: normal;
   cursor: default;
   pointer-events: none;
   padding: 8px 12px;
+  text-align: center;
 }
 
 

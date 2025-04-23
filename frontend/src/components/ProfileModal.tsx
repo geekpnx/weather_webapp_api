@@ -315,35 +315,52 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
 
         {/* Settings Tab Content */}
         {activeTab === 'settings' && userData && (
-          <div className="settings-content">
-            <div className="form-group">
-              <label>Temperature Unit</label>
-              <select
-                value={userData.preferred_temperature_unit}
-                onChange={(e) => setUserData({
-                  ...userData,
-                  preferred_temperature_unit: e.target.value
-                })}
-              >
-                <option value="C">Celsius</option>
-                <option value="F">Fahrenheit</option>
-              </select>
+  <div className="settings-content">
+    {/* Temperature Unit Row */}
+    <div className="preference-row">
+      <label className="preference-label">Preferred Unit</label>
+      <div className="toggle-container">
+        <div className="temperature-toggle">
+          <span className={`unit ${userData.preferred_temperature_unit === 'C' ? 'active' : ''}`}>°C</span>
+          <button
+            type="button"
+            className={`toggle-button ${userData.preferred_temperature_unit === 'F' ? 'active' : ''}`}
+            onClick={() => setUserData({
+              ...userData,
+              preferred_temperature_unit: userData.preferred_temperature_unit === 'C' ? 'F' : 'C'
+            })}
+          >
+            <div className="toggle-switch">
+              <div className="toggle-knob" />
             </div>
+          </button>
+          <span className={`unit ${userData.preferred_temperature_unit === 'F' ? 'active' : ''}`}>°F</span>
+        </div>
+      </div>
+    </div>
 
-            <div className="form-group">
-              <label>Theme</label>
-              <select
-                value={userData.preferred_theme}
-                onChange={(e) => setUserData({
-                  ...userData,
-                  preferred_theme: e.target.value
-                })}
-              >
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-              </select>
+    {/* Theme Row */}
+    <div className="preference-row">
+      <label className="preference-label">Theme</label>
+      <div className="toggle-container">
+        <div className="theme-toggle">
+          <span className={`theme-label ${userData.preferred_theme === 'light' ? 'active' : ''}`}>Light</span>
+          <button
+            type="button"
+            className={`toggle-button ${userData.preferred_theme === 'dark' ? 'active' : ''}`}
+            onClick={() => setUserData({
+              ...userData,
+              preferred_theme: userData.preferred_theme === 'light' ? 'dark' : 'light'
+            })}
+          >
+            <div className="toggle-switch">
+              <div className="toggle-knob" />
             </div>
-
+          </button>
+          <span className={`theme-label ${userData.preferred_theme === 'dark' ? 'active' : ''}`}>Dark</span>
+        </div>
+      </div>
+    </div>
 
             {/* Add Save button for Settings */}
             <button 

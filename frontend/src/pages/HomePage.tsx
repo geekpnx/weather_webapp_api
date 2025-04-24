@@ -41,7 +41,6 @@ const HomePage = () => {
   }, [isAuthenticated]);
 
 
-  
   const handleAuthModalOpen = (mode: 'login' | 'register') => {
     setAuthModalMode(mode);
     setIsAuthModalOpen(true);

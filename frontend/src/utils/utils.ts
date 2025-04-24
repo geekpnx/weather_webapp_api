@@ -1,30 +1,21 @@
 export const sanitizeImageUrl = (url: string | undefined | null, defaultUrl: string): string => {
   if (!url) return defaultUrl;
 
-  // Handle data URIs and already secure URLs
+  // Return data URIs and already secure URLs as-is
   if (url.startsWith('data:') || url.startsWith('https://')) {
     return url;
   }
 
-  // Docker production environment
+  // Convert all URLs to HTTPS in production
   if (import.meta.env.PROD) {
-    // Get current protocol and host
-    const protocol = window.location.protocol;
-    const host = window.location.host;
-    
-    // Convert all URLs to current protocol
-    if (url.startsWith('http://') || url.startsWith('//')) {
-      return `${protocol}//${host}${url.replace(/^https?:\/\/[^/]+/, '')}`;
+    if (url.startsWith('http://')) {
+      return url.replace('http://', 'https://');
     }
-    
-    // Handle relative paths
+    if (url.startsWith('//')) {
+      return `https:${url}`;
+    }
     if (url.startsWith('/')) {
-      return `${protocol}//${host}${url}`;
-    }
-    
-    // Handle media URLs
-    if (url.startsWith('media/')) {
-      return `${protocol}//${host}/media/${url.replace('media/', '')}`;
+      return `https://${window.location.host}${url}`;
     }
   }
 

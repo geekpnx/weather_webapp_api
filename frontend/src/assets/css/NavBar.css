@@ -32,7 +32,7 @@
 }
 
 .logo-image {
-  height: 30px; /* Adjust the height as needed */
+  height: 35px; /* Adjust the height as needed */
   width: auto; /* Maintain aspect ratio */
 }
 
@@ -60,15 +60,36 @@
 }
 
 .search-input {
-  padding: 8px 40px 8px 15px; /* Right padding for add button */
-  width: 200px;
-  min-width: 300px; /* Minimum width */
-  flex-grow: 1;
+  padding: 8px 40px 8px 15px;
+  width: 100%;
+  min-width: 300px;
   height: 40px;
   border: 1px solid #ccc;
   border-radius: 20px;
   font-size: 16px;
   background-color: lemonchiffon;
+  padding-right: 40px; /* Make space for the search icon */
+}
+
+.search-button-inside {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  z-index: 1;
+}
+
+.search-button-inside:hover {
+  opacity: 0.8;
 }
 
 .search-buttons {
@@ -103,26 +124,26 @@
 
 .add-button {
   position: absolute;
-  right: 8px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   padding: 4px;
   cursor: pointer;
+  z-index: 1;
 }
 
-.search-button {
+/* .search-button {
   padding: 8px 20px;
   border: none;
   border-radius: 20px;
-  background-color: #303030;
   cursor: pointer;
   transition: background-color 0.3s;
   display: flex;
   align-items: center;
   gap: 8px;
-}
+} */
 
 .add-button:hover {
   background: rgba(0, 0, 0, 0.05);
@@ -135,21 +156,22 @@
   transition: transform 0.2s;
 }
 
-
-.search-icon {
-  width: 20px;
-  height: 20px;
-  filter: brightness(0) invert(1);
-}
-
 /* Hover effects */
 .add-button:hover .add-icon {
   transform: scale(1.1);
 }
 
-.search-button:hover {
-  background-color: #404040;
+.search-icon {
+  width: 25px;
+  height: 25px;
+  transition: transform 0.2s;
 }
+
+.search-button-inside:hover .search-icon {
+  transform: scale(1.1);
+}
+
+
 
 /* Navigation Icons */
 .nav-icons {
@@ -684,6 +706,8 @@
 .search-input-container {
   position: relative;
   width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .suggestions-dropdown {
@@ -723,7 +747,7 @@
 
 /* Update the search input to match the new structure */
 .search-input {
-  padding: 8px 40px 8px 15px;
+  padding: 8px 40px 8px 42px;
   width: 100%;
   min-width: 300px;
   height: 40px;

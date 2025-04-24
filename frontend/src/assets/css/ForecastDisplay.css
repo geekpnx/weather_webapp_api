@@ -154,7 +154,7 @@
 
 /* Hourly forecasts container */
 .hourly-forecasts {
-  display: flex;
+  display: -webkit-inline-box;
   gap: 0.5rem;
   overflow-x: auto;
   padding: 0.5rem 1rem; /* Added left/right padding */

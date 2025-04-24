@@ -59,7 +59,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
 
   const profileImageUrl = isAuthenticated && userProfile?.profile_picture
   ? `${sanitizeImageUrl(userProfile.profile_picture, defaultProPic)}?v=${profileVersion}`
-  : `${defaultProPic}?v=${profileVersion}`;
+  : defaultProPic;
 
 
   // Refs for click outside detection
@@ -382,61 +382,60 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
       </div>
 
       <div className="search-container">
-      <div className="temperature-toggle">
-                <span className="unit">°C</span>
-                <button
-                  type="button"
-                  className={`toggle-button ${temperatureUnit === 'F' ? 'active' : ''}`}
-                  onClick={toggleTemperatureUnit}
-                >
-                  <div className="toggle-switch">
-                    <div className="toggle-knob" />
-                  </div>
-                </button>
-                <span className="unit">°F</span>
-              </div>
-              <div className="input-with-add">
-                <div className="search-input-container" ref={searchInputRef}>
-                  <input
-                    type="text"
-                    id="location-input"
-                    name="location"
-                    value={searchLocation}
-                    onChange={handleSearchChange}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Enter location"
-                    className="search-input"
-                    autoComplete="off"
-                  />
-                  {showSuggestions && citySuggestions.length > 0 && (
-                    <div className="suggestions-dropdown">
-                      {citySuggestions.map((city, index) => (
-                        <div 
-                          key={index} 
-                          className="suggestion-item"
-                          onClick={() => selectSuggestion(city)}
-                        >
-                          {city}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {isAuthenticated && (
-                  <button
-                    onClick={handleAddFavorite}
-                    className="add-button"
-                    title="Add to favorites"
-                  >
-                    <img src={addIcon} alt="Add" className="add-icon" />
-                  </button>
-                )}
-              </div>
-              <button onClick={handleSearch} className="search-button">
-                <img src={searchIcon} alt="Search" className="search-icon" />
-              </button>
+        <div className="temperature-toggle">
+          <span className="unit">°C</span>
+          <button
+            type="button"
+            className={`toggle-button ${temperatureUnit === 'F' ? 'active' : ''}`}
+            onClick={toggleTemperatureUnit}
+          >
+            <div className="toggle-switch">
+              <div className="toggle-knob" />
             </div>
-
+          </button>
+          <span className="unit">°F</span>
+        </div>
+        <div className="input-with-add">
+          <div className="search-input-container" ref={searchInputRef}>
+            <button onClick={handleSearch} className="search-button-inside">
+              <img src={searchIcon} alt="Search" className="search-icon" />
+            </button>
+            <input
+              type="text"
+              id="location-input"
+              name="location"
+              value={searchLocation}
+              onChange={handleSearchChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Enter location"
+              className="search-input"
+              autoComplete="off"
+            />
+            {showSuggestions && citySuggestions.length > 0 && (
+              <div className="suggestions-dropdown">
+                {citySuggestions.map((city, index) => (
+                  <div 
+                    key={index} 
+                    className="suggestion-item"
+                    onClick={() => selectSuggestion(city)}
+                  >
+                    {city}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          {isAuthenticated && (
+            <button
+              onClick={handleAddFavorite}
+              className="add-button"
+              title="Add to favorites"
+            >
+              <img src={addIcon} alt="Add" className="add-icon" />
+            </button>
+          )}
+        </div>
+      </div>
       <div className="nav-icons">
       {isAuthenticated && <AlertsDisplay />}
         {isAuthenticated && (

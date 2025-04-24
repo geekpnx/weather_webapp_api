@@ -189,20 +189,25 @@ export const fetchForecast = async (location?: string, lat?: number, lon?: numbe
 export const fetchNews = async (location?: string): Promise<NewsArticle[]> => {
   try {
     const token = getAuthToken();
-    if (!token) throw new Error("User is not authenticated. Please log in.");
+    if (!token) return []; // Silent fail for unauthenticated users
 
-    const url = `${WEATHER_BASE_URL}/news/${location ? `?location=${location}` : ''}`;
+    const url = `${WEATHER_BASE_URL}/news/${location ? `?location=${encodeURIComponent(location)}` : ''}`;
     const response = await fetch(url, {
-      headers: { 'Authorization': `Token ${token}`, 'Content-Type': 'application/json' },
+      headers: { 
+        'Authorization': `Token ${token}`, 
+        'Content-Type': 'application/json' 
+      },
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      // Silent handling of 404s
+      if (response.status === 404) return [];
+      // Only throw for rate limits
       if (response.status === 429) {
-        throw new Error(errorData.error || 'News API request limit reached. Please try again later.');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'News API limit reached');
       }
-      // Treat other errors as no news
-      return [];
+      return []; // Silent fail for other errors
     }
 
     const data = await response.json();
@@ -214,14 +219,13 @@ export const fetchNews = async (location?: string): Promise<NewsArticle[]> => {
       urlToImage: article.urlToImage || null,
     }));
   } catch (error) {
-    console.error("News fetch error:", error);
-    if (error instanceof Error && error.message.includes('News API request limit reached')) {
-      throw error; // Propagate this specific error
+    // Only log unexpected errors (not 404s)
+    if (!(error instanceof Error) || !error.message.includes('404')) {
+      console.error("News fetch error:", error);
     }
-    return []; // Return empty array for other errors
+    return [];
   }
 };
-
 
 // Fetch radar image from Django backend
 export const fetchRadarImage = async (

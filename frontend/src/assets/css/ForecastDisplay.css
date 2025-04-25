@@ -302,3 +302,28 @@
     margin: 4px 0;
   }
 }
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .forecast-tabs {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.3rem;
+    padding: 0.5rem;
+  }
+
+  .forecast-tab {
+    padding: 0.5rem;
+  }
+
+  .hourly-item {
+    flex: 0 0 90px;
+    height: 160px;
+    padding: 8px;
+  }
+
+  .forecast-expanded {
+    width: 95vw;
+    padding: 0.5rem;
+  }
+}

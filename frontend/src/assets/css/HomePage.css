@@ -320,3 +320,49 @@
     width: 100%;
   }
 }
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .home-page {
+    padding: 10px;
+  }
+
+  .content-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 15px;
+  }
+
+  .weather-current {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: auto;
+  }
+
+  .sidebar-container {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 100%;
+    flex-direction: column;
+  }
+
+  .maps {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .weather-news {
+    grid-column: 1;
+    grid-row: 4;
+  }
+
+  .card {
+    min-height: auto;
+    padding: 15px;
+  }
+
+  .weather-current h1 {
+    font-size: 40px;
+  }
+}

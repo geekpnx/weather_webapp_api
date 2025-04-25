@@ -139,3 +139,23 @@
     font-size: 0.9rem;
   }
 }
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .news-container h2 {
+    font-size: 1.3rem;
+  }
+
+  .news-image-container {
+    max-height: 150px;
+  }
+
+  .news-title {
+    font-size: 1rem;
+  }
+
+  .news-content {
+    font-size: 0.85rem;
+  }
+}

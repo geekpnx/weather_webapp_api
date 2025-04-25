@@ -86,3 +86,22 @@
   .leaflet-tile-pane .leaflet-layer:first-child {
     z-index: 400 !important;
   }
+
+
+
+  /* Responsive adjustments */
+@media (max-width: 768px) {
+  .map-container {
+    height: 300px;
+  }
+
+  .layer-controls {
+    top: 5px;
+    right: 5px;
+  }
+
+  .layer-toggle {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}

@@ -410,3 +410,29 @@
 .theme-label.active {
   color: #303030;
 }
+
+
+
+/* ==================== */
+/* DARK MODE OVERRIDES  */
+/* ==================== */
+[data-theme="dark"] .profile-modal {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group select {
+  background-color: #2d2d2d;
+  color: #f0f0f0;
+  border-color: #444;
+}
+
+[data-theme="dark"] .danger-zone {
+  border-color: #ff4444;
+  background-color: rgba(255, 68, 68, 0.05);
+}
+
+[data-theme="dark"] .modal-tabs button.active {
+  background-color: #3a3a3a;
+}

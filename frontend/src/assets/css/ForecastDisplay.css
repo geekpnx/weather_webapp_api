@@ -195,7 +195,7 @@
   height: 205px; /* Fixed height */
   padding: 12px; /* Consistent padding */
   background: #fff;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid #eee;
   display: flex;
   flex-direction: column;
@@ -215,8 +215,8 @@
   width: 100%;
   text-align: center;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .hourly-item:hover {
@@ -318,7 +318,7 @@
 
   .hourly-item {
     flex: 0 0 90px;
-    height: 160px;
+    height: 185px;
     padding: 8px;
   }
 
@@ -326,4 +326,30 @@
     width: 95vw;
     padding: 0.5rem;
   }
+}
+
+
+/* ==================== */
+/* DARK MODE OVERRIDES  */
+/* ==================== */
+[data-theme="dark"] .forecast-container {
+  background-color: #2d2d2d;
+}
+
+[data-theme="dark"] .forecast-tab {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .forecast-tab.active {
+  background-color: #3a3a3a;
+}
+
+[data-theme="dark"] .hourly-item {
+  background-color: #252525;
+  border-color: #444;
+}
+
+[data-theme="dark"] .hourly-details {
+  border-top-color: #444;
 }

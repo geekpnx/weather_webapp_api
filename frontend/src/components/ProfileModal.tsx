@@ -8,17 +8,21 @@ import {
   updateUserProfile,
   uploadProfilePicture,
   removeProfilePicture,
-  updatePreferences,
 } from '../api/user';
 
 import { sanitizeImageUrl } from '../utils/utils';
 import { useProfile } from '../context/ProfileContext';
+import { usePreferences } from '../context/PreferencesContext';
+// import ThemeToggle from './ThemeToggle';
+
 
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialTab?: 'profile' | 'settings';  // Add this prop
 }
+
+
 
 const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab = 'profile'  }) => {
   const { logout, refreshProfile } = useAuth();
@@ -29,6 +33,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
   const [password, setPassword] = useState('');
   const { triggerProfileUpdate } = useProfile();
   const { profileVersion } = useProfile();
+  const { temperatureUnit, toggleTemperatureUnit } = usePreferences();
   
   const STATIC_BASE_URL = import.meta.env.VITE_STATIC_BASE_URL;
   const defaultProPic = `${STATIC_BASE_URL}/images/propic/user_propic.svg`;
@@ -141,31 +146,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
   };
 
 
-
-  const handlePreferencesUpdate = async () => {
-    try {
-      // Check if preferences actually changed
-      const originalData = await fetchUserProfile();
-      const prefsChanged = 
-        originalData.preferred_temperature_unit !== userData.preferred_temperature_unit ||
-        originalData.preferred_theme !== userData.preferred_theme;
-
-      if (!prefsChanged) {
-        setSuccess('No changes to save');
-        return;
-      }
-
-      await updatePreferences({
-        preferred_temperature_unit: userData.preferred_temperature_unit,
-        preferred_theme: userData.preferred_theme,
-      });
-      setSuccess('Preferences updated successfully');
-      await loadProfile(); // Refresh data
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (error) {
-      setError(error instanceof Error ?  error.message : 'Failed to update preferences');
-    }
-  };
 
   const handleDeleteAccount = async () => {
     if (!password) {
@@ -320,60 +300,29 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
 
         {/* Settings Tab Content */}
         {activeTab === 'settings' && userData && (
-  <div className="settings-content">
-    {/* Temperature Unit Row */}
-    <div className="preference-row">
-      <label className="preference-label">Preferred Unit</label>
-      <div className="toggle-container">
-        <div className="temperature-toggle">
-          <span className={`unit ${userData.preferred_temperature_unit === 'C' ? 'active' : ''}`}>°C</span>
-          <button
-            type="button"
-            className={`toggle-button ${userData.preferred_temperature_unit === 'F' ? 'active' : ''}`}
-            onClick={() => setUserData({
-              ...userData,
-              preferred_temperature_unit: userData.preferred_temperature_unit === 'C' ? 'F' : 'C'
-            })}
-          >
-            <div className="toggle-switch">
-              <div className="toggle-knob" />
+          <div className="settings-content">
+            {/* Temperature Unit Row */}
+            <div className="preference-row">
+              <label className="preference-label">Preferred Unit</label>
+              <div className="toggle-container">
+                <div className="temperature-toggle">
+                  <span className={`unit ${temperatureUnit === 'C' ? 'active' : ''}`}>°C</span>
+                  <button
+                    type="button"
+                    className={`toggle-button ${temperatureUnit === 'F' ? 'active' : ''}`}
+                    onClick={toggleTemperatureUnit}
+                  >
+                    <div className="toggle-switch">
+                      <div className="toggle-knob" />
+                    </div>
+                  </button>
+                  <span className={`unit ${temperatureUnit === 'F' ? 'active' : ''}`}>°F</span>
+                </div>
+              </div>
             </div>
-          </button>
-          <span className={`unit ${userData.preferred_temperature_unit === 'F' ? 'active' : ''}`}>°F</span>
-        </div>
-      </div>
-    </div>
 
-    {/* Theme Row */}
-    <div className="preference-row">
-      <label className="preference-label">Theme</label>
-      <div className="toggle-container">
-        <div className="theme-toggle">
-          <span className={`theme-label ${userData.preferred_theme === 'light' ? 'active' : ''}`}>Light</span>
-          <button
-            type="button"
-            className={`toggle-button ${userData.preferred_theme === 'dark' ? 'active' : ''}`}
-            onClick={() => setUserData({
-              ...userData,
-              preferred_theme: userData.preferred_theme === 'light' ? 'dark' : 'light'
-            })}
-          >
-            <div className="toggle-switch">
-              <div className="toggle-knob" />
-            </div>
-          </button>
-          <span className={`theme-label ${userData.preferred_theme === 'dark' ? 'active' : ''}`}>Dark</span>
-        </div>
-      </div>
-    </div>
+            {/* <ThemeToggle /> */}
 
-            {/* Add Save button for Settings */}
-            <button 
-              onClick={handlePreferencesUpdate} 
-              className="btn-save"
-            >
-              Save Preferences
-            </button>
           </div>
         )}
 

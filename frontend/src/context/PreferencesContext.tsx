@@ -2,23 +2,42 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { updateUserPreferences } from '../api/user';
 
-// 1. Create the context with proper typing
-const PreferencesContext = createContext<{
+interface PreferencesContextType {
   temperatureUnit: 'C' | 'F';
+  theme: 'light' | 'dark';
   toggleTemperatureUnit: () => void;
+  toggleTheme: () => void;
   convertTemp: (temp: number) => number;
-} | null>(null); // Initialize with null
+}
 
-// 2. Create the provider component
+const PreferencesContext = createContext<PreferencesContextType | null>(null);
+
 export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, userProfile, refreshProfile } = useAuth();
   const [temperatureUnit, setTemperatureUnit] = useState<'C' | 'F'>('C');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
-    if (isAuthenticated && userProfile?.preferred_temperature_unit) {
-      setTemperatureUnit(userProfile.preferred_temperature_unit);
+    if (isAuthenticated && userProfile) {
+      if (userProfile.preferred_temperature_unit) {
+        setTemperatureUnit(userProfile.preferred_temperature_unit);
+      }
+      if (userProfile.preferred_theme) {
+        // Add type validation
+        const validTheme = userProfile.preferred_theme === 'dark' ? 'dark' : 'light';
+        setTheme(validTheme);
+        document.body.setAttribute('data-theme', validTheme);
+      }
     }
-  }, [isAuthenticated, userProfile?.preferred_temperature_unit]);
+  }, [isAuthenticated, userProfile]);
+
+  
+  // Set theme on initial load
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' || 'light';
+    setTheme(savedTheme);
+    document.body.setAttribute('data-theme', savedTheme);
+  }, []);
 
   const celsiusToFahrenheit = (c: number): number => (c * 9/5) + 32;
 
@@ -32,7 +51,10 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
     
     if (isAuthenticated) {
       try {
-        await updateUserPreferences({ preferred_temperature_unit: newUnit });
+        await updateUserPreferences({ 
+          preferred_temperature_unit: newUnit,
+          preferred_theme: theme // Keep current theme when updating temp unit
+        });
         refreshProfile?.();
       } catch (error) {
         console.error('Failed to update temperature unit:', error);
@@ -40,14 +62,41 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   };
 
+  const toggleTheme = async () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    if (isAuthenticated) {
+      try {
+        await updateUserPreferences({ 
+          preferred_theme: newTheme,
+          preferred_temperature_unit: temperatureUnit // Keep current temp unit
+        });
+        refreshProfile?.();
+      } catch (error) {
+        console.error('Failed to update theme:', error);
+        // Revert if API call fails
+        setTheme(theme);
+        document.body.setAttribute('data-theme', theme);
+      }
+    }
+  };
+
   return (
-    <PreferencesContext.Provider value={{ temperatureUnit, toggleTemperatureUnit, convertTemp }}>
+    <PreferencesContext.Provider value={{ 
+      temperatureUnit, 
+      theme,
+      toggleTemperatureUnit, 
+      toggleTheme,
+      convertTemp 
+    }}>
       {children}
     </PreferencesContext.Provider>
   );
 };
 
-// 3. Create a custom hook with proper null check
 export const usePreferences = () => {
   const context = useContext(PreferencesContext);
   if (!context) {

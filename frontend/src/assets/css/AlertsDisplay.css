@@ -12,10 +12,33 @@
     align-items: center;
   }
 
-  .warning-icon {
-    width: 32px;
-    height: 32px;
-  }
+/* Warning Icon Container */
+.warning-icon-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px; /* Slightly larger to accommodate the triangle */
+  height: 50px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+/* Warning Icon Hover Effect */
+.warning-icon-container:hover {
+  background-color: rgba(0, 0, 0, 0.1); /* Light gray circle */
+}
+
+/* Warning Icon Image */
+.warning-icon {
+  width: 32px; /* Slightly smaller than container */
+  height: 32px;
+  transition: transform 0.2s ease;
+}
+
+/* Optional: Add slight scale on hover */
+.warning-icon-container:hover .warning-icon {
+  transform: scale(1.1);
+}
 
   .has-alerts .warning-icon {
     /* You can add specific styles when there are alerts, e.g., more vibrant color */
@@ -141,3 +164,45 @@
     border-color: #ccc;
     background-color: #f0f0f0;
   }
+
+
+
+@media (max-width: 768px) {
+  .alerts-dropdown {
+    /* Position at bottom of screen */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    width: 100%;
+    max-height: 60vh; /* Adjust height as needed */
+    border-radius: 12px 12px 0 0;
+    margin-top: 0;
+    animation: slideUp 0.3s ease-out;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Add handle indicator at top */
+  .alerts-dropdown::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: #ccc;
+    border-radius: 2px;
+    margin: 8px auto;
+  }
+
+  /* Alert card adjustments for mobile */
+  .alert-card {
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+
+  /* Add animation */
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+}

@@ -201,3 +201,28 @@
     padding: 1rem;
   }
 }
+
+
+
+/* ==================== */
+/* DARK MODE OVERRIDES  */
+/* ==================== */
+[data-theme="dark"] .weather-card {
+  background-color: #1e1e1e;
+}
+
+[data-theme="dark"] .location {
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .temperature {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .additional-info {
+  background-color: #2d2d2d;
+}
+
+[data-theme="dark"] .weather-icon {
+  filter: brightness(0.8) contrast(1.2);
+}

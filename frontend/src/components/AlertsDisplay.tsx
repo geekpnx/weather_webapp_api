@@ -62,7 +62,8 @@ const AlertsDisplay: React.FC = () => {
         aria-expanded={isDropdownOpen}
         aria-haspopup="true"
       >
-        <img src={warningIcon} alt="Warning Icon" className="warning-icon" />
+      <div className="warning-icon-container">
+        <img src={warningIcon} alt="Warning Icon" className="warning-icon" /></div>
         {hasActiveAlerts && <div className="alert-notification-glow" />}
       </button>
 

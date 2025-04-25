@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import '../assets/css/NavBar.css';
 import logo from '../assets/images/logo/logo_WA.svg';
 import searchIcon from '../assets/images/icons/search-icon.svg';
@@ -27,7 +26,6 @@ interface NavBarProps {
 }
 
 const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
-  const navigate = useNavigate();
   const { isAuthenticated, logout, userProfile, refreshProfile } = useAuth();
   const [searchLocation, setSearchLocation] = useState<string>('');
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
@@ -377,7 +375,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
 
   return (
     <div className="navbar">
-      <div className="logo" onClick={() => navigate('/')}>
+      <div className="logo" onClick={() => window.location.reload()}>
         <img src={logo} alt="WeatherApp Logo" className="logo-image" />
       </div>
 

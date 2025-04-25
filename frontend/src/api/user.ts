@@ -255,7 +255,11 @@ export const updateTemperatureUnit = async (unit: 'C' | 'F'): Promise<Preference
 };
 
 
-export const updateUserPreferences = async (preferences: { preferred_temperature_unit: 'C' | 'F' }) => {
+// Update the parameter type to include both preferences
+export const updateUserPreferences = async (preferences: {
+  preferred_temperature_unit?: 'C' | 'F';
+  preferred_theme?: 'light' | 'dark';
+}): Promise<void> => {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated');
 

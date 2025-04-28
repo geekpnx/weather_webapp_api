@@ -31,6 +31,15 @@
   --secondary-color: #505050;
 }
 
+[data-theme="dark"] .card {
+  background-color: rgba(30, 30, 30, 0.85); /* Semi-transparent dark */
+}
+
+[data-theme="dark"] .video-overlay {
+  background-color: rgba(0, 0, 0, 0.5); /* Darker overlay for dark theme */
+}
+
+
 /* Update existing styles to use variables */
 .home-page {
   background-color: var(--bg-color);
@@ -56,7 +65,7 @@
 
 /* General Reset */
 * {
-  font-family: 'Abel';
+  font-family: 'Abel', Helvetica, Verdana, sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -69,6 +78,42 @@
   
 }
 
+body, html, #root {
+  background: rgb(249, 249, 249); /* Fallback color */
+  margin: 0;
+  padding: 0;
+}
+
+.video-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.video-background video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: cover;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent overlay */
+}
 
 
 /* Home Page Container */
@@ -79,8 +124,11 @@
   justify-content: center; /* Center vertically */
   min-height: 100vh; /* Ensure the page takes up at least the full viewport height */
   padding: 20px;
-  background-color: #f9f9f9;
+  position: relative;
+  z-index: 1;
+
 }
+
 
 /* Add these styles to HomePage.css */
 .top-messages {
@@ -142,7 +190,7 @@
 
 /* Card Styling */
 .card {
-  background-color: white;
+  background: rgb(50 50 50 / 25%);
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
@@ -181,7 +229,7 @@
 }
 
 .weather-current h1 {
-  color: black;
+  color: white;
   font-size: 60px;
 }
 
@@ -226,7 +274,7 @@
 
 .weather-news p {
   font-size:1.1em;
-  padding-top: 7px;
+  padding-top: 2px;
 }
 
 /* Maps Card */
@@ -312,7 +360,7 @@
 .slide-controls {
   display: flex;
   justify-content: center;
-  margin-top: 28px;
+  margin-top: 42px;
 }
 
 .slide-dot {
@@ -346,16 +394,15 @@
 .footer {
   text-align: center;
   padding: 20px;
-  background-color: #f9f9f9;
-  border-top: 1px solid #ddd;
-  margin-top: auto; /* Push the footer to the bottom */
+  margin-top: auto; 
   width: 100%;
 }
 
 .footer p {
   margin: 0;
-  color: #333;
+  color: white;
   font-size: 14px;
+  margin-top: -30px;
 }
 
 /* Responsive adjustments */

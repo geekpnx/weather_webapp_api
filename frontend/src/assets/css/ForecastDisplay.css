@@ -2,7 +2,7 @@
 .forecast-container {
   margin-top: 2rem;
   padding: 1rem;
-  background: #f8f9fa;
+  background: rgb(50 50 50 / 25%);
   border-radius: 12px;
   max-width: 100%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -22,7 +22,7 @@
 .forecast-tab {
   width: 100%;
   padding: 1rem;
-  background: white;
+  background: rgba(15, 15, 15, 0.15);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
@@ -40,18 +40,26 @@
 }
 
 .forecast-tab.active {
-  background: #e3f2fd;
+  background: rgba(0, 149, 255, 0.35);
 }
 
 .tab-day {
   font-weight: 600;
   margin-bottom: 0.5rem;
+  color: white;
+}
+
+.tab-date {
+  font-weight: normal;
+  margin-bottom: 0.5rem;
+  color: white;
 }
 
 .tab-temp {
   font-size: 1.2rem;
   font-weight: bold;
   margin: 0.5rem 0;
+  color: white;
 }
 
 .tab-high-low {
@@ -60,12 +68,13 @@
   width: 100%;
   font-size: 0.9rem;
   margin-top: 0.5rem;
+  color: white;
+
 }
 
 /* Popup styles */
 .forecast-expanded {
-  background-color: rgba(245, 245, 245, 0.85); /* Less transparency for better readability */
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(15, 15, 15, 0.65);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   position: absolute;
   bottom: calc(100% + -10px);
@@ -98,7 +107,7 @@
   border-left: 12px solid transparent;
   border-right: 12px solid transparent;
   border-top: 12px solid white;
-  border-top: 12px solid rgba(245, 245, 245, 0.85);
+  border-top: 12px solid rgba(15, 15, 15, 0.65);
 }
 
 @keyframes fadeInUp {
@@ -117,7 +126,7 @@
   justify-content: space-around;
   margin-bottom: 1rem;
   padding: 1rem;
-  background-color: #f8f9fa;
+  background: rgba(255, 255, 255, 0.35);
   color: f8f9fa;
   font-weight: bolder;
   border-radius: 8px;
@@ -132,10 +141,11 @@
   padding: 0.3rem 0.5rem;
   position: relative;
   z-index: 2;
+  color: white;
 }
 
 .day-additional-info strong {
-  color: gray;
+  color: white;
   font-weight: 600;
 }
 
@@ -194,9 +204,8 @@
   flex: 0 0 102px; /* Fixed width */
   height: 205px; /* Fixed height */
   padding: 12px; /* Consistent padding */
-  background: #fff;
+  background: rgba(202, 202, 202, 1.25);
   border-radius: 10px;
-  border: 1px solid #eee;
   display: flex;
   flex-direction: column;
   align-items: center;

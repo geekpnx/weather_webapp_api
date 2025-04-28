@@ -10,7 +10,12 @@ import { useAuth } from '../context/AuthContext';
 import MapComponent from '../components/MapComponent';
 import AuthModal from '../components/AuthModal';
 
+import orangeVideo from '../assets/videos/orange.mp4';
+import grayVideo from '../assets/videos/gray.mp4';
+import blueVideo from '../assets/videos/blue.mp4';
+
 const HomePage = () => {
+  const [backgroundVideo, setBackgroundVideo] = useState<string>(blueVideo);
   const [location, setLocation] = useState<string>('');
   const [currentWeather, setCurrentWeather] = useState<any>(null);
   const [news, setNews] = useState<NewsArticle[]>([]);
@@ -30,6 +35,19 @@ const HomePage = () => {
   });
 
   const { isAuthenticated } = useAuth();
+
+  const getBackgroundVideo = (weatherDescription: string) => {
+    const description = weatherDescription.toLowerCase();
+    
+    if (description.includes('sunny') || description.includes('clear')) {
+      return orangeVideo;
+    } else if (description.includes('cloud') || description.includes('overcast')) {
+      return grayVideo;
+    } else {
+      return blueVideo;
+    }
+  };
+
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -78,6 +96,10 @@ const HomePage = () => {
       
       cityName = current.name || (typeof location === 'string' ? location : 'Your Location');
       setLocation(cityName);
+
+      if (current.weather && current.weather[0] && current.weather[0].description) {
+        setBackgroundVideo(getBackgroundVideo(current.weather[0].description));
+      }
   
       // Get already transformed forecast data
       const forecastData = await fetchForecast(
@@ -207,6 +229,13 @@ const HomePage = () => {
 
   return (
     <div className="home-page">
+     <div className="video-background">
+        <video autoPlay loop muted playsInline key={backgroundVideo}>
+          <source src={backgroundVideo} type="video/mp4" />
+        </video>
+        <div className="video-overlay"></div>
+      </div>
+
       <NavBar 
         onSearch={(location) => handleSearch(location)}
         onLogin={() => handleAuthModalOpen('login')}
@@ -266,7 +295,7 @@ const HomePage = () => {
       />
   
       <footer className="footer">
-        <p>© 2024 Weather WebApp made with ♡</p>
+        <p>© 2025 Weather WebApp made with ♡</p>
       </footer>
     </div>
   );

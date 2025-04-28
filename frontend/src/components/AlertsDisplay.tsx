@@ -71,7 +71,7 @@ const AlertsDisplay: React.FC = () => {
         <div className="alerts-dropdown">
           {isLoading && <div className="alerts-loading">Loading alerts...</div>}
           {error && <div className="alerts-error">{error}</div>}
-          {!isLoading && alerts.length === 0 && <div className="alerts-empty">No active alerts.</div>}
+          {!isLoading && alerts.length === 0 && <div className="alerts-empty">No active alerts</div>}
           {!isLoading &&
             alerts.map((alert, index) => (
               <div key={index} className={`alert-card urgency-${alert.urgency?.toLowerCase().replace(' ', '-') || 'unknown'}`}>

@@ -5,6 +5,7 @@ import searchIcon from '../assets/images/icons/search-icon.svg';
 import favoriteIcon from '../assets/images/icons/favorite-icon.svg';
 import trashIcon from '../assets/images/icons/trash-icon.svg';
 import addIcon from '../assets/images/icons/add-icon.svg';
+import settingsIcon from '../assets/images/icons/settings-icon.svg';
 import ProfileModal from './ProfileModal';
 import { useAuth } from '../context/AuthContext';
 import { removeFromFavorites, fetchCurrentWeather, fetchCoordinates, fetchFavoriteLocations, addToFavorites} from '../api/weather';
@@ -467,7 +468,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
 
                   {!isLoadingFavorites && localFavorites.length === 0 && (
                     <div className="dropdown-item empty-state">
-                      No favorite locations saved yet
+                      No favorite locations saved
                     </div>
                   )}
 

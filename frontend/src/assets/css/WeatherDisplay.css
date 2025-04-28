@@ -45,12 +45,11 @@
 
 .location {
   font-size: 2.5rem;
-  color: #1a237e;
+  color: #000000;
   text-transform: capitalize;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  /* Update to span both columns */
   grid-column: 1 / -1;
 }
 
@@ -63,8 +62,7 @@
 .temperature {
   font-size: 4rem;
   font-weight: bold;
-  color: #212121;
-  /* Remove all margins */
+  color: #ffffff;
   margin: 0;
   line-height: 1;
 }
@@ -72,9 +70,7 @@
 .temp-range {
   display: flex;
   gap: 2.5rem;
-  font-size: 1.2rem;
-  color: #616161;
-  /* Add these to lock position */
+  color: #dfdfdf;
   margin: 0.5rem 0 0 0;
   padding: 0;
   width: 100%;
@@ -82,9 +78,8 @@
 }
 
 .feels-like {
-  font-size: 1.2rem;
-  color: #616161;
-  /* Align with temperature */
+  font-size: 1.5rem;
+  color: #d2c8c8;
   margin: 0.5rem 0 0 0;
   grid-column: 1;
 }
@@ -106,15 +101,15 @@
 }
 
 .date {
-  font-size: 1.1rem;
-  color: #444;
+  font-size: 1.3rem;
+  color: #dedede;
   font-weight: 500;
   display: block;
 }
 
 .time {
-  font-size: 1rem;
-  color: #616161;
+  font-size: 1.2rem;
+  color: #ffffff;
   display: block;
   margin-top: 0.3rem;
 }
@@ -127,7 +122,7 @@
 .weather-description {
   display: block;
   text-transform: capitalize;
-  color: #4a4a4a;
+  color: #ffffff;
   margin-top: 0.5rem;
   font-size: 25px;
   font-weight: bolder;
@@ -140,26 +135,27 @@
   gap: -0.5rem;
   margin: 3rem 0;
   padding: 1.5rem;
-  background: #f5f5f5;
+  background: rgb(26 26 26 / 15%);
   border-radius: 12px;
 }
 
 .info-item {
   text-align: center;
   padding: 0.5rem;
+  color: white;
 }
 
 .label {
   display: block;
   font-size: 0.9rem;
-  color: #616161;
+  color: #dfdfdf;
   margin-bottom: 0.3rem;
 }
 
 .value {
   font-size: 1.2rem;
   font-weight: 500;
-  color: #212121;
+  color: #d7d7d7;
 }
 
 

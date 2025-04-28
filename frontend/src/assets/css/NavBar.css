@@ -8,33 +8,34 @@
 /* Navigation Bar */
 .navbar {
   display: flex;
-  justify-content: space-between; /* Space out logo, search, and auth buttons */
+  justify-content: space-between; 
   align-items: center;
   padding: 10px 20px;
-  background-color: white;
+  background: rgb(50 50 50 / 85%);
   border-radius: 25px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 100;
-  max-width: 1200px; /* Match the width of the cards below */
-  width: 100%; /* Ensure it takes up the full width */
-  margin: 0 auto; /* Center the navbar horizontally */
-  gap: 20px; /* Add spacing between navbar sections */
+  max-width: 1200px;
+  width: 100%; 
+  margin: 0 auto; 
+  gap: 20px; 
 }
 
 /* Logo */
 .logo {
   order: 1;
-  position: absolute; /* Add this */
-  left: 20px; /* Adjust as needed */
-  margin-right: 0; /* Remove previous margin */
+  position: absolute; 
+  left: 20px;
+  margin-right: 0; 
   cursor: pointer;
 }
 
 .logo-image {
   height: 40px; /* Adjust the height as needed */
   width: auto; /* Maintain aspect ratio */
+  filter: brightness(0) invert(1) drop-shadow(0 0 0 white);
 }
 
 
@@ -45,9 +46,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-grow: 0; /* Changed from 1 */
-  margin: 0 auto; /* Add this */
-  transform: translateX(-5%); /* Fine-tune horizontal centering */
+  flex-grow: 0; 
+  margin: 0 auto; 
+  transform: translateX(-5%); 
 }
 
 .input-with-add {
@@ -60,17 +61,7 @@
   width: 100%;
 }
 
-.search-input {
-  padding: 8px 40px 8px 15px;
-  width: 100%;
-  min-width: 300px;
-  height: 40px;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  font-size: 16px;
-  background-color: lemonchiffon;
-  padding-right: 40px; /* Make space for the search icon */
-}
+
 
 .search-button-inside {
   position: absolute;
@@ -255,18 +246,18 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px; /* Increase padding for the hover circle */
+  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%; /* Make it circular */
+  border-radius: 50%; 
   transition: all 0.2s ease;
 }
 
 .icon-button:hover {
-  background-color: rgba(0, 0, 0, 0.1); /* Light gray circle */
-  transform: scale(1.1); /* Slightly bigger on hover */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow */
+  background-color: rgba(0, 0, 0, 0.1);
+  transform: scale(1.1); 
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
 }
 
 
@@ -276,52 +267,52 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  transition: all 0.2s ease; /* Changed from opacity to all */
-  border: 2px solid #303030;
-  transform-origin: center; /* Ensures scaling happens from center */
+  transition: all 0.2s ease; 
+  border: 2px solid white;
+  transform-origin: center; 
 }
 
 .profile-icon.authenticated {
-  border: 2px solid #303030;
+  border: 2px solid #fdfdfd;
 }
 
 .profile-icon:hover {
-  transform: scale(1.1); /* Slightly bigger on hover */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow */
+  transform: scale(1.1); 
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
 }
 
 .dropdown-menu {
   position: absolute;
   right: 0;
   top: 100%;
-  background: white;
-  border: 1px solid #ddd;
+  background: rgb(50 50 50 / 85%);
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   min-width: 160px;
   z-index: 1000;
   margin-top: 8px;
-  transform: translateZ(0); /* Standard property */
-  -webkit-transform: translateZ(0); /* Safari prefix */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0); 
   backface-visibility: hidden;
 }
 
 .dropdown-item {
   padding: 10px 16px;
   cursor: pointer;
-  color: #303030;
+  color: white;
   font-size: 14px;
   transition: background-color 0.2s;
 }
 
 .dropdown-item:hover {
   background-color: #f5f5f5;
+  color: black;
 }
 
 @keyframes fadeIn {
   from { 
     opacity: 0; 
-    transform: translateY(-5px); /* Standard property */
+    transform: translateY(-5px); 
   }
   to { 
     opacity: 1; 
@@ -332,8 +323,8 @@
 @-webkit-keyframes fadeIn {
   from { 
     opacity: 0; 
-    -webkit-transform: translateY(-5px); /* Safari prefix */
-    transform: translateY(-5px); /* Standard property */
+    -webkit-transform: translateY(-5px);
+    transform: translateY(-5px); 
   }
   to { 
     opacity: 1; 
@@ -521,7 +512,8 @@
 
 /* Empty state */
 .empty-state {
-  color: #666;
+  color: white;
+  font-size: 16px;
   font-style: normal;
   cursor: default;
   pointer-events: none;
@@ -598,7 +590,7 @@
   justify-content: space-between;
   padding: 10px;
   margin-bottom: 8px;
-  background-color: #f8f9fa;
+  background: rgba(202, 202, 202, 1.25);
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
@@ -641,10 +633,18 @@
   color: #495057;
 }
 
+.warning-icon {
+  width: 32px;
+  height: 32px;
+  transition: transform 0.2s ease;
+  filter: brightness(0) invert(1) drop-shadow(0 0 0 white);
+}
+
 .favorite-icon {
   width: 30px;
   height: 30px;
   margin: 0 2px;
+  filter: brightness(0) invert(1) drop-shadow(0 0 0 white);
 }
 
 .weather-description-fav {
@@ -721,8 +721,7 @@
   right: 0;
   max-height: 200px;
   overflow-y: auto;
-  background-color: white;
-  border: 1px solid #ddd;
+  background: rgb(50 50 50 / 85%);
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 1000;
@@ -734,11 +733,12 @@
   cursor: pointer;
   transition: background-color 0.2s;
   font-size: 14px;
-  color: #303030;
+  color: white;
 }
 
 .suggestion-item:hover {
   background-color: #f5f5f5;
+  color: black;
 }
 
 /* Update the search input container to include the suggestions */
@@ -756,9 +756,9 @@
   min-width: 300px;
   height: 40px;
   border: 1px solid #ccc;
-  border-radius: 20px;
+  border-radius: 8px;
   font-size: 16px;
-  background-color: lemonchiffon;
+  background-color: #dad8c7;
 }
 
 /* Responsive adjustments */
@@ -800,7 +800,6 @@
     height: 32px; /* Consistent height */
     width: auto; /* Maintain aspect ratio */
   }
-
 
 
   .search-input {

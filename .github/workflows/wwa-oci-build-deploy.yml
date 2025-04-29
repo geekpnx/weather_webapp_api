@@ -1,0 +1,145 @@
+name: Build, Push to Docker Hub, and Deploy to OCI
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  OCI_INSTANCE_IP: ${{ secrets.OCI_INSTANCE_IP }}
+  OCI_SSH_KEY: ${{ secrets.OCI_SSH_KEY }}
+  OCI_SSH_USER: ${{ secrets.OCI_SSH_USER }}
+  PRODUCTION_DOMAIN: ${{ secrets.PRODUCTION_DOMAIN }}
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+  BACKEND_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/wwa-backend-oci
+  FRONTEND_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/wwa-frontend-oci
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ env.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+    - name: Build and push backend image
+      run: |
+        docker build -f Dockerfile.backend -t ${{ env.BACKEND_IMAGE }}:latest .
+        docker push ${{ env.BACKEND_IMAGE }}:latest
+
+    - name: Build and push frontend image
+      run: |
+        docker build -f Dockerfile.frontend -t ${{ env.FRONTEND_IMAGE }}:latest .
+        docker push ${{ env.FRONTEND_IMAGE }}:latest
+
+    - name: Prepare deployment files
+      run: |
+        # Create .env file with all required variables
+        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
+        echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+        echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+        echo "DB_PWD=${{ secrets.DB_PWD }}" >> .env
+        echo "DB_HOST=db" >> .env
+        echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+        echo "WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}" >> .env
+        echo "OPENWEATHERMAP_API_KEY=${{ secrets.OPENWEATHERMAP_API_KEY }}" >> .env
+        echo "NEWS_API_KEY=${{ secrets.NEWS_API_KEY }}" >> .env
+        echo "VITE_OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }}" >> .env
+
+        # Generate docker-compose-run.yaml
+        cat <<EOT > docker-compose-run.yaml
+        version: '3.8'
+
+        services:
+          db:
+            image: postgres:14
+            environment:
+              POSTGRES_DB: \${DB_NAME}
+              POSTGRES_USER: \${DB_USER}
+              POSTGRES_PASSWORD: \${DB_PWD}
+            volumes:
+              - postgres_data:/var/lib/postgresql/data
+            networks:
+              - weather_net
+            ports:
+              - "5433:5432"
+
+          backend:
+            image: ${{ env.BACKEND_IMAGE }}:latest
+            environment:
+              SECRET_KEY: \${SECRET_KEY}
+              DJANGO_SETTINGS_MODULE: config.settings.prod
+              DB_NAME: \${DB_NAME}
+              DB_USER: \${DB_USER}
+              DB_PWD: \${DB_PWD}
+              DB_HOST: db
+              DB_PORT: \${DB_PORT}
+              DATABASE_URL: \${DATABASE_URL}
+              WEATHER_API_KEY: \${WEATHER_API_KEY}
+              OPENWEATHERMAP_API_KEY: \${OPENWEATHERMAP_API_KEY}
+              NEWS_API_KEY: \${NEWS_API_KEY}
+            depends_on:
+              - db
+            volumes:
+              - media_volume:/app/backend/media
+              - static_volume:/app/backend/staticfiles
+            networks:
+              - weather_net
+            ports:
+              - "8022:8000"
+
+          frontend:
+            image: ${{ env.FRONTEND_IMAGE }}:latest
+            environment:
+              VITE_OPENWEATHERMAP_API_KEY: \${VITE_OPENWEATHERMAP_API_KEY}
+              VITE_STATIC_BASE_URL: /static 
+              VITE_WEATHER_API_BASE_URL: /api/v1/weather
+              VITE_USER_API_BASE_URL: /api/v1/user
+            volumes:
+              - media_volume:/usr/share/nginx/html/media
+              - static_volume:/usr/share/nginx/html/static
+            networks:
+              - weather_net
+            ports:
+              - "85:80"
+
+        volumes:
+          postgres_data:
+          static_volume:
+          media_volume:
+
+        networks:
+          weather_net:
+            driver: bridge
+        EOT
+
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ env.OCI_SSH_KEY }}
+        known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+
+    - name: Copy files to OCI instance
+      run: |
+        # Create necessary directories on the remote server
+        ssh -o StrictHostKeyChecking=no ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }} "mkdir -p /home/${{ env.OCI_SSH_USER }}/weather-app"
+        
+        # Copy only necessary files
+        scp -o StrictHostKeyChecking=no -r docker-compose-run.yaml .env ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }}:/home/${{ env.OCI_SSH_USER }}/weather-app/
+
+    - name: Deploy on OCI instance
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }} << EOF
+          cd /home/${{ env.OCI_SSH_USER }}/weather-app
+          docker compose -f docker-compose-run.yaml down --remove-orphans &&
+          docker compose -f docker-compose-run.yaml pull &&
+          docker compose -f docker-compose-run.yaml up -d &&
+          docker image prune -a --filter "until=24h" -f 
+        EOF

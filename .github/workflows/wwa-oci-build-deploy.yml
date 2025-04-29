@@ -10,8 +10,6 @@ env:
   OCI_SSH_KEY: ${{ secrets.OCI_SSH_KEY }}
   OCI_SSH_USER: ${{ secrets.OCI_SSH_USER }}
   PRODUCTION_DOMAIN: ${{ secrets.PRODUCTION_DOMAIN }}
-  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-  DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
   BACKEND_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/wwa-backend-oci
   FRONTEND_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/wwa-frontend-oci
 
@@ -25,8 +23,12 @@ jobs:
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
-        username: ${{ env.DOCKER_HUB_USERNAME }}
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
+    - name: Verify Docker login
+      run: |
+        echo "Logged in as: $(docker system info | grep Username)"
+        docker logout  # Clean up after verification    
 
     - name: Build and push backend image
       run: |

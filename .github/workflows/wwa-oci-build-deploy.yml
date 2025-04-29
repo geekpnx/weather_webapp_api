@@ -15,6 +15,12 @@ jobs:
     environment: weather_webapp_project  # ← CRITICAL ADDITION
     
     steps:
+    
+    - name: Debug Variables
+      run: |
+          echo "DB_HOST: ${{ vars.DB_HOST }}"      # From Environment Variables
+          echo "OCI_IP: ${{ vars.OCI_INSTANCE_IP }}"
+          echo "API_KEY: ${{ secrets.VITE_OPENWEATHERMAP_API_KEY }}"  # From Secrets
     - name: Checkout repository
       uses: actions/checkout@v3
 
@@ -23,7 +29,7 @@ jobs:
         echo "Docker Hub Username exists: ${{ secrets.DOCKER_HUB_USERNAME != '' }}"
         echo "Docker Hub Token exists: ${{ secrets.DOCKER_HUB_TOKEN != '' }}"
         echo "OCI_SSH_KEY exists: ${{ secrets.OCI_SSH_KEY != '' }}"
-        echo "OCI_INSTANCE_IP exists: ${{ secrets.OCI_INSTANCE_IP != '' }}"
+        echo "OCI_INSTANCE_IP exists: ${{ vars.OCI_INSTANCE_IP != '' }}"
 
     - name: Login to Docker Hub
       run: |
@@ -47,7 +53,7 @@ jobs:
     - name: Build and push frontend image
       run: |
         docker build \
-        --build-arg DOMAIN=${{ secrets.PRODUCTION_DOMAIN }} \
+        --build-arg DOMAIN=${{ vars.PRODUCTION_DOMAIN }} \
            --build-arg PROTOCOL=https \
            --build-arg VITE_OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }} \
            --build-arg VITE_OPENWEATHERMAP_API_BASE_URL=https://api.openweathermap.org/ \
@@ -58,9 +64,9 @@ jobs:
 
     - name: Prepare deployment files
       env:
-        OCI_INSTANCE_IP: ${{ secrets.OCI_INSTANCE_IP }}
-        OCI_SSH_USER: ${{ secrets.OCI_SSH_USER }}
-        PRODUCTION_DOMAIN: ${{ secrets.PRODUCTION_DOMAIN }}
+        OCI_INSTANCE_IP: ${{ vars.OCI_INSTANCE_IP }}
+        OCI_SSH_USER: ${{ vars.OCI_SSH_USER }}
+        PRODUCTION_DOMAIN: ${{ vars.PRODUCTION_DOMAIN }}
       run: |
         # Create .env file with all required variables
         echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
@@ -68,7 +74,7 @@ jobs:
         echo "DB_USER=${{ secrets.DB_USER }}" >> .env
         echo "DB_PWD=${{ secrets.DB_PWD }}" >> .env
         echo "DB_HOST=db" >> .env
-        echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+        echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
         echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
         echo "WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}" >> .env
         echo "OPENWEATHERMAP_API_KEY=${{ secrets.OPENWEATHERMAP_API_KEY }}" >> .env
@@ -150,8 +156,8 @@ jobs:
 
     - name: Copy files to OCI instance
       env:
-        OCI_INSTANCE_IP: ${{ secrets.OCI_INSTANCE_IP }}
-        OCI_SSH_USER: ${{ secrets.OCI_SSH_USER }}
+        OCI_INSTANCE_IP: ${{ vars.OCI_INSTANCE_IP }}
+        OCI_SSH_USER: ${{ vars.OCI_SSH_USER }}
       run: |
         # Create necessary directories on the remote server
         ssh -o StrictHostKeyChecking=no ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }} "mkdir -p /home/${{ env.OCI_SSH_USER }}/weather-webapp"
@@ -161,8 +167,8 @@ jobs:
 
     - name: Deploy on OCI instance
       env:
-        OCI_INSTANCE_IP: ${{ secrets.OCI_INSTANCE_IP }}
-        OCI_SSH_USER: ${{ secrets.OCI_SSH_USER }}
+        OCI_INSTANCE_IP: ${{ vars.OCI_INSTANCE_IP }}
+        OCI_SSH_USER: ${{ vars.OCI_SSH_USER }}
       run: |
         ssh -o StrictHostKeyChecking=no ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }} << EOF
           cd /home/${{ env.OCI_SSH_USER }}/weather-webapp

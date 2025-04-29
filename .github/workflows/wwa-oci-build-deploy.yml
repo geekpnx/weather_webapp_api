@@ -197,11 +197,11 @@ jobs:
           # Copy all necessary files
           scp -o StrictHostKeyChecking=no -r docker-compose-run.yaml .env ${{ vars.OCI_SSH_USER }}@${{ vars.OCI_INSTANCE_IP }}:/home/${{ vars.OCI_SSH_USER }}/weather-webapp/
 
-          - name: Deploy on OCI instance
-          env:
-            OCI_INSTANCE_IP: ${{ vars.OCI_INSTANCE_IP }}
-            OCI_SSH_USER: ${{ vars.OCI_SSH_USER }}
-          run: |
+    - name: Deploy on OCI instance
+      env:
+        OCI_INSTANCE_IP: ${{ vars.OCI_INSTANCE_IP }}
+        OCI_SSH_USER: ${{ vars.OCI_SSH_USER }}
+      run: |
             ssh -o StrictHostKeyChecking=no ${{ vars.OCI_SSH_USER }}@${{ vars.OCI_INSTANCE_IP }} << EOF
               cd /home/${{ vars.OCI_SSH_USER }}/weather-webapp
               

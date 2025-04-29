@@ -64,116 +64,159 @@ jobs:
 
     - name: Prepare deployment files
       env:
-        OCI_INSTANCE_IP: ${{ vars.OCI_INSTANCE_IP }}
-        OCI_SSH_USER: ${{ vars.OCI_SSH_USER }}
-        PRODUCTION_DOMAIN: ${{ vars.PRODUCTION_DOMAIN }}
+          OCI_INSTANCE_IP: ${{ vars.OCI_INSTANCE_IP }}
+          OCI_SSH_USER: ${{ vars.OCI_SSH_USER }}
+          PRODUCTION_DOMAIN: ${{ vars.PRODUCTION_DOMAIN }}
       run: |
-        # Create .env file with all required variables
-        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
-        echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-        echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-        echo "DB_PWD=${{ secrets.DB_PWD }}" >> .env
-        echo "DB_HOST=db" >> .env
-        echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
-        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
-        echo "WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}" >> .env
-        echo "OPENWEATHERMAP_API_KEY=${{ secrets.OPENWEATHERMAP_API_KEY }}" >> .env
-        echo "NEWS_API_KEY=${{ secrets.NEWS_API_KEY }}" >> .env
-        echo "VITE_OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }}" >> .env
-
-        # Generate docker-compose-run.yaml
-        cat <<EOT > docker-compose-run.yaml
-        version: '3.8'
-
-        services:
-          db:
-            image: postgres:14
-            environment:
-              POSTGRES_DB: \${DB_NAME}
-              POSTGRES_USER: \${DB_USER}
-              POSTGRES_PASSWORD: \${DB_PWD}
-            volumes:
-              - postgres_data:/var/lib/postgresql/data
-            networks:
-              - weather_net
-            ports:
-              - "5433:5432"
-
-          backend:
-            image: ${{ env.BACKEND_IMAGE }}:latest
-            environment:
-              SECRET_KEY: \${SECRET_KEY}
-              DJANGO_SETTINGS_MODULE: config.settings.prod
-              DB_USER: \${DB_USER}
-              DB_PWD: \${DB_PWD}
-              DB_NAME: \${DB_NAME}
-              DB_HOST: db
-              DB_PORT: \${DB_PORT}
-              DATABASE_URL: \${DATABASE_URL}
-              WEATHER_API_KEY: \${WEATHER_API_KEY}
-              OPENWEATHERMAP_API_KEY: \${OPENWEATHERMAP_API_KEY}
-              NEWS_API_KEY: \${NEWS_API_KEY}
-            depends_on:
-              - db
-            volumes:
-              - media_volume:/app/backend/media
-              - static_volume:/app/backend/staticfiles
-            networks:
-              - weather_net
-            ports:
-              - "8022:8000"
-
-          frontend:
-            image: ${{ env.FRONTEND_IMAGE }}:latest
-            environment:
-              VITE_OPENWEATHERMAP_API_KEY: \${VITE_OPENWEATHERMAP_API_KEY}
-              VITE_STATIC_BASE_URL: /static 
-              VITE_WEATHER_API_BASE_URL: /api/v1/weather
-              VITE_USER_API_BASE_URL: /api/v1/user
-            volumes:
-              - media_volume:/usr/share/nginx/html/media
-              - static_volume:/usr/share/nginx/html/static
-            networks:
-              - weather_net
-            ports:
-              - "85:80"
-
-        volumes:
-          postgres_data:
-          static_volume:
-          media_volume:
-
-        networks:
-          weather_net:
-            driver: bridge
-        EOT
-
+          # Create comprehensive .env file
+          cat <<EOT > .env
+          # Domain Configuration
+          DOMAIN=${{ vars.PRODUCTION_DOMAIN }}
+          PROTOCOL=https
+          BASE_URL=\${PROTOCOL}://\${DOMAIN}
+          MEDIA_URL=\${BASE_URL}/media/
+          STATIC_URL=\${BASE_URL}/static/
+      
+          # Django Configuration
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+      
+          # Database Configuration
+          DB_NAME=${{ secrets.DB_NAME }}
+          DB_USER=${{ secrets.DB_USER }}
+          DB_PWD=${{ secrets.DB_PWD }}
+          DB_HOST=db
+          DB_PORT=${{ vars.DB_PORT }}
+          DATABASE_URL=postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PWD }}@db:${{ vars.DB_PORT }}/${{ secrets.DB_NAME }}
+      
+          # API Keys
+          WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
+          OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }}
+          NEWS_API_KEY=${{ secrets.NEWS_API_KEY }}
+          VITE_OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }}
+          VITE_OPENWEATHERMAP_API_BASE_URL=https://api.openweathermap.org/
+          VITE_OPENWEATHERMAP_BASE_URL=https://openweathermap.org/
+          EOT
+      
+          # Generate docker-compose-run.yaml with all environment variables
+          cat <<EOT > docker-compose-run.yaml
+          version: '3.8'
+      
+          services:
+            db:
+              image: postgres:14
+              environment:
+                POSTGRES_DB: \${DB_NAME}
+                POSTGRES_USER: \${DB_USER}
+                POSTGRES_PASSWORD: \${DB_PWD}
+              volumes:
+                - postgres_data:/var/lib/postgresql/data
+              networks:
+                - weather_net
+              ports:
+                - "5433:5432"
+      
+            backend:
+              image: ${{ env.BACKEND_IMAGE }}:latest
+              environment:
+                # Domain Configuration
+                DOMAIN: \${DOMAIN}
+                PROTOCOL: \${PROTOCOL}
+                BASE_URL: \${BASE_URL}
+                MEDIA_URL: \${MEDIA_URL}
+                STATIC_URL: \${STATIC_URL}
+                
+                # Django Configuration
+                SECRET_KEY: \${SECRET_KEY}
+                DJANGO_SETTINGS_MODULE: config.settings.prod
+                
+                # Database
+                DB_NAME: \${DB_NAME}
+                DB_USER: \${DB_USER}
+                DB_PWD: \${DB_PWD}
+                DB_HOST: \${DB_HOST}
+                DB_PORT: \${DB_PORT}
+                DATABASE_URL: \${DATABASE_URL}
+                
+                # API Keys
+                WEATHER_API_KEY: \${WEATHER_API_KEY}
+                OPENWEATHERMAP_API_KEY: \${OPENWEATHERMAP_API_KEY}
+                NEWS_API_KEY: \${NEWS_API_KEY}
+              volumes:
+                - media_volume:/app/backend/media
+                - static_volume:/app/backend/staticfiles
+              networks:
+                - weather_net
+              ports:
+                - "8022:8000"
+              depends_on:
+                - db
+      
+            frontend:
+              image: ${{ env.FRONTEND_IMAGE }}:latest
+              environment:
+                VITE_OPENWEATHERMAP_API_KEY: \${VITE_OPENWEATHERMAP_API_KEY}
+                VITE_OPENWEATHERMAP_API_BASE_URL: \${VITE_OPENWEATHERMAP_API_BASE_URL}
+                VITE_OPENWEATHERMAP_BASE_URL: \${VITE_OPENWEATHERMAP_BASE_URL}
+                VITE_STATIC_BASE_URL: \${STATIC_URL}
+                VITE_MEDIA_BASE_URL: \${MEDIA_URL}
+                VITE_WEATHER_API_BASE_URL: \${BASE_URL}/api/v1/weather
+                VITE_USER_API_BASE_URL: \${BASE_URL}/api/v1/user
+              volumes:
+                - media_volume:/usr/share/nginx/html/media
+                - static_volume:/usr/share/nginx/html/static
+              networks:
+                - weather_net
+              ports:
+                - "85:80"
+              depends_on:
+                - backend
+      
+          volumes:
+            postgres_data:
+            static_volume:
+            media_volume:
+      
+          networks:
+            weather_net:
+              driver: bridge
+          EOT
+      
     - name: Install SSH key
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.OCI_SSH_KEY }}
         known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
-
     - name: Copy files to OCI instance
       env:
-        OCI_INSTANCE_IP: ${{ vars.OCI_INSTANCE_IP }}
-        OCI_SSH_USER: ${{ vars.OCI_SSH_USER }}
+          OCI_INSTANCE_IP: ${{ vars.OCI_INSTANCE_IP }}
+          OCI_SSH_USER: ${{ vars.OCI_SSH_USER }}
       run: |
-        # Create necessary directories on the remote server
-        ssh -o StrictHostKeyChecking=no ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }} "mkdir -p /home/${{ env.OCI_SSH_USER }}/weather-webapp"
-        
-        # Copy only necessary files
-        scp -o StrictHostKeyChecking=no -r docker-compose-run.yaml .env ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }}:/home/${{ env.OCI_SSH_USER }}/weather-webapp/
+          # Create necessary directories on the remote server
+          ssh -o StrictHostKeyChecking=no ${{ vars.OCI_SSH_USER }}@${{ vars.OCI_INSTANCE_IP }} "mkdir -p /home/${{ vars.OCI_SSH_USER }}/weather-webapp"
+          
+          # Copy all necessary files
+          scp -o StrictHostKeyChecking=no -r docker-compose-run.yaml .env ${{ vars.OCI_SSH_USER }}@${{ vars.OCI_INSTANCE_IP }}:/home/${{ vars.OCI_SSH_USER }}/weather-webapp/
 
-    - name: Deploy on OCI instance
-      env:
-        OCI_INSTANCE_IP: ${{ vars.OCI_INSTANCE_IP }}
-        OCI_SSH_USER: ${{ vars.OCI_SSH_USER }}
-      run: |
-        ssh -o StrictHostKeyChecking=no ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }} << EOF
-          cd /home/${{ env.OCI_SSH_USER }}/weather-webapp
-          docker compose -f docker-compose-run.yaml down --remove-orphans
-          docker compose -f docker-compose-run.yaml pull
-          docker compose -f docker-compose-run.yaml up -d
-          docker image prune -a --filter "until=24h" -f
-        EOF
+          - name: Deploy on OCI instance
+          env:
+            OCI_INSTANCE_IP: ${{ vars.OCI_INSTANCE_IP }}
+            OCI_SSH_USER: ${{ vars.OCI_SSH_USER }}
+          run: |
+            ssh -o StrictHostKeyChecking=no ${{ vars.OCI_SSH_USER }}@${{ vars.OCI_INSTANCE_IP }} << EOF
+              cd /home/${{ vars.OCI_SSH_USER }}/weather-webapp
+              
+              # Verify environment files
+              echo "=== Checking .env file ==="
+              cat .env | grep -v PWD
+              
+              echo "=== Starting deployment ==="
+              docker compose -f docker-compose-run.yaml down --remove-orphans
+              docker compose -f docker-compose-run.yaml pull
+              docker compose -f docker-compose-run.yaml up -d
+              
+              # Cleanup old images
+              docker image prune -a --filter "until=24h" -f
+              
+              # Verify containers are running
+              docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+            EOF

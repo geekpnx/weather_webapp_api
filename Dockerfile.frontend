@@ -1,13 +1,8 @@
-# Stage 1: Build the React/Vite App
 FROM node:18-alpine AS build
 WORKDIR /app
 
-# Copy package files first for better caching
 COPY frontend/package*.json ./
 RUN npm install
-
-# Copy frontend source (excluding environment files)
-COPY frontend/ .
 
 # Create production env file from build args
 RUN echo "DOMAIN=${DOMAIN}" > .env.production && \
@@ -21,17 +16,11 @@ RUN echo "DOMAIN=${DOMAIN}" > .env.production && \
     echo "VITE_OPENWEATHERMAP_API_BASE_URL=${VITE_OPENWEATHERMAP_API_BASE_URL}" >> .env.production && \
     echo "VITE_OPENWEATHERMAP_BASE_URL=${VITE_OPENWEATHERMAP_BASE_URL}" >> .env.production
 
-# Verify environment file was created
-RUN cat .env.production
-
+COPY frontend/ .
 RUN npm run build
 
-# Stage 2: Serve with Nginx
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY frontend/nginx.conf /etc/nginx/conf.d/
-RUN mkdir -p /usr/share/nginx/html/media && \
-    chown -R nginx:nginx /usr/share/nginx/html && \
-    chmod -R 755 /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

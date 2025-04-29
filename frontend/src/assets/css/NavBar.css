@@ -49,6 +49,8 @@
   flex-grow: 0; 
   margin: 0 auto; 
   transform: translateX(-5%); 
+  width: 50%;
+  max-width: 400px;
 }
 
 .input-with-add {
@@ -162,6 +164,109 @@
   position: absolute; /* Add this */
   right: 20px; /* Adjust as needed */
 }
+
+
+/* Add settings icon styles */
+.settings-icon {
+  width: 24px;
+  height: 24px;
+  filter: brightness(0) invert(1);
+  transition: transform 0.2s ease;
+}
+
+.settings-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Update dropdown styles */
+.settings-dropdown {
+  min-width: 180px;
+  padding: 0px;
+  right: 0;
+  top: 100%; /* Ensures dropdown starts right below the button */
+  margin-top: 8px; /* Adds space between the icon and dropdown */
+  position: absolute;
+  background: rgb(50 50 50 / 85%);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+.settings-dropdown .dropdown-item {
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Update temperature toggle styles for dropdown */
+.settings-dropdown .temperature-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+}
+
+.settings-dropdown .toggle-switch {
+  width: 40px;
+  height: 20px;
+}
+
+.settings-dropdown .toggle-knob {
+  width: 16px;
+  height: 16px;
+  top: 2px;
+  left: 2px;
+}
+
+.settings-dropdown .toggle-button.active .toggle-knob {
+  transform: translateX(20px);
+}
+
+.settings-dropdown .unit {
+  font-size: 13px;
+  color: white;
+}
+
+
+/* Update this rule to exclude settings dropdown items */
+.dropdown-menu:not(.settings-dropdown) .dropdown-item:hover {
+  background-color: #f5f5f5;
+  color: black;
+}
+
+/* Add specific styles for settings dropdown items */
+.settings-dropdown .dropdown-item {
+  padding: 10px;
+  cursor: default; /* Remove pointer cursor since it's not clickable */
+}
+
+.settings-dropdown .dropdown-item:hover {
+  background-color: transparent; /* Remove hover effect */
+  color: inherit; /* Keep original color */
+}
+
+/* Update nav-icons spacing */
+.nav-icons {
+  order: 3;
+  position: absolute;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Remove the original temperature-toggle styles */
+.search-container .temperature-toggle {
+  display: none;
+}
+
 
 /* Add these styles */
 .dropdown-container {
@@ -308,6 +413,8 @@
   background-color: #f5f5f5;
   color: black;
 }
+
+
 
 @keyframes fadeIn {
   from { 
@@ -522,10 +629,10 @@
 }
 
 
-/* Dropdown item hover */
+/* Dropdown item hover
 .dropdown-item:not(.empty-state):hover {
   background-color: #f5f5f5;
-}
+} */
 
 
 /* Favorite notification container */
@@ -783,13 +890,14 @@
     order: 2;
     display: flex;
     gap: 15px; /* Space between icons */
-    margin-left: auto; /* Push to the right */
   }
 
   .search-container {
     order: 3;
     width: 100%;
-    margin-top: 15px; /* Space between icon row and search */
+    /* margin: 15px 0 0 0; Add top margin */
+    padding: 0 15px; /* Add some side padding */
+    margin-left: 27px; /* Push to the right */
   }
 
   /* Ensure all icons align horizontally */
@@ -803,7 +911,9 @@
 
 
   .search-input {
-    min-width: 100%;
+    width: 100%;
+    min-width: auto;
+
   }
 
   .auth-buttons {

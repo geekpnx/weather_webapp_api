@@ -39,7 +39,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const [isLoadingFavorites, setIsLoadingFavorites] = useState<boolean>(false);
   const { temperatureUnit, toggleTemperatureUnit, convertTemp } = usePreferences();
   const { profileVersion } = useProfile();
-  
 
 
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
@@ -50,6 +49,12 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
     onSearch(city);
     setShowSuggestions(false);
   };
+
+
+  // Add this state variable
+  const [showSettingsDropdown, setShowSettingsDropdown] = useState<boolean>(false);
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const settingsDropdownRef = useRef<HTMLDivElement>(null);
 
   const OPENWEATHER_URL = import.meta.env.VITE_OPENWEATHERMAP_BASE_URL;
 
@@ -83,38 +88,53 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   // Click outside detection
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Get the actual target element that was clicked
       const target = event.target as HTMLElement;
-      const actualTarget = target.closest('button') || target;
-
+      const clickedElement = target.closest('button') || target;
+  
+      // Check for profile dropdown
       if (showProfileMenu && profileDropdownRef.current && profileButtonRef.current) {
         const profileElements = [
           profileDropdownRef.current,
           profileButtonRef.current
         ];
-        if (!profileElements.some(el => el.contains(actualTarget))) {
+        if (!profileElements.some(el => el.contains(clickedElement))) {
           setShowProfileMenu(false);
         }
       }
-
+  
+      // Check for favorites dropdown
       if (showFavorites && favoriteDropdownRef.current && favoriteButtonRef.current) {
         const favoriteElements = [
           favoriteDropdownRef.current,
           favoriteButtonRef.current
         ];
-        if (!favoriteElements.some(el => el.contains(actualTarget))) {
+        if (!favoriteElements.some(el => el.contains(clickedElement))) {
           setShowFavorites(false);
         }
       }
+  
+      // Check for settings dropdown (new addition)
+      if (showSettingsDropdown && settingsDropdownRef.current && settingsButtonRef.current) {
+        const settingsElements = [
+          settingsDropdownRef.current,
+          settingsButtonRef.current
+        ];
+        if (!settingsElements.some(el => el.contains(clickedElement))) {
+          setShowSettingsDropdown(false);
+        }
+      }
     };
-
+  
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showProfileMenu, showFavorites]);
+  }, [showProfileMenu, showFavorites, showSettingsDropdown]); // Add showSettingsDropdown to dependencies
 
   // Reset dropdowns on auth change
   useEffect(() => {
     setShowProfileMenu(false);
     setShowFavorites(false);
+    setShowSettingsDropdown(false);
   }, [isAuthenticated]);
 
   const handleCloseProfileModal = () => {
@@ -517,6 +537,43 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
             </div>
           </div>
         )}
+        {/* Settings Dropdown */}
+        <div className="dropdown-container" ref={settingsDropdownRef}>
+          <button
+            className="icon-button"
+            onClick={() => {
+              setShowSettingsDropdown(!showSettingsDropdown);
+              setShowProfileMenu(false);
+              setShowFavorites(false);
+            }}
+            ref={settingsButtonRef}
+            type="button"
+            aria-haspopup="true"
+            aria-expanded={showSettingsDropdown}
+          >
+            <img src={settingsIcon} alt="Settings" className="settings-icon" />
+          </button>
+          {showSettingsDropdown && (
+            <div className="dropdown-menu settings-dropdown">
+              <div className="dropdown-item">
+                <div className="temperature-toggle">
+                  <span className="unit">°C</span>
+                  <button
+                    type="button"
+                    className={`toggle-button ${temperatureUnit === 'F' ? 'active' : ''}`}
+                    onClick={toggleTemperatureUnit}
+                  >
+                    <div className="toggle-switch">
+                      <div className="toggle-knob" />
+                    </div>
+                  </button>
+                  <span className="unit">°F</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
 
         <div className="dropdown-container" ref={profileDropdownRef}>
           <button

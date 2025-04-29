@@ -7,6 +7,8 @@ test.rest
 .env.prod
 .venv/
 .DS_Store 
+
+
 # Testing files
 
 endpoint_testing.rest

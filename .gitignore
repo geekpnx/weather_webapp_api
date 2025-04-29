@@ -1,7 +1,3 @@
-.venv
-__pycache__/
-frontend_design/
+.DS_Store 
+.dockerignore
 .env
-samples.py
-json_format.py
-test.rest

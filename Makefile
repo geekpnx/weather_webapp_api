@@ -1,29 +1,46 @@
 start:
-	python3 manage.py runserver --settings=config.settings.dev
+	cd frontend/ && npm start
+
+dev-venv:
+	cd backend/ && python3 -m venv .venv --prompt $(name)
 
 dev-install:
-	pip install -r requirements/dev.txt
+	cd backend/ && .venv/bin/pip install -r requirements/dev.txt
+
+dev-create-secretkey:
+	cd backend/ && .venv/bin/python3 scripts/generate_SECRET_KEY.py
+
+dev-createdb-name:
+	cd backend/ && .venv/bin/python3 scripts/create_DB_NAME.py
+
+dev-createdb-un-pw:
+	cd backend/ && .venv/bin/python3 scripts/create_DB_USER_n_DB_PWD.py
 
 dev-m:
-	python3 manage.py migrate --settings=config.settings.dev
+	cd backend/ && .venv/bin/python3 manage.py migrate --settings=config.settings.dev
 
 dev-makem:
-	python3 manage.py makemigrations --settings=config.settings.dev
+	cd backend/ && .venv/bin/python3 manage.py makemigrations --settings=config.settings.dev
 
 dev-showm:
-	python3 manage.py showmigrations --settings=config.settings.dev
+	cd backend/ && .venv/bin/python3 manage.py showmigrations --settings=config.settings.dev
 
 dev-sqlm:
-	python3 manage.py sqlmigrate $(a) $(m) --settings=config.settings.dev  
+	cd backend/ && .venv/bin/python3 manage.py sqlmigrate $(a) $(m) --settings=config.settings.dev  
 
 dev-dbshell:
-	python3 manage.py dbshell --settings=config.settings.dev
+	cd backend/ && .venv/bin/python3 manage.py dbshell --settings=config.settings.dev
 
 dev-super:
-	python3 manage.py createsuperuser --settings=config.settings.dev
+	cd backend/ && .venv/bin/python3 manage.py createsuperuser --settings=config.settings.dev
 
 dev-startapp:
-	cd apps && python3 ../manage.py startapp $(app) --settings=config.settings.dev
+	cd backend/apps/ && ../.venv/bin/python3 ../manage.py startapp $(app) --settings=config.settings.dev
 
 dev-shell-plus:
-	python3 manage.py shell_plus --settings=config.settings.dev
+	cd backend/ && .venv/bin/python3 manage.py shell_plus --settings=config.settings.dev
+
+###### FRONTEND SETUP ###############
+
+dev-npm-install:
+	cd frontend/ && npm install

@@ -1,0 +1,16 @@
+__pycache__/
+frontend_design/
+samples.py
+json_format.py
+test.rest
+.env.dev
+.env.prod
+.venv/
+.DS_Store 
+
+
+# Testing files
+
+endpoint_testing.rest
+testing.py
+.gitignore

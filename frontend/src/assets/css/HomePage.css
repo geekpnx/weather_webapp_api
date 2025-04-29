@@ -1,0 +1,463 @@
+@font-face {
+  font-family: 'Abel';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(https://design.penpot.app/internal/gfonts/font/abel/v18/MwQ5bhbm2POE2V9BPQ.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  /* Light theme colors */
+  --bg-color: #f9f9f9;
+  --text-color: #333;
+  --card-bg: white;
+  --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --border-color: #ddd;
+  --input-bg: lemonchiffon;
+  --primary-color: #303030;
+  --secondary-color: #6e6e6e;
+}
+
+[data-theme="dark"] {
+  /* Dark theme colors */
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --border-color: #333;
+  --input-bg: #2d2d2d;
+  --primary-color: #9e9e9e;
+  --secondary-color: #505050;
+}
+
+[data-theme="dark"] .card {
+  background-color: rgba(30, 30, 30, 0.85); /* Semi-transparent dark */
+}
+
+[data-theme="dark"] .video-overlay {
+  background-color: rgba(0, 0, 0, 0.5); /* Darker overlay for dark theme */
+}
+
+
+/* Update existing styles to use variables */
+.home-page {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.card {
+  background-color: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  color: var(--text-color);
+}
+
+.search-input {
+  background-color: var(--input-bg);
+  color: var(--text-color);
+}
+
+/* Add this to handle theme transitions */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+/* General Reset */
+* {
+  font-family: 'Abel', Helvetica, Verdana, sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  align-items: center; /* Center horizontally */
+  justify-content: center; /* Center vertically */
+  text-decoration: none;
+  
+}
+
+body, html, #root {
+  background: rgb(249, 249, 249); /* Fallback color */
+  margin: 0;
+  padding: 0;
+}
+
+.video-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.video-background video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: cover;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent overlay */
+}
+
+
+/* Home Page Container */
+.home-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center horizontally */
+  justify-content: center; /* Center vertically */
+  min-height: 100vh; /* Ensure the page takes up at least the full viewport height */
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+
+}
+
+
+/* Add these styles to HomePage.css */
+.top-messages {
+  position: relative;
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.fetching-message {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+/* Update existing error message style */
+.error-message {
+  color: rgb(197, 41, 41);
+  text-align: center;
+  margin: 20px 0;
+  width: 100%;
+}
+
+.location-button {
+  padding: 8px 16px;
+  background: #dbdbdb;
+  color: rgb(84, 84, 84);
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  margin: 10px 0;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.location-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Content Container */
+.content-container {  
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* 2:1 ratio */
+  grid-template-rows: auto;
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 17px auto 40px;
+  align-items: start; /* Align all items at the top */
+}
+
+
+/* Card Styling */
+.card {
+  background: rgb(50 50 50 / 25%);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 100%;
+  max-width: 850px;
+  min-height: 400px; /* Set minimum height for cards */
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto; /* Center cards within their containers */
+}
+
+/* Weather current card */
+.weather-current {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* Adjust sidebar visibility */
+.sidebar-container {
+  flex: 1 1 35%;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: auto;
+}
+
+/* Centered layout when logged out */
+.weather-current.centered {
+  grid-column: 1 / -1; /* Span all columns */
+  justify-self: center;
+  width: 100%;
+  max-width: 800px; /* Fixed maximum width */
+  min-width: 300px; /* Minimum width */
+  margin: 0.5rem auto;
+}
+
+.weather-current h1 {
+  color: white;
+  font-size: 60px;
+}
+
+/* Forecast Card */
+.forecast {
+  text-align: center;
+}
+
+/* Weather News Card */
+.weather-news {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  color: #343434;
+  text-align: center;
+}
+
+.weather-news ul {
+  list-style: none;
+  padding: 0;
+}
+
+.weather-news li {
+  margin-bottom: 20px;
+}
+
+.weather-news img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.weather-news a {
+  font-weight: 400;
+  color: #343434;
+}
+
+.weather-news h3 {
+  font-size:1.3em;
+  font-weight:bolder;
+}
+
+.weather-news p {
+  font-size:1.1em;
+  padding-top: 2px;
+}
+
+/* Maps Card */
+.maps {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  min-height: 350px;
+}
+
+.layer-buttons {
+  margin-bottom: 20px;
+}
+
+.layer-buttons button {
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  background-color: #343434;
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.layer-buttons button:hover {
+  background-color: #6e6e6e;
+}
+
+.radar-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+
+/* Error Message */
+.error-message {
+  color: rgb(197, 41, 41);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+
+
+/* Sidebar container */
+.sidebar-container {
+  flex: 1 1 35%;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center; /* Center sidebar items */
+}
+
+/* Adjust card widths in sidebar */
+.sidebar-container .card {
+  width: 100%;
+}
+
+/* News slideshow styles */
+.news-slideshow {
+  position: relative;
+  height: 368px; /* Fixed height for slideshow */
+  overflow: hidden;
+}
+
+.news-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.news-slide.active {
+  opacity: 1;
+}
+
+.slide-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 42px;
+}
+
+.slide-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #ccc;
+  margin: 0 5px;
+  cursor: pointer;
+}
+
+.slide-dot.active {
+  background-color: #343434;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .content-container {
+    flex-direction: column;
+  }
+  
+  .weather-current, 
+  .sidebar-container {
+    flex: 1 1 100%;
+  }
+}
+
+
+
+/* Footer Styling */
+.footer {
+  text-align: center;
+  padding: 20px;
+  margin-top: auto; 
+  width: 100%;
+}
+
+.footer p {
+  margin: 0;
+  color: white;
+  font-size: 14px;
+  margin-top: -30px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .logged-in-layout, .two-column-layout {
+    flex-direction: column;
+  }
+  .left-half, .right-half, .left-column, .right-column {
+    flex: none;
+    width: 100%;
+  }
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .home-page {
+    padding: 10px;
+  }
+
+  .content-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 15px;
+  }
+
+  .weather-current {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: auto;
+  }
+
+  .sidebar-container {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 100%;
+    flex-direction: column;
+  }
+
+  .maps {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .weather-news {
+    grid-column: 1;
+    grid-row: 4;
+  }
+
+  .card {
+    min-height: auto;
+    padding: 15px;
+  }
+
+  .weather-current h1 {
+    font-size: 40px;
+  }
+}

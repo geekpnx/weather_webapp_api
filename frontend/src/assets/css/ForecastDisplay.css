@@ -1,0 +1,364 @@
+/* ForecastDisplay.css */
+.forecast-container {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: rgb(50 50 50 / 25%);
+  border-radius: 12px;
+  max-width: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  bottom: -30px;
+}
+
+.forecast-tabs {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* Creates 6 equal columns */
+  gap: 0.5rem;
+  padding: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.forecast-tab {
+  width: 100%;
+  padding: 1rem;
+  background: rgba(15, 15, 15, 0.15);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.forecast-tab:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.forecast-tab.active {
+  background: rgba(0, 149, 255, 0.35);
+}
+
+.tab-day {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.tab-date {
+  font-weight: normal;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.tab-temp {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+  color: white;
+}
+
+.tab-high-low {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  color: white;
+
+}
+
+/* Popup styles */
+.forecast-expanded {
+  background: rgba(15, 15, 15, 0.65);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: absolute;
+  bottom: calc(100% + -10px);
+  left: 0;
+  right: 0;
+  width: 90vw;
+  margin: 0 auto;
+  border-radius: 8px;
+  z-index: 10;
+  animation: fadeInUp 0.3s ease-in-out;
+  overflow: visible;
+  animation-fill-mode: forwards;
+}
+
+/* Adjust popup size to match smaller cards */
+.forecast-expanded {
+  max-width: 730px; /* Slightly narrower */
+  padding: 1rem; /* Reduced padding */
+}
+
+
+.forecast-expanded::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: var(--arrow-pos, 50%);
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 12px solid white;
+  border-top: 12px solid rgba(15, 15, 15, 0.65);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.day-additional-info {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.35);
+  color: f8f9fa;
+  font-weight: bolder;
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+
+.day-additional-info p {
+  margin: 0;
+  font-size: 0.95rem;
+  padding: 0.3rem 0.5rem;
+  position: relative;
+  z-index: 2;
+  color: white;
+}
+
+.day-additional-info strong {
+  color: white;
+  font-weight: 600;
+}
+
+/* Optional: Add divider lines between items */
+.day-additional-info p:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -15px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 60%;
+  width: 1px;
+  background-color: rgba(255,255,255,0.3);
+}
+
+
+/* Hourly forecasts container */
+.hourly-forecasts {
+  display: -webkit-inline-box;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.5rem 1rem; /* Added left/right padding */
+  scrollbar-width: thin;
+  width: calc(100% - 2rem); /* Account for padding */
+  margin: 0 auto;
+  scroll-padding: 1rem; /* Ensures first item is fully visible */
+  scroll-snap-type: x mandatory; /* Changed to mandatory for consistent behavior */
+}
+
+/* Ensure first and last items have proper spacing */
+.hourly-forecasts::before,
+.hourly-forecasts::after {
+  content: '';
+  flex: 0 0 1rem;
+}
+
+/* Chrome/Safari scrollbar styling */
+.hourly-forecasts::-webkit-scrollbar {
+  height: 6px;
+}
+
+.hourly-forecasts::-webkit-scrollbar-thumb {
+  background: #c6c6c6;
+  border-radius: 3px;
+}
+
+/* Firefox scrollbar styling */
+@supports (scrollbar-width: thin) {
+  .hourly-forecasts {
+    scrollbar-color: #c6c6c6 transparent;
+  }
+}
+
+/* Hourly forecast cards - perfectly proportioned */
+.hourly-item {
+  flex: 0 0 102px; /* Fixed width */
+  height: 205px; /* Fixed height */
+  padding: 12px; /* Consistent padding */
+  background: rgba(202, 202, 202, 1.25);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  position: relative; /* For absolute positioning if needed */
+  scroll-snap-align: center;
+}
+
+/* Time element - fixed height */
+.hourly-time {
+  font-weight: 600;
+  font-size: 13px;
+  margin: 0 0 8px 0;
+  height: 18px; /* Fixed height */
+  line-height: 18px; /* Center text vertically */
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.hourly-item:hover {
+  background: #f0f7ff;
+}
+
+.hourly-item img {
+  width: 40px;
+  height: 40px;
+  margin: 4px 0;
+  flex-shrink: 0; /* Prevent squishing */
+}
+
+/* Temperature - fixed height */
+.hourly-item > p {
+  font-size: 15px;
+  margin: 6px 0;
+  height: 20px;
+  line-height: 20px;
+  font-weight: bold;
+}
+
+/* Details section - flexible but contained */
+.hourly-details {
+  width: 100%;
+  margin-top: auto; /* Pushes to bottom */
+  padding-top: 8px;
+  border-top: 1px dashed #e0e0e0;
+}
+
+/* Detail rows - perfectly spaced */
+.hourly-details p {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+  font-size: 12px;
+  line-height: 14px;
+}
+
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hourly-item {
+    flex: 0 0 130px;
+    height: 170px;
+    padding: 10px;
+  }
+  
+  .hourly-time {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  
+  .hourly-item img {
+    width: 36px;
+    height: 36px;
+  }
+  .forecast-tab {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .tab-temp {
+    font-size: 1rem;
+  }
+  
+  .tab-high-low {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hourly-item {
+    flex: 0 0 120px;
+    height: 160px;
+    padding: 8px;
+  }
+  
+  .hourly-details p {
+    font-size: 11px;
+    margin: 4px 0;
+  }
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .forecast-tabs {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.3rem;
+    padding: 0.5rem;
+  }
+
+  .forecast-tab {
+    padding: 0.5rem;
+  }
+
+  .hourly-item {
+    flex: 0 0 90px;
+    height: 185px;
+    padding: 8px;
+  }
+
+  .forecast-expanded {
+    width: 95vw;
+    padding: 0.5rem;
+  }
+}
+
+
+/* ==================== */
+/* DARK MODE OVERRIDES  */
+/* ==================== */
+[data-theme="dark"] .forecast-container {
+  background-color: #2d2d2d;
+}
+
+[data-theme="dark"] .forecast-tab {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .forecast-tab.active {
+  background-color: #3a3a3a;
+}
+
+[data-theme="dark"] .hourly-item {
+  background-color: #252525;
+  border-color: #444;
+}
+
+[data-theme="dark"] .hourly-details {
+  border-top-color: #444;
+}

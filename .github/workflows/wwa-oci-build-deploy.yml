@@ -44,10 +44,17 @@ jobs:
         docker build -f Dockerfile.backend -t ${{ env.BACKEND_IMAGE }}:latest .
         docker push ${{ env.BACKEND_IMAGE }}:latest
 
-    - name: Build and push frontend image
-      run: |
-        docker build -f Dockerfile.frontend -t ${{ env.FRONTEND_IMAGE }}:latest .
-        docker push ${{ env.FRONTEND_IMAGE }}:latest
+        - name: Build and push frontend image
+        run: |
+          docker build \
+            --build-arg DOMAIN=${{ secrets.PRODUCTION_DOMAIN }} \
+            --build-arg PROTOCOL=https \
+            --build-arg VITE_OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }} \
+            --build-arg VITE_OPENWEATHERMAP_API_BASE_URL=https://api.openweathermap.org/ \
+            --build-arg VITE_OPENWEATHERMAP_BASE_URL=https://openweathermap.org/ \
+            -f Dockerfile.frontend \
+            -t ${{ env.FRONTEND_IMAGE }}:latest .
+          docker push ${{ env.FRONTEND_IMAGE }}:latest
 
     - name: Prepare deployment files
       env:
@@ -91,9 +98,9 @@ jobs:
             environment:
               SECRET_KEY: \${SECRET_KEY}
               DJANGO_SETTINGS_MODULE: config.settings.prod
-              DB_NAME: \${DB_NAME}
               DB_USER: \${DB_USER}
               DB_PWD: \${DB_PWD}
+              DB_NAME: \${DB_NAME}
               DB_HOST: db
               DB_PORT: \${DB_PORT}
               DATABASE_URL: \${DATABASE_URL}

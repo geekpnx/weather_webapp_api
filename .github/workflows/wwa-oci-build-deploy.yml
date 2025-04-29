@@ -6,25 +6,38 @@ on:
   workflow_dispatch:
 
 env:
-  environment: weather_webapp_project
-  OCI_INSTANCE_IP: ${{ secrets.OCI_INSTANCE_IP }}
-  OCI_SSH_KEY: ${{ secrets.OCI_SSH_KEY }}
-  OCI_SSH_USER: ${{ secrets.OCI_SSH_USER }}
-  PRODUCTION_DOMAIN: ${{ secrets.PRODUCTION_DOMAIN }}
-  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-  DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
   BACKEND_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/wwa-backend-oci
   FRONTEND_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/wwa-frontend-oci
 
 jobs:
   build-push-deploy:
     runs-on: ubuntu-latest
+    environment: weather_webapp_project  # ← CRITICAL ADDITION
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Validate Secrets
+      run: |
+        echo "Docker Hub Username exists: ${{ secrets.DOCKER_HUB_USERNAME != '' }}"
+        echo "Docker Hub Token exists: ${{ secrets.DOCKER_HUB_TOKEN != '' }}"
+        echo "OCI_SSH_KEY exists: ${{ secrets.OCI_SSH_KEY != '' }}"
+        echo "OCI_INSTANCE_IP exists: ${{ secrets.OCI_INSTANCE_IP != '' }}"
+
     - name: Login to Docker Hub
-      run: echo "${{ env.DOCKER_HUB_TOKEN }}" | docker login -u "${{ env.DOCKER_HUB_USERNAME }}" --password-stdin
+      run: |
+        echo "Attempting login as: ${{ secrets.DOCKER_HUB_USERNAME }}"
+        if ! echo "${{ secrets.DOCKER_HUB_TOKEN }}" | \
+           docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin; then
+           echo "::error::Login failed!"
+           echo "Verify:"
+           echo "1. Secret names are correct"
+           echo "2. Token has Read+Write permissions"
+           echo "3. No whitespace in secrets"
+           exit 1
+        fi
+        echo "Login succeeded!"
        
     - name: Build and push backend image
       run: |
@@ -37,6 +50,10 @@ jobs:
         docker push ${{ env.FRONTEND_IMAGE }}:latest
 
     - name: Prepare deployment files
+      env:
+        OCI_INSTANCE_IP: ${{ secrets.OCI_INSTANCE_IP }}
+        OCI_SSH_USER: ${{ secrets.OCI_SSH_USER }}
+        PRODUCTION_DOMAIN: ${{ secrets.PRODUCTION_DOMAIN }}
       run: |
         # Create .env file with all required variables
         echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
@@ -121,10 +138,13 @@ jobs:
     - name: Install SSH key
       uses: shimataro/ssh-key-action@v2
       with:
-        key: ${{ env.OCI_SSH_KEY }}
+        key: ${{ secrets.OCI_SSH_KEY }}
         known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
 
     - name: Copy files to OCI instance
+      env:
+        OCI_INSTANCE_IP: ${{ secrets.OCI_INSTANCE_IP }}
+        OCI_SSH_USER: ${{ secrets.OCI_SSH_USER }}
       run: |
         # Create necessary directories on the remote server
         ssh -o StrictHostKeyChecking=no ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }} "mkdir -p /home/${{ env.OCI_SSH_USER }}/weather-webapp"
@@ -133,11 +153,14 @@ jobs:
         scp -o StrictHostKeyChecking=no -r docker-compose-run.yaml .env ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }}:/home/${{ env.OCI_SSH_USER }}/weather-webapp/
 
     - name: Deploy on OCI instance
+      env:
+        OCI_INSTANCE_IP: ${{ secrets.OCI_INSTANCE_IP }}
+        OCI_SSH_USER: ${{ secrets.OCI_SSH_USER }}
       run: |
         ssh -o StrictHostKeyChecking=no ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }} << EOF
           cd /home/${{ env.OCI_SSH_USER }}/weather-webapp
-          docker compose -f docker-compose-run.yaml down --remove-orphans &&
-          docker compose -f docker-compose-run.yaml pull &&
-          docker compose -f docker-compose-run.yaml up -d &&
-          docker image prune -a --filter "until=24h" -f 
+          docker compose -f docker-compose-run.yaml down --remove-orphans
+          docker compose -f docker-compose-run.yaml pull
+          docker compose -f docker-compose-run.yaml up -d
+          docker image prune -a --filter "until=24h" -f
         EOF

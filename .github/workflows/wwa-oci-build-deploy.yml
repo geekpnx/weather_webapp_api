@@ -10,8 +10,6 @@ env:
   OCI_SSH_KEY: ${{ secrets.OCI_SSH_KEY }}
   OCI_SSH_USER: ${{ secrets.OCI_SSH_USER }}
   PRODUCTION_DOMAIN: ${{ secrets.PRODUCTION_DOMAIN }}
-  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-  DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
   BACKEND_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/wwa-backend-oci
   FRONTEND_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/wwa-frontend-oci
 
@@ -23,7 +21,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Login to Docker Hub
-      run: echo "${{ env.DOCKER_HUB_TOKEN }}" | docker login -u "${{ env.DOCKER_HUB_USERNAME }}" --password-stdin
+      run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
        
     - name: Build and push backend image
       run: |

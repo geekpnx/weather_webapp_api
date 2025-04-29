@@ -20,8 +20,24 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Validate Secrets
+      run: |
+        echo "Username length: ${#SECRETS_DOCKER_HUB_USERNAME}"
+        echo "Token length: ${#SECRETS_DOCKER_HUB_TOKEN}"
+
     - name: Login to Docker Hub
-      run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+      run: |
+        echo "Attempting login as: ${{ secrets.DOCKER_HUB_USERNAME }}"
+        if ! echo "${{ secrets.DOCKER_HUB_TOKEN }}" | \
+           docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin; then
+           echo "::error::Login failed!"
+           echo "Verify:"
+           echo "1. Secret names are correct"
+           echo "2. Token has Read+Write permissions"
+           echo "3. No whitespace in secrets"
+           exit 1
+        fi
+        echo "Login succeeded!"
        
     - name: Build and push backend image
       run: |

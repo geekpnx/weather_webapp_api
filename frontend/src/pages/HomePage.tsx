@@ -295,7 +295,7 @@ const HomePage = () => {
       />
   
       <footer className="footer">
-        <p>© 2025 Weather WebApp made with ♡</p>
+        <p>© 2025 Weather WebApp made with ♡ by TRNC and Team</p>
       </footer>
     </div>
   );

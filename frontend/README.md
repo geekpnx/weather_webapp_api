@@ -24,6 +24,7 @@ Create **`.env.development`** file
 nano .env.development
 ```
 Copy and paste all variables below inside the file **`.env.development`**.
+>> **Note:** *Make sure you create this file inside the **frontend** folder.*
 
 ```bash
 # Based domain, protocol and url:
@@ -52,7 +53,7 @@ To run the application in development mode with the command below, which it will
 make
 ```
 
-## **STEP 10**
+## **STEP 4**
 
-Go to your prefer browser and type or just click >> [**localhost:5173**](http://localhost:5173)
+Go to your prefer browser in your local machine and type or just click >> [**localhost:5173**](http://localhost:5173)
 

@@ -51,6 +51,7 @@ Create **`.env.dev`** file
 nano .env.dev
 ```
 Copy and paste all variables below inside the file **`.env.dev`**.
+>> **Note:** *Make sure you create this file inside the **backend** folder.*
 
 ```bash
 # This are the default backend endpoint, also for media and static folders
@@ -145,13 +146,8 @@ make dev-super
 
 ## **STEP 9**
 
-To run the application in development mode with the command below, which it will run  django and React Vite server.
+Before you be able to run fully the project (Weather WebApp), you need to complete the frontend (React + Vite) setup.
+Please click on this >> [Frontend Setup](https://github.com/geekpnx/weather_webapp_api/tree/prod-trnc5/frontend)
 
-```bash
-make
-```
 
-## **STEP 10**
-
-Go to your prefer browser and type or just click >> [**localhost:5173**](http://localhost:5173)
 

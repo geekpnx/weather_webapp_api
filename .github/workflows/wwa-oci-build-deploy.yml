@@ -44,17 +44,17 @@ jobs:
         docker build -f Dockerfile.backend -t ${{ env.BACKEND_IMAGE }}:latest .
         docker push ${{ env.BACKEND_IMAGE }}:latest
 
-        - name: Build and push frontend image
-        run: |
-          docker build \
-            --build-arg DOMAIN=${{ secrets.PRODUCTION_DOMAIN }} \
-            --build-arg PROTOCOL=https \
-            --build-arg VITE_OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }} \
-            --build-arg VITE_OPENWEATHERMAP_API_BASE_URL=https://api.openweathermap.org/ \
-            --build-arg VITE_OPENWEATHERMAP_BASE_URL=https://openweathermap.org/ \
-            -f Dockerfile.frontend \
-            -t ${{ env.FRONTEND_IMAGE }}:latest .
-          docker push ${{ env.FRONTEND_IMAGE }}:latest
+    - name: Build and push frontend image
+      run: |
+        docker build \
+        --build-arg DOMAIN=${{ secrets.PRODUCTION_DOMAIN }} \
+           --build-arg PROTOCOL=https \
+           --build-arg VITE_OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }} \
+           --build-arg VITE_OPENWEATHERMAP_API_BASE_URL=https://api.openweathermap.org/ \
+           --build-arg VITE_OPENWEATHERMAP_BASE_URL=https://openweathermap.org/ \
+           -f Dockerfile.frontend \
+           -t ${{ env.FRONTEND_IMAGE }}:latest .
+        docker push ${{ env.FRONTEND_IMAGE }}:latest
 
     - name: Prepare deployment files
       env:

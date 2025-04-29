@@ -53,13 +53,13 @@ jobs:
     - name: Build and push frontend image
       run: |
         docker build \
-        --build-arg DOMAIN=${{ vars.PRODUCTION_DOMAIN }} \
-           --build-arg PROTOCOL=https \
-           --build-arg VITE_OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }} \
-           --build-arg VITE_OPENWEATHERMAP_API_BASE_URL=https://api.openweathermap.org/ \
-           --build-arg VITE_OPENWEATHERMAP_BASE_URL=https://openweathermap.org/ \
-           -f Dockerfile.frontend \
-           -t ${{ env.FRONTEND_IMAGE }}:latest .
+            --build-arg VITE_OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }} \
+            --build-arg VITE_OPENWEATHERMAP_API_BASE_URL=https://api.openweathermap.org/ \
+            --build-arg VITE_OPENWEATHERMAP_BASE_URL=https://openweathermap.org/ \
+            --build-arg DOMAIN=${{ vars.PRODUCTION_DOMAIN }} \
+            --build-arg PROTOCOL=https \
+            -f Dockerfile.frontend \
+            -t ${{ env.FRONTEND_IMAGE }}:latest .
         docker push ${{ env.FRONTEND_IMAGE }}:latest
 
     - name: Prepare deployment files

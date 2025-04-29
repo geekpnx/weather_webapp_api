@@ -23,9 +23,8 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Login to Docker Hub
-      run: |
-        echo "${{ env.DOCKER_HUB_TOKEN }}" | docker login -u "${{ env.DOCKER_HUB_USERNAME }}" --password-stdin
-
+      run: echo "${{ env.DOCKER_HUB_TOKEN }}" | docker login -u "${{ env.DOCKER_HUB_USERNAME }}" --password-stdin
+       
     - name: Build and push backend image
       run: |
         docker build -f Dockerfile.backend -t ${{ env.BACKEND_IMAGE }}:latest .
@@ -127,15 +126,15 @@ jobs:
     - name: Copy files to OCI instance
       run: |
         # Create necessary directories on the remote server
-        ssh -o StrictHostKeyChecking=no ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }} "mkdir -p /home/${{ env.OCI_SSH_USER }}/weather-app"
+        ssh -o StrictHostKeyChecking=no ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }} "mkdir -p /home/${{ env.OCI_SSH_USER }}/weather-webapp"
         
         # Copy only necessary files
-        scp -o StrictHostKeyChecking=no -r docker-compose-run.yaml .env ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }}:/home/${{ env.OCI_SSH_USER }}/weather-app/
+        scp -o StrictHostKeyChecking=no -r docker-compose-run.yaml .env ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }}:/home/${{ env.OCI_SSH_USER }}/weather-webapp/
 
     - name: Deploy on OCI instance
       run: |
         ssh -o StrictHostKeyChecking=no ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }} << EOF
-          cd /home/${{ env.OCI_SSH_USER }}/weather-app
+          cd /home/${{ env.OCI_SSH_USER }}/weather-webapp
           docker compose -f docker-compose-run.yaml down --remove-orphans &&
           docker compose -f docker-compose-run.yaml pull &&
           docker compose -f docker-compose-run.yaml up -d &&

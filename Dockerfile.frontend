@@ -6,28 +6,11 @@ WORKDIR /app
 COPY frontend/package*.json ./
 RUN npm install
 
-# Copy remaining files
+# Copy all files including the .env.production created by GitHub Actions
 COPY frontend/ .
+COPY frontend/.env.production .
 
-# Create production env file from build args
-ARG DOMAIN
-ARG PROTOCOL
-ARG VITE_OPENWEATHERMAP_API_KEY
-ARG VITE_OPENWEATHERMAP_API_BASE_URL
-ARG VITE_OPENWEATHERMAP_BASE_URL
-
-RUN echo "DOMAIN=${DOMAIN}" > .env.production && \
-    echo "PROTOCOL=${PROTOCOL}" >> .env.production && \
-    echo "BASE_URL=${PROTOCOL}://${DOMAIN}" >> .env.production && \
-    echo "VITE_STATIC_BASE_URL=\${BASE_URL}/static" >> .env.production && \
-    echo "VITE_MEDIA_BASE_URL=\${BASE_URL}/media" >> .env.production && \
-    echo "VITE_WEATHER_API_BASE_URL=\${BASE_URL}/api/v1/weather" >> .env.production && \
-    echo "VITE_USER_API_BASE_URL=\${BASE_URL}/api/v1/user" >> .env.production && \
-    echo "VITE_OPENWEATHERMAP_API_KEY=${VITE_OPENWEATHERMAP_API_KEY}" >> .env.production && \
-    echo "VITE_OPENWEATHERMAP_API_BASE_URL=${VITE_OPENWEATHERMAP_API_BASE_URL}" >> .env.production && \
-    echo "VITE_OPENWEATHERMAP_BASE_URL=${VITE_OPENWEATHERMAP_BASE_URL}" >> .env.production
-
-# Verify environment file
+# Verify environment file exists and contains expected values
 RUN cat .env.production
 
 # Build the app
@@ -43,8 +26,9 @@ COPY frontend/nginx.conf /etc/nginx/conf.d/
 # Copy build output
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Create media directory and set permissions
+# Create media and static directories and set permissions
 RUN mkdir -p /usr/share/nginx/html/media && \
+    mkdir -p /usr/share/nginx/html/static && \
     chown -R nginx:nginx /usr/share/nginx/html && \
     chmod -R 755 /usr/share/nginx/html
 

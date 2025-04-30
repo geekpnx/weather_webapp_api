@@ -64,8 +64,22 @@ jobs:
 
     - name: Build and push frontend image
       run: |
-        docker build -f Dockerfile.frontend -t ${{ env.FRONTEND_IMAGE }}:latest .
+        # Copy the created .env.production to the frontend directory
+        cp frontend/.env.production .
+        docker build -f Dockerfile.frontend -t ${{ env.FRONTEND_IMAGE }}:latest \
+          --build-arg DOMAIN=${{ vars.PRODUCTION_DOMAIN }} \
+          --build-arg PROTOCOL=https \
+          --build-arg VITE_OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }} \
+          --build-arg VITE_OPENWEATHERMAP_API_BASE_URL=https://api.openweathermap.org/ \
+          --build-arg VITE_OPENWEATHERMAP_BASE_URL=https://openweathermap.org/ \
+          .
         docker push ${{ env.FRONTEND_IMAGE }}:latest
+
+    - name: Verify frontend .env.production
+      run: |
+        echo "Frontend .env.production contents:"
+        cat frontend/.env.production
+
 
     - name: Prepare deployment files
       run: |

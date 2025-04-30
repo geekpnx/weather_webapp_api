@@ -19,18 +19,25 @@
 }
 
 .layer-toggle {
-    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    padding: 8px 8px;
     border: none;
     border-radius: 5px;
-    background-color: #343434;
+    background-color: #ffffff;
     color: white;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     transition: all 0.3s ease;
 }
 
+.layer-toggle svg, .layer-toggle img {
+  width: 2em;
+  height: 2em;
+}
+
 .layer-toggle:hover {
-    background-color: #6e6e6e;
+    background-color: #f3f3f3;
 }
 
 .layer-dropdown {
@@ -39,8 +46,8 @@
   right: 0;
   display: flex;
   flex-direction: column;
-  background: white;
-  border-radius: 5px;
+  background: rgba(44, 43, 43, 0.8);
+  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   overflow: hidden;
   margin-top: 5px; /* Add spacing from toggle */
@@ -50,19 +57,22 @@
     padding: 8px 15px;
     border: none;
     background: none;
-    color: #343434;
+    color: #ffffff;
     text-align: left;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
 
 .layer-dropdown button:hover {
-    background-color: #f0f0f0;
+    background-color: #666666;
+    border-radius: 8px;
 }
 
 .layer-dropdown button.active {
     background-color: #343434;
     color: white;
+    border-radius: 8px;
+    
 }
 
   /* Ensure marker appears above all layers */

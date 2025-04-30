@@ -4,6 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import { MapComponentProps } from '../types/types';
 import '../assets/css/MapComponent.css'
 import pinIcon from '../assets/images/pin/pin-icon.svg'
+import layersIcon from '../assets/images/icons/layers-icon.svg';
 
 
 const defaultIcon = L.icon({
@@ -114,7 +115,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
           className="layer-toggle"
           onClick={() => setShowLayerControls(!showLayerControls)}
         >
-          Layers ▾
+         <img src={layersIcon} alt="Layers" className="layer-icon" />
         </button>
         
         {showLayerControls && (

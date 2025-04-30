@@ -7,6 +7,21 @@ COPY frontend/package*.json ./
 RUN npm install
 # COPY frontend/.env.production .env
 COPY frontend/ .
+
+# Create production env file from build args
+RUN echo "DOMAIN=${DOMAIN}" > .env.production && \
+    echo "PROTOCOL=${PROTOCOL}" >> .env.production && \
+    echo "BASE_URL=${PROTOCOL}://${DOMAIN}" >> .env.production && \
+    echo "VITE_STATIC_BASE_URL=\${BASE_URL}/static" >> .env.production && \
+    echo "VITE_MEDIA_BASE_URL=\${BASE_URL}/media" >> .env.production && \
+    echo "VITE_WEATHER_API_BASE_URL=\${BASE_URL}/api/v1/weather" >> .env.production && \
+    echo "VITE_USER_API_BASE_URL=\${BASE_URL}/api/v1/user" >> .env.production && \
+    echo "VITE_OPENWEATHERMAP_API_KEY=${VITE_OPENWEATHERMAP_API_KEY}" >> .env.production && \
+    echo "VITE_OPENWEATHERMAP_API_BASE_URL=${VITE_OPENWEATHERMAP_API_BASE_URL}" >> .env.production && \
+    echo "VITE_OPENWEATHERMAP_BASE_URL=${VITE_OPENWEATHERMAP_BASE_URL}" >> .env.production
+
+RUN cat .env.production
+
 RUN npm run build
 
 # Stage 2: Serve with Nginx

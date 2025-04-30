@@ -7,7 +7,6 @@ on:
 
 env:
   OCI_INSTANCE_IP: ${{ vars.OCI_INSTANCE_IP }}
-  OCI_SSH_KEY: ${{ secrets.OCI_SSH_KEY }}
   OCI_SSH_USER: ${{ vars.OCI_SSH_USER }}
   PRODUCTION_DOMAIN: ${{ vars.PRODUCTION_DOMAIN }}
   BACKEND_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/wwa-backend-oci
@@ -28,47 +27,35 @@ jobs:
         echo "DB_NAME=${{ secrets.DB_NAME }}" >> backend/.env.prod
         echo "DB_USER=${{ secrets.DB_USER }}" >> backend/.env.prod
         echo "DB_PWD=${{ secrets.DB_PWD }}" >> backend/.env.prod
-        echo "DB_HOST=${{ vars.DB_HOST }}" >> backend/.env.prod
+        echo "DB_HOST=db" >> backend/.env.prod
         echo "DB_PORT=${{ vars.DB_PORT }}" >> backend/.env.prod
         echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> backend/.env.prod
         echo "WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}" >> backend/.env.prod
         echo "OPENWEATHERMAP_API_KEY=${{ secrets.OPENWEATHERMAP_API_KEY }}" >> backend/.env.prod
         echo "NEWS_API_KEY=${{ secrets.NEWS_API_KEY }}" >> backend/.env.prod
-        echo "DOMAIN=${{ env.PRODUCTION_DOMAIN }}" >> backend/.env.prod
+        echo "DOMAIN=${{ vars.PRODUCTION_DOMAIN }}" >> backend/.env.prod
         echo "PROTOCOL=https" >> backend/.env.prod
-        echo "BASE_URL=https://${{ env.PRODUCTION_DOMAIN }}" >> backend/.env.prod
-        echo "MEDIA_URL=https://${{ env.PRODUCTION_DOMAIN }}/media/" >> backend/.env.prod
-        echo "STATIC_URL=https://${{ env.PRODUCTION_DOMAIN }}/static/" >> backend/.env.prod
+        echo "BASE_URL=https://${{ vars.PRODUCTION_DOMAIN }}" >> backend/.env.prod
+        echo "MEDIA_URL=https://${{ vars.PRODUCTION_DOMAIN }}/media/" >> backend/.env.prod
+        echo "STATIC_URL=https://${{ vars.PRODUCTION_DOMAIN }}/static/" >> backend/.env.prod
 
         # Frontend environment
         echo "VITE_OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }}" > frontend/.env.production
-        echo "DOMAIN=${{ env.PRODUCTION_DOMAIN }}" >> frontend/.env.production
-        echo "PROTOCOL=https" >> frontend/.env.production.
-        echo "BASE_URL=https://${{ env.PRODUCTION_DOMAIN }}" >> frontend/.env.production
-        echo "VITE_STATIC_BASE_URL=https://${{ env.PRODUCTION_DOMAIN }}/static" >> frontend/.env.production
-        echo "VITE_MEDIA_BASE_URL=https://${{ env.PRODUCTION_DOMAIN }}/media" >> frontend/.env.production
-        echo "VITE_WEATHER_API_BASE_URL=https://${{ env.PRODUCTION_DOMAIN }}/api/v1/weather" >> frontend/.env.production
-        echo "VITE_USER_API_BASE_URL=https://${{ env.PRODUCTION_DOMAIN }}/api/v1/user" >> frontend/.env.production
+        echo "DOMAIN=${{ vars.PRODUCTION_DOMAIN }}" >> frontend/.env.production
+        echo "PROTOCOL=https" >> frontend/.env.production
+        echo "BASE_URL=https://${{ vars.PRODUCTION_DOMAIN }}" >> frontend/.env.production
+        echo "VITE_STATIC_BASE_URL=https://${{ vars.PRODUCTION_DOMAIN }}/static" >> frontend/.env.production
+        echo "VITE_MEDIA_BASE_URL=https://${{ vars.PRODUCTION_DOMAIN }}/media" >> frontend/.env.production
+        echo "VITE_WEATHER_API_BASE_URL=https://${{ vars.PRODUCTION_DOMAIN }}/api/v1/weather" >> frontend/.env.production
+        echo "VITE_USER_API_BASE_URL=https://${{ vars.PRODUCTION_DOMAIN }}/api/v1/user" >> frontend/.env.production
         echo "VITE_OPENWEATHERMAP_API_BASE_URL=https://api.openweathermap.org/" >> frontend/.env.production
         echo "VITE_OPENWEATHERMAP_BASE_URL=https://openweathermap.org/" >> frontend/.env.production
 
     - name: Login to Docker Hub
-      run: |
-        echo "Attempting login as: ${{ secrets.DOCKER_HUB_USERNAME }}"
-          if ! echo "${{ secrets.DOCKER_HUB_TOKEN }}" | \
-             docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin; then
-             echo "::error::Login failed!"
-             echo "Verify:"
-             echo "1. Secret names are correct"
-             echo "2. Token has Read+Write permissions"
-             echo "3. No whitespace in secrets"
-             exit 1
-          fi
-        echo "Login succeeded!"
-    - name: Verify Docker login
-      run: |
-        echo "Logged in as: $(docker system info | grep Username)"
-        docker logout  # Clean up after verification    
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
     - name: Build and push backend image
       run: |
@@ -83,20 +70,38 @@ jobs:
     - name: Prepare deployment files
       run: |
         # Create .env file with all required variables
-        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
-        echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-        echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-        echo "DB_PWD=${{ secrets.DB_PWD }}" >> .env
-        echo "DB_HOST=db" >> .env
-        echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
-        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
-        echo "WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}" >> .env
-        echo "OPENWEATHERMAP_API_KEY=${{ secrets.OPENWEATHERMAP_API_KEY }}" >> .env
-        echo "NEWS_API_KEY=${{ secrets.NEWS_API_KEY }}" >> .env
-        echo "VITE_OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }}" >> .env
+        cat <<EOT > .env
+        # Domain Configuration
+        DOMAIN=${{ vars.PRODUCTION_DOMAIN }}
+        PROTOCOL=https
+        BASE_URL=\${PROTOCOL}://\${DOMAIN}
+        MEDIA_URL=\${BASE_URL}/media/
+        STATIC_URL=\${BASE_URL}/static/
+
+        # Django Configuration
+        SECRET_KEY=${{ secrets.SECRET_KEY }}
+
+        # Database Configuration
+        DB_NAME=${{ secrets.DB_NAME }}
+        DB_USER=${{ secrets.DB_USER }}
+        DB_PWD=${{ secrets.DB_PWD }}
+        DB_HOST=db
+        DB_PORT=${{ vars.DB_PORT }}
+        DATABASE_URL=postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PWD }}@db:${{ vars.DB_PORT }}/${{ secrets.DB_NAME }}
+
+        # API Keys
+        WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
+        OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }}
+        NEWS_API_KEY=${{ secrets.NEWS_API_KEY }}
+        VITE_OPENWEATHERMAP_API_KEY=${{ secrets.VITE_OPENWEATHERMAP_API_KEY }}
+        VITE_OPENWEATHERMAP_API_BASE_URL=https://api.openweathermap.org/
+        VITE_OPENWEATHERMAP_BASE_URL=https://openweathermap.org/
+        EOT
 
         # Generate docker-compose-run.yaml
         cat <<EOT > docker-compose-run.yaml
+        version: '3.8'
+
         services:
           db:
             image: postgres:14
@@ -139,9 +144,12 @@ jobs:
             image: ${{ env.FRONTEND_IMAGE }}:latest
             environment:
               VITE_OPENWEATHERMAP_API_KEY: \${VITE_OPENWEATHERMAP_API_KEY}
-              VITE_STATIC_BASE_URL: /static 
-              VITE_WEATHER_API_BASE_URL: /api/v1/weather
-              VITE_USER_API_BASE_URL: /api/v1/user
+              VITE_OPENWEATHERMAP_API_BASE_URL: \${VITE_OPENWEATHERMAP_API_BASE_URL}
+              VITE_OPENWEATHERMAP_BASE_URL: \${VITE_OPENWEATHERMAP_BASE_URL}
+              VITE_STATIC_BASE_URL: \${STATIC_URL}
+              VITE_MEDIA_BASE_URL: \${MEDIA_URL}
+              VITE_WEATHER_API_BASE_URL: \${BASE_URL}/api/v1/weather
+              VITE_USER_API_BASE_URL: \${BASE_URL}/api/v1/user
             volumes:
               - media_volume:/usr/share/nginx/html/media
               - static_volume:/usr/share/nginx/html/static
@@ -163,23 +171,23 @@ jobs:
     - name: Install SSH key
       uses: shimataro/ssh-key-action@v2
       with:
-        key: ${{ env.OCI_SSH_KEY }}
+        key: ${{ secrets.OCI_SSH_KEY }}
         known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
 
     - name: Copy files to OCI instance
       run: |
         # Create necessary directories on the remote server
-        ssh -o StrictHostKeyChecking=no ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }} "mkdir -p /home/${{ env.OCI_SSH_USER }}/weather-app"
+        ssh -o StrictHostKeyChecking=no ${{ vars.OCI_SSH_USER }}@${{ vars.OCI_INSTANCE_IP }} "mkdir -p /home/${{ vars.OCI_SSH_USER }}/weather-app"
         
         # Copy only necessary files
-        scp -o StrictHostKeyChecking=no -r docker-compose-run.yaml .env ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }}:/home/${{ env.OCI_SSH_USER }}/weather-app/
+        scp -o StrictHostKeyChecking=no -r docker-compose-run.yaml .env ${{ vars.OCI_SSH_USER }}@${{ vars.OCI_INSTANCE_IP }}:/home/${{ vars.OCI_SSH_USER }}/weather-app/
 
     - name: Deploy on OCI instance
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ env.OCI_SSH_USER }}@${{ env.OCI_INSTANCE_IP }} << EOF
-          cd /home/${{ env.OCI_SSH_USER }}/weather-app
-          docker compose -f docker-compose-run.yaml down --remove-orphans &&
-          docker compose -f docker-compose-run.yaml pull &&
-          docker compose -f docker-compose-run.yaml up -d &&
-          docker image prune -a --filter "until=24h" -f 
+        ssh -o StrictHostKeyChecking=no ${{ vars.OCI_SSH_USER }}@${{ vars.OCI_INSTANCE_IP }} << EOF
+          cd /home/${{ vars.OCI_SSH_USER }}/weather-app
+          docker compose -f docker-compose-run.yaml down --remove-orphans
+          docker compose -f docker-compose-run.yaml pull
+          docker compose -f docker-compose-run.yaml up -d
+          docker image prune -a --filter "until=24h" -f
         EOF

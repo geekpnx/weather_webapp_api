@@ -27,7 +27,7 @@ jobs:
         echo "DB_NAME=${{ secrets.DB_NAME }}" >> backend/.env.prod
         echo "DB_USER=${{ secrets.DB_USER }}" >> backend/.env.prod
         echo "DB_PWD=${{ secrets.DB_PWD }}" >> backend/.env.prod
-        echo "DB_HOST=db" >> backend/.env.prod
+        echo "DB_HOST=${{ vars.DB_HOST }}" >> backend/.env.prod
         echo "DB_PORT=${{ vars.DB_PORT }}" >> backend/.env.prod
         echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> backend/.env.prod
         echo "WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}" >> backend/.env.prod

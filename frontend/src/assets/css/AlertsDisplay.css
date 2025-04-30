@@ -30,8 +30,8 @@
 
 /* Warning Icon Image */
 .warning-icon {
-  width: 32px; /* Slightly smaller than container */
-  height: 32px;
+  width: 28px; /* Slightly smaller than container */
+  height: 28px;
   transition: transform 0.2s ease;
 }
 
@@ -82,7 +82,7 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     min-width: 300px;
-    margin-top: -3px;
+    margin-top: 2px;
     padding: 10px;
     max-height: 400px; /* Adjust the maximum height as needed */
     overflow-y: auto;

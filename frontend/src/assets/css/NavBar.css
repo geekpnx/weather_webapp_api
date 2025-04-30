@@ -158,12 +158,7 @@
 
 
 
-/* Navigation Icons */
-.nav-icons {
-  order: 3;
-  position: absolute; /* Add this */
-  right: 20px; /* Adjust as needed */
-}
+
 
 
 /* Add settings icon styles */
@@ -215,14 +210,14 @@
 
 .settings-dropdown .toggle-switch {
   width: 40px;
-  height: 20px;
+  height: 22px;
 }
 
 .settings-dropdown .toggle-knob {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   top: 2px;
-  left: 2px;
+  left: -2px;
 }
 
 .settings-dropdown .toggle-button.active .toggle-knob {
@@ -259,7 +254,7 @@
   right: 20px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0px;
 }
 
 /* Remove the original temperature-toggle styles */
@@ -395,7 +390,7 @@
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   min-width: 160px;
   z-index: 1000;
-  margin-top: 8px;
+  margin-top: 16px;
   transform: translateZ(0);
   -webkit-transform: translateZ(0); 
   backface-visibility: hidden;
@@ -644,28 +639,31 @@
 
 /* Notification bubble */
 .notification-bubble {
-  position: absolute;
-  right: 100%; /* Position to the left of the button */
-  top: 50%;
-  transform: translateY(-50%);
-  margin-right: 10px; /* Space between bubble and button */
+  position: fixed; /* Changed from absolute to fixed */
+  top: 85px; /* Height of navbar + some spacing */
+  left: 50%;
+  transform: translateX(-50%); /* Center horizontally */
+  margin-right: 0; /* Remove previous right margin */
   padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.9em;
+  border-radius: 10px;
+  font-size: 1.1em;
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   z-index: 1000;
-  animation: slideFromLeft 0.3s ease-out;
+  animation: fadeIn 0.3s ease-out;
+  text-align: center; /* Ensure text is centered */
+  max-width: 80%; /* Prevent too wide notifications */
 }
 
-@keyframes slideFromLeft {
+/* Update the animation to fade in from top */
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-50%) translateX(-10px);
+    transform: translateX(-50%) translateY(-10px);
   }
   to {
     opacity: 1;
-    transform: translateY(-50%) translateX(0);
+    transform: translateX(-50%) translateY(0);
   }
 }
 
@@ -741,15 +739,15 @@
 }
 
 .warning-icon {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   transition: transform 0.2s ease;
   filter: brightness(0) invert(1) drop-shadow(0 0 0 white);
 }
 
 .favorite-icon {
-  width: 30px;
-  height: 30px;
+  width: 27px;
+  height: 27px;
   margin: 0 2px;
   filter: brightness(0) invert(1) drop-shadow(0 0 0 white);
 }
@@ -870,45 +868,121 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  .notification-bubble {
+    top: 150px; /* Adjust based on your mobile navbar height */
+    width: 90%; /* Slightly wider on mobile */
+  }
+
   .navbar {
-    flex-direction: row; /* Keep horizontal layout */
-    flex-wrap: wrap; /* Allow items to wrap */
+    flex-direction: row;
+    flex-wrap: wrap;
     padding: 10px 15px;
     align-items: center;
     justify-content: space-between;
+    gap: 10px; /* Reduced gap */
   }
 
-
   .logo {
-    position: static; /* Remove absolute positioning */
+    position: static;
     order: 1;
-    margin-right: auto; /* Push other items to the right */
+    margin-right: 0; /* Removed margin-right */
+    height: 32px; /* Consistent height with icons */
+    display: flex;
+    align-items: center;
   }
 
   .nav-icons {
-    position: static; /* Remove absolute positioning */
+    position: static;
     order: 2;
     display: flex;
-    gap: 15px; /* Space between icons */
+    gap: 0px; /* Reduced gap between icons */
+    align-items: center;
+    height: 32px; /* Consistent height with logo */
   }
 
   .search-container {
     order: 3;
     width: 100%;
-    /* margin: 15px 0 0 0; Add top margin */
-    padding: 0 15px; /* Add some side padding */
-    margin-left: 27px; /* Push to the right */
+    margin: 10px 0 0 0; /* Adjusted margin */
+    padding: 0;
   }
 
-  /* Ensure all icons align horizontally */
+  /* Ensure all icons have consistent sizing and alignment */
   .logo-image, 
   .warning-icon, 
   .favorite-icon, 
+  .settings-icon,
   .profile-icon {
-    height: 32px; /* Consistent height */
-    width: auto; /* Maintain aspect ratio */
+    height: 25px;
+    width: 25px;
+    object-fit: contain;
   }
 
+  /* Specific adjustments for each icon */
+  .warning-icon {
+    width: 25px; /* Slightly different aspect ratio */
+    margin: 0 -2px; /* Compensate for different width */
+  }
+
+  .favorite-icon {
+    width: 24px; /* Slightly different aspect ratio */
+    margin: 0 1px; /* Compensate for different width */
+  }
+
+  .settings-icon {
+    width: 24px; /* Slightly different aspect ratio */
+    margin: 0 1px; /* Compensate for different width */
+  }
+
+
+
+  /* Ensure circular hover effects */
+  .icon-button {
+    width: 40px; /* Fixed width for perfect circle */
+    height: 40px; /* Fixed height matching width */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    padding: 8px; /* Maintain padding */
+  }
+
+  /* Adjust icon sizes to fit within circular hover area */
+  .warning-icon, 
+  .favorite-icon, 
+  .settings-icon,
+  .profile-icon {
+    height: 24px; /* Slightly smaller to fit in circle */
+    width: 24px; /* Maintain aspect ratio */
+    margin: 0; /* Remove any margins */
+  }
+
+  /* Specific icon adjustments */
+  .warning-icon {
+    width: 21px; /* Adjusted for this specific icon */
+  }
+
+  /* Center the search bar */
+  .search-container {
+    order: 3;
+    width: 100%;
+    margin: 10px 0 0 0;
+    padding: 0;
+    transform: none; /* Remove previous transform */
+    display: flex;
+    justify-content: center; /* Center the search */
+  }
+
+  .input-with-add {
+    width: 100%;
+    max-width: 400px; /* Prevent search from getting too wide */
+  }
+
+  /* Ensure search input stays centered */
+  .search-input-wrapper {
+    width: 100%;
+    margin: 0 auto;
+  }
 
   .search-input {
     width: 100%;

@@ -89,6 +89,7 @@ body, html, #root {
   left: 0;
   width: 100%;
   height: 100%;
+  height: -webkit-fill-available;
   z-index: -1;
   overflow: hidden;
 }
@@ -106,7 +107,7 @@ body, html, #root {
 }
 
 .video-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -121,13 +122,24 @@ body, html, #root {
   flex-direction: column;
   align-items: center; /* Center horizontally */
   justify-content: center; /* Center vertically */
-  min-height: 100vh; /* Ensure the page takes up at least the full viewport height */
+  min-height: 100vh; 
+  min-height: -webkit-fill-available;
   padding: 20px;
   position: relative;
   z-index: 1;
-
+  overflow-x: hidden;
 }
 
+
+@supports (-webkit-touch-callout: none) {
+  /* CSS specific to iOS devices */
+  .video-background {
+    height: -webkit-fill-available;
+  }
+  .home-page {
+    min-height: -webkit-fill-available;
+  }
+}
 
 /* Add these styles to HomePage.css */
 .top-messages {
@@ -395,6 +407,8 @@ body, html, #root {
   padding: 20px;
   margin-top: auto; 
   width: 100%;
+  position: relative;
+  z-index: 2;
 }
 
 .footer p {
@@ -402,6 +416,7 @@ body, html, #root {
   color: white;
   font-size: 14px;
   margin-top: -30px;
+  width: 100%;
 }
 
 /* Responsive adjustments */

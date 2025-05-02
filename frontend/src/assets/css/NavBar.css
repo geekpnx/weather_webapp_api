@@ -653,6 +653,14 @@
   animation: fadeIn 0.3s ease-out;
   text-align: center; /* Ensure text is centered */
   max-width: 80%; /* Prevent too wide notifications */
+    white-space: normal; /* Changed from nowrap to allow wrapping */
+  word-wrap: break-word; /* Ensures long words will break */
+  overflow-wrap: break-word; /* Modern alternative to word-wrap */
+  max-width: 90vw; /* Limits width to 90% of viewport */
+  width: max-content; /* Bubble width fits content up to max-width */
+  min-width: 120px; /* Minimum width for very short messages */
+  padding: 12px 20px; /* Increased padding for better spacing */
+  text-align: center; /* Center the text */
 }
 
 /* Update the animation to fade in from top */

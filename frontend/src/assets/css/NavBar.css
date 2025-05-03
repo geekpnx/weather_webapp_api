@@ -144,7 +144,7 @@
 
 .clear-icon {
   font-size: 20px; /* Slightly smaller */
-  color: #4a4949;
+  color: #f6f6f6;
   line-height: 1;
   font-weight: bold;
 }
@@ -899,7 +899,7 @@
 
 /* Update the search input to match the new structure */
 .search-input {
-  padding: 8px 40px 8px 42px;
+  padding: 8px 80px 8px 42px;
   width: 100%;
   min-width: 300px;
   height: 40px;

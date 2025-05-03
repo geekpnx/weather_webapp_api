@@ -119,15 +119,15 @@
 /* Clear button styles */
 .clear-button {
   position: absolute;
-  right: 50px; /* Position before the add button */
+  right: 50px; /* Default position (next to add button) */
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(28, 28, 28, 0.3); /* Light gray circle background */
+  background: rgba(0, 0, 0, 0.4);
   border: none;
-  border-radius: 50%; /* Makes it circular */
+  border-radius: 50%;
   cursor: pointer;
-  width: 24px; /* Circle size */
-  height: 24px; /* Circle size */
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -136,9 +136,10 @@
   z-index: 1;
 }
 
+
 .clear-button:hover {
   opacity: 1;
-  background: rgba(0, 0, 0, 0.2); /* Darker on hover */
+  background: rgba(63, 63, 63, 0.2); /* Darker on hover */
 }
 
 .clear-icon {
@@ -146,6 +147,10 @@
   color: #4a4949;
   line-height: 1;
   font-weight: bold;
+}
+
+.clear-button.clear-button-logged-out {
+  right: 10px; /* Same position as the add button would be */
 }
 
 .add-button {
@@ -187,8 +192,6 @@
 .search-button-inside:hover .search-icon {
   transform: scale(1.1);
 }
-
-
 
 
 

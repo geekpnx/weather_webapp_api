@@ -433,10 +433,19 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
             {searchLocation && (
               <button
                 onClick={() => setSearchLocation('')}
-                className="clear-button"
+                className={`clear-button ${!isAuthenticated ? 'clear-button-logged-out' : ''}`}
                 title="Clear search"
               >
                 <span className="clear-icon">×</span>
+              </button>
+            )}
+            {isAuthenticated && (
+              <button
+                onClick={handleAddFavorite}
+                className="add-button"
+                title="Add to favorites"
+              >
+                <img src={addIcon} alt="Add" className="add-icon" />
               </button>
             )}
             {showSuggestions && citySuggestions.length > 0 && (
@@ -453,15 +462,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
               </div>
             )}
           </div>
-          {isAuthenticated && (
-            <button
-              onClick={handleAddFavorite}
-              className="add-button"
-              title="Add to favorites"
-            >
-              <img src={addIcon} alt="Add" className="add-icon" />
-            </button>
-          )}
         </div>
       </div>
       <div className="nav-icons">

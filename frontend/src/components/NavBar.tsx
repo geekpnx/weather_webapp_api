@@ -430,6 +430,15 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
               className="search-input"
               autoComplete="off"
             />
+            {searchLocation && (
+              <button
+                onClick={() => setSearchLocation('')}
+                className="clear-button"
+                title="Clear search"
+              >
+                <span className="clear-icon">×</span>
+              </button>
+            )}
             {showSuggestions && citySuggestions.length > 0 && (
               <div className="suggestions-dropdown">
                 {citySuggestions.map((city, index) => (

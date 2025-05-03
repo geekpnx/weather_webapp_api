@@ -204,7 +204,7 @@
 .temperature-control {
   display: flex;
   justify-content: flex-start;
-  gap: 10rem;
+  gap: 4rem;
   
 }
 

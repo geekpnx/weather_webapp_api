@@ -426,7 +426,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
               value={searchLocation}
               onChange={handleSearchChange}
               onKeyDown={handleKeyDown}
-              placeholder="Enter location"
+              placeholder="Weather in city of ..."
               className="search-input"
               autoComplete="off"
             />

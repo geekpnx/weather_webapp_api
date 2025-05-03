@@ -51,7 +51,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   };
 
 
-  // Add this state variable
+
   const [showSettingsDropdown, setShowSettingsDropdown] = useState<boolean>(false);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
   const settingsDropdownRef = useRef<HTMLDivElement>(null);

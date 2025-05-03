@@ -19,7 +19,7 @@ import { usePreferences } from '../context/PreferencesContext';
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialTab?: 'profile' | 'settings';  // Add this prop
+  initialTab?: 'profile' | 'settings';  
 }
 
 

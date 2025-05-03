@@ -16,47 +16,36 @@
   width: 90%;
 }
 
-.weather-main {
-  text-align: left;
-  margin-left: 4rem;
-}
 
 
-
-.location {
-  font-size: 2.5rem;
-  margin: 0 0 0.5rem 0;
-  color: #2d2d2d;
-  text-transform: capitalize;
-}
 
 .temperature-container {
   margin: 1rem 0;
 }
 
 .weather-main {
-  text-align: left;
-  width: 100%;
-  /* Add these new properties: */
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0 1rem;
+  grid-template-columns: 1fr; /* Single column to keep left alignment */
+  gap: 0.5rem;
+  text-align: left; /* Ensure left alignment */
+  margin-left: 4rem; /* Keep your existing margin */
 }
 
 .location {
   font-size: 2.5rem;
   color: #000000;
   text-transform: capitalize;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  grid-column: 1 / -1;
+  overflow-wrap: break-word; /* Allow breaking long words */
+  word-break: break-word; /* Fallback for older browsers */
+  hyphens: auto; /* Better hyphenation support */
+  margin: 0 0 0.5rem 0; /* Reset margin */
 }
 
 .temperature-container {
-  /* Reset to block display */
-  display: block;
-  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Force left alignment */
+  margin: 1rem 0;
 }
 
 .temperature {
@@ -73,8 +62,7 @@
   color: #dfdfdf;
   margin: 0.5rem 0 0 0;
   padding: 0;
-  width: 100%;
-  grid-column: 1;
+  justify-content: flex-start; /* Ensure left alignment */
 }
 
 .feels-like {
@@ -172,14 +160,20 @@
   }
 
   .weather-main {
+    grid-template-columns: 1fr; /* Single column */
     margin-left: 0;
-    text-align: center;
-    grid-template-columns: 1fr;
+    text-align: center; /* Center everything */
   }
 
-  .location {
-    font-size: 2rem;
+  .temperature-container {
+    grid-column: 1;
+    align-items: center; /* Center temp & range */
   }
+
+  .temp-range {
+    justify-content: center; /* Center "H:" and "L:" */
+  }
+
 
   .temperature {
     font-size: 3rem;

@@ -2,7 +2,7 @@
 
 A full-stack weather application with real-time forecasts, built with Django (REST API) and React (Vite), deployed on Oracle Cloud Infrastructure (OCI) with Docker containers.
 
-**Visit the link:** [weather.trncthll.com](https://weather.trncthll.com)  
+**Visit The Weather Web App:** [weather.trncthll.com](https://weather.trncthll.com)  
 
 [![Build Status](https://github.com/geekpnx/weather_webapp_api/actions/workflows/wwa-oci-build-deploy.yml/badge.svg)](https://github.com/geekpnx/weather_webapp_api/actions/workflows/wwa-oci-build-deploy.yml)
 [![GitHub last commit](https://img.shields.io/github/last-commit/geekpnx/weather_webapp_api?logo=github)](https://github.com/geekpnx/weather_webapp_api)

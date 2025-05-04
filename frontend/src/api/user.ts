@@ -23,7 +23,7 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
       Object.entries(errorData.user_errors || {})
         .flatMap(([field, errors]) => errors.map(e => `${field}: ${e}`))
         .join(', ') ||
-      'Request failed';
+      'Username and Password do not match';
     throw new Error(errorMessage);
   }
   return response.json();

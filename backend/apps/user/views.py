@@ -80,7 +80,7 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        request.user.auth_token.delete()  # Delete the user's token
+        request.user.auth_token.delete() 
         return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
 
 class UserProfileView(APIView):
@@ -89,7 +89,7 @@ class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     
-    # Explicitly allow PATCH (optional but good practice)
+
     http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
 
     def get_profile(self):

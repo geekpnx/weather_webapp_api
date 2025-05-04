@@ -12,16 +12,6 @@ A full-stack weather application with real-time forecasts, built with Django (RE
 [![Repo Size](https://img.shields.io/github/repo-size/geekpnx/weather_webapp_api?logo=github)](https://github.com/geekpnx/weather_webapp_api)  
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/geekpnx/weather_webapp_api/blob/main/LICENSE)
 
-
-
-
-
-
-
-
-
-
-
 ---
 
 ## ✨ Key Features  

@@ -70,10 +70,8 @@ For the Backend go here <a href="https://github.com/geekpnx/weather_webapp_api/t
 
 For the Frontend go here <a href="https://github.com/geekpnx/weather_webapp_api/tree/main/frontend" target="_blank" rel="noopener noreferrer">Frontend project setup</a>
 
-<a href="https://github.com/geekpnx/weather_webapp_api/tree/main/backend" target="_blank" rel="noopener noreferrer">Backend project setup</a>
 
-
-## License
+# **License**
 
 This project is licensed under the [MIT License](./LICENSE).  
 &copy; 2025 Terence Tahalele

@@ -1,7 +1,7 @@
 # **Weather WebApp API (BACKEND ENVIRONMENT)**
 
 Below are the steps to setup the development evironment for the project.
-These steps can only be performed when you have cloned the repo from [here](https://github.com/geekpnx/weather_webapp_api/). 
+These steps can only be performed when you have cloned the repo from [here](https://github.com/geekpnx/weather_webapp_api). 
 
 ## **STEP 1**
 

@@ -56,13 +56,12 @@
 }
 
 
+
+
+
+
 * {
   transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-
-
-* {
   font-family: 'Roboto Condensed', Helvetica, Verdana, sans-serif;
   font-style: normal;
   font-weight: 400;
@@ -142,7 +141,8 @@ body, html, #root {
   border: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   border-top-color: #fff;
-  animation: spin 1s ease-in-out infinite;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
   margin-right: 10px;
 }
 
@@ -155,7 +155,7 @@ body, html, #root {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(41, 41, 41, 0.5);
+  background: rgba(41, 41, 41, 0.9);
   color: white;
   padding: 10px 20px;
   border-radius: 5px;
@@ -164,6 +164,8 @@ body, html, #root {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 14px;
+  gap: 8px;
 }
 
 

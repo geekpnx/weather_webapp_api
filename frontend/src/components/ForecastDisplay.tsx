@@ -63,30 +63,7 @@ const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
   }, [expandedDayIndex]);
 
 
-  const getPopupStyle = useCallback(() => {
-    if (expandedDayIndex !== null && tabRefs.current[expandedDayIndex]) {
-      const tab = tabRefs.current[expandedDayIndex];
-      if (tab) {
-        const tabRect = tab.getBoundingClientRect();
-        const containerRect = tab.parentElement?.getBoundingClientRect();
-        if (containerRect) {
-          const arrowPos = (tabRect.left + tabRect.width / 2) - containerRect.left;
-          
-          // For mobile view (3 columns), we need to adjust the positioning
-          const isMobile = window.innerWidth <= 768;
-          const mobileOffset = isMobile ? 
-            (expandedDayIndex % 3) * (100 / 3) + (100 / 6) : 
-            arrowPos;
-          
-          return {
-            '--arrow-pos': `${isMobile ? mobileOffset : arrowPos}px`,
-            '--mobile-offset': isMobile ? `${Math.floor(expandedDayIndex / 3) * 100}%` : '0'
-          } as React.CSSProperties;
-        }
-      }
-    }
-    return {};
-  }, [expandedDayIndex]);
+
 
   const setTabRef = useCallback((index: number) => (el: HTMLDivElement | null) => {
     tabRefs.current[index] = el;
@@ -127,7 +104,6 @@ const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
         <div 
           className="forecast-expanded" 
           ref={expandedRef}
-          style={getPopupStyle()}
         >
           <div className="day-additional-info">
             <p><strong>UV Index:</strong> {data[expandedDayIndex].uv_index}</p>

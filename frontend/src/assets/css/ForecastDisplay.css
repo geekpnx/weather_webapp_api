@@ -77,15 +77,18 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   position: absolute;
   bottom: calc(100% + 10px);
-  left: 2%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
   width: 90vw;
+  max-width: 730px;
   margin: 0 auto;
   border-radius: 8px;
   z-index: 10;
   animation: fadeInUp 0.3s ease-in-out;
   overflow: visible;
   animation-fill-mode: forwards;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 
@@ -309,6 +312,10 @@
     font-size: 11px;
     margin: 4px 0;
   }
+  .forecast-expanded {
+    width: calc(100% - 1rem); /* Even more compact on small screens */
+    padding: 0.8rem;
+  }
 }
 
 
@@ -331,8 +338,10 @@
   }
 
   .forecast-expanded {
-    width: 98vw;
-    padding: 1.2rem;
+    width: 95vw;
+    left: 0.2vw; /* Centers the element by offsetting half of the remaining viewport width */
+    right: auto;
+    transform: none;
   }
 }
 

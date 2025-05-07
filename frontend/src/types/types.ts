@@ -1,3 +1,67 @@
+export interface ApiError {
+  message: string;
+  details?: string;
+  profile_errors?: Record<string, string[]>;
+  user_errors?: Record<string, string[]>;
+}
+
+export interface AuthModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  initialMode?: 'login' | 'register';
+}
+
+
+export interface NavBarProps {
+  onSearch: (location: string) => void;
+  onLogin: () => void;
+  onRegister: () => void;
+  favoriteLocations: string[]; 
+  onAddFavorite?: (location: string) => void; 
+}
+
+
+export interface AuthContextType {
+  isAuthenticated: boolean;
+  authToken: string | null; // Add authToken to the context type
+  userProfile: UserProfileData | null;
+  login: () => void;
+  logout: () => void;
+  refreshProfile: (force?: boolean) => Promise<void>;
+  updateFavorites: (newFavorites: string[]) => void;
+  updateUserContext: (profileData: Partial<UserProfileData>) => void; // Add this line
+}
+
+
+export interface PreferencesContextType {
+  temperatureUnit: 'C' | 'F';
+  theme: 'light' | 'dark';
+  toggleTemperatureUnit: () => void;
+  toggleTheme: () => void;
+  convertTemp: (temp: number) => number;
+}
+
+
+export interface WeatherDisplayProps {
+  data: any;
+  uvi?: number; 
+  current?: {
+    uvi?: number;
+  };
+  forecastData: any[];
+}
+
+export interface ProfileModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  initialTab?: 'profile' | 'settings';  
+}
+
+export interface ForecastDisplayProps {
+  data: ForecastItem[];
+}
+
+
 export interface ForecastItem {
   dt: number; 
   day_name: string;

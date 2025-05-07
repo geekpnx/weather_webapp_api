@@ -2,12 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { loginUser, registerUser } from '../api/user';
 import { useAuth } from '../context/AuthContext';
 import '../assets/css/AuthModal.css';
-
-interface AuthModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  initialMode?: 'login' | 'register';
-}
+import { AuthModalProps } from '../types/types'
 
 const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
@@ -33,24 +28,33 @@ const AuthModal: React.FC<AuthModalProps> = ({
     }
   }, [userProfile?.preferred_temperature_unit]);
 
-  // Clear messages after timeout
   useEffect(() => {
-    if (successMessage) {
-      const timer = setTimeout(() => {
-        setSuccessMessage('');
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [successMessage]);
-
-  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
     if (error) {
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setError('');
-      }, 5000);
-      return () => clearTimeout(timer);
+      },1000);
     }
+  
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [error]);
+  
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
+    if (successMessage) {
+      timer = setTimeout(() => {
+        setSuccessMessage('');
+      }, 2000);
+    }
+  
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [successMessage]);
 
   // Reset mode when opening/closing modal
   useEffect(() => {
@@ -113,24 +117,25 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
   return (
     <div className="modal-overlay">
-      {/* Global Messages */}
-      {successMessage && (
-        <div className="global-message success">
-          {successMessage}
-        </div>
-      )}
-
-      {error && (
-        <div className="global-message error">
-          {error}
-        </div>
-      )}
 
       <div className="auth-modal">
         <button className="close-button" onClick={onClose}>×</button>
         <div className="modal-header">
           <h2>{mode === 'login' ? 'Login' : 'Sign Up'}</h2>
         </div>
+
+        <div className="message-container">
+        {error && (
+          <div className="error-message show">
+            {error}
+          </div>
+        )}
+        {successMessage && (
+          <div className="success-message show">
+            {successMessage}
+          </div>
+        )}
+      </div>
   
         <form onSubmit={handleSubmit}>
         <div className="form-group">

@@ -15,7 +15,6 @@ const defaultIcon = L.icon({
 
 });
 
-
 const MapComponent: React.FC<MapComponentProps> = ({
   lat,
   lon,
@@ -28,8 +27,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const [showLayerControls, setShowLayerControls] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
-
-  // Refs for map layers
   const baseLayerRef = useRef<L.TileLayer | null>(null);
   const weatherLayerRef = useRef<L.TileLayer | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
@@ -48,12 +45,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
   useEffect(() => {
     if (!mapRef.current || leafletMapRef.current) return;
 
-    // Initialize map
     leafletMapRef.current = L.map(mapRef.current).setView([lat, lon], zoom);
-    
-    // Base OSM layer
+
     baseLayerRef.current = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      // attribution: '© OpenStreetMap contributors',
+ 
       opacity: 0.8,
     }).addTo(leafletMapRef.current);
 
@@ -68,10 +63,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
   useEffect(() => {
     if (!leafletMapRef.current) return;
 
-    // Update map view
+
     leafletMapRef.current.setView([lat, lon], zoom);
 
-    // Update marker
+
     if (markerRef.current) {
       leafletMapRef.current.removeLayer(markerRef.current);
     }
@@ -79,24 +74,23 @@ const MapComponent: React.FC<MapComponentProps> = ({
       .bindPopup('Your Location')
       .addTo(leafletMapRef.current);
 
-    // Update weather layer
+
     if (weatherLayerRef.current) {
       leafletMapRef.current.removeLayer(weatherLayerRef.current);
     }
     if (layer && apiKey) {
       const owmUrl = `https://tile.openweathermap.org/map/${layer}/{z}/{x}/{y}.png?appid=${apiKey}`;
       weatherLayerRef.current = L.tileLayer(owmUrl, {
-        // attribution: '© OpenWeatherMap',
         opacity: 3,
       }).addTo(leafletMapRef.current);
     }
 
-    // Update image overlay
+
     if (imageOverlayRef.current) {
       leafletMapRef.current.removeLayer(imageOverlayRef.current);
     }
 
-    // Update boundary polygon
+
     if (boundaryPolygonRef.current) {
       leafletMapRef.current.removeLayer(boundaryPolygonRef.current);
     }

@@ -1,11 +1,10 @@
-/* General Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Navigation Bar */
+
 .navbar {
   display: flex;
   justify-content: space-between; 
@@ -23,7 +22,7 @@
   gap: 20px; 
 }
 
-/* Logo */
+
 .logo {
   order: 1;
   position: absolute; 
@@ -33,14 +32,13 @@
 }
 
 .logo-image {
-  height: 40px; /* Adjust the height as needed */
-  width: auto; /* Maintain aspect ratio */
+  height: 40px; 
+  width: auto; 
   filter: brightness(0) invert(1) drop-shadow(0 0 0 white);
 }
 
 
 
-/* Search Container */
 .search-container {
   order: 2;
   display: flex;
@@ -116,10 +114,10 @@
   opacity: 0.8;
 }
 
-/* Clear button styles */
+
 .clear-button {
   position: absolute;
-  right: 50px; /* Default position (next to add button) */
+  right: 50px; 
   top: 50%;
   transform: translateY(-50%);
   background: rgba(0, 0, 0, 0.4);
@@ -139,18 +137,18 @@
 
 .clear-button:hover {
   opacity: 1;
-  background: rgba(63, 63, 63, 0.2); /* Darker on hover */
+  background: rgba(63, 63, 63, 0.2);
 }
 
 .clear-icon {
-  font-size: 20px; /* Slightly smaller */
+  font-size: 20px; 
   color: #f6f6f6;
   line-height: 1;
   font-weight: bold;
 }
 
 .clear-button.clear-button-logged-out {
-  right: 10px; /* Same position as the add button would be */
+  right: 10px;
 }
 
 .add-button {
@@ -178,7 +176,7 @@
   transition: transform 0.2s;
 }
 
-/* Hover effects */
+
 .add-button:hover .add-icon {
   transform: scale(1.1);
 }
@@ -196,7 +194,7 @@
 
 
 
-/* Add settings icon styles */
+
 .settings-icon {
   width: 24px;
   height: 24px;
@@ -208,13 +206,13 @@
   transform: scale(1.1);
 }
 
-/* Update dropdown styles */
+
 .settings-dropdown {
   min-width: 180px;
   padding: 0px;
   right: 0;
-  top: 100%; /* Ensures dropdown starts right below the button */
-  margin-top: 8px; /* Adds space between the icon and dropdown */
+  top: 100%; 
+  margin-top: 8px;
   position: absolute;
   background: rgb(50 50 50 / 85%);
   border-radius: 8px;
@@ -235,7 +233,7 @@
   justify-content: center;
 }
 
-/* Update temperature toggle styles for dropdown */
+
 .settings-dropdown .temperature-toggle {
   display: flex;
   align-items: center;
@@ -265,24 +263,24 @@
 }
 
 
-/* Update this rule to exclude settings dropdown items */
+
 .dropdown-menu:not(.settings-dropdown) .dropdown-item:hover {
   background-color: #f5f5f5;
   color: black;
 }
 
-/* Add specific styles for settings dropdown items */
+
 .settings-dropdown .dropdown-item {
   padding: 10px;
-  cursor: default; /* Remove pointer cursor since it's not clickable */
+  cursor: default;
 }
 
 .settings-dropdown .dropdown-item:hover {
-  background-color: transparent; /* Remove hover effect */
-  color: inherit; /* Keep original color */
+  background-color: transparent;
+  color: inherit;
 }
 
-/* Update nav-icons spacing */
+
 .nav-icons {
   order: 3;
   position: absolute;
@@ -292,13 +290,13 @@
   gap: 0px;
 }
 
-/* Remove the original temperature-toggle styles */
+
 .search-container .temperature-toggle {
   display: none;
 }
 
 
-/* Add these styles */
+
 .dropdown-container {
   position: relative;
   display: inline-block;
@@ -309,7 +307,7 @@
   margin-right: 10px !important;
 }
 
-/* Firefox fix */
+
 @-moz-document url-prefix() {
   .dropdown-menu {
     transform: translateZ(0) translateY(5px);
@@ -320,7 +318,7 @@
   }
 }
 
-/* Temperature Toggle */
+
 .temperature-toggle {
   display: flex;
   align-items: center;
@@ -397,7 +395,7 @@
 
 
 
-/* Update profile icon styles */
+
 .profile-icon {
   width: 32px;
   height: 32px;
@@ -470,14 +468,14 @@
   }
 }
 
-/* Add to your CSS */
-@-moz-document url-prefix() { /* Firefox specific */
+
+@-moz-document url-prefix() { 
   .dropdown-menu {
-    transform: translateZ(0); /* Force hardware acceleration */
+    transform: translateZ(0); 
   }
   
   .icon-button {
-    background-color: rgba(0,0,0,0.0001); /* Fix click target */
+    background-color: rgba(0,0,0,0.0001);
   }
 }
 
@@ -485,7 +483,7 @@
 .auth-buttons {
   display: flex;
   gap: 10px;
-  margin-left: 20px; /* Add spacing between search container and auth buttons */
+  margin-left: 20px;
 }
 
 .login-button,
@@ -498,7 +496,7 @@
   cursor: pointer;
   font-size: 16px;
   transition: background-color 0.3s ease;
-  white-space: nowrap; /* Prevent button text from wrapping */
+  white-space: nowrap; 
 }
 
 .login-button {
@@ -520,18 +518,18 @@
   background-color: #9e9e9e;
 }
 
-/* Auth Modal Styles */
+
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  background-color: rgba(0, 0, 0, 0.5); 
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* Ensure the modal is above the navbar */
+  z-index: 1000; 
 }
 
 .modal-content {
@@ -540,12 +538,12 @@
   border-radius: 25px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px; /* Limit the width of the modal */
+  max-width: 400px; 
   position: relative;
 }
 
 
-/* Form Styles inside Modal */
+
 .modal-content form {
   display: flex;
   flex-direction: column;
@@ -581,7 +579,7 @@
   background-color: #9e9e9e;
 }
 
-/* Toggle between Login and Register */
+
 .modal-content p {
   text-align: center;
   margin-top: 10px;
@@ -600,7 +598,7 @@
   color: #9e9e9e;
 }
 
-/* Add to NavBar.css */
+
 .profile-modal {
   position: fixed;
   top: 50%;
@@ -627,7 +625,7 @@
 
 
 
-/* Alerts */
+
 .alert {
   padding: 8px 12px;
   margin: 4px;
@@ -647,7 +645,7 @@
   border: 1px solid #f5c6cb;
 }
 
-/* Empty state */
+
 .empty-state {
   color: white;
   font-size: 16px;
@@ -659,26 +657,23 @@
 }
 
 
-/* Dropdown item hover
-.dropdown-item:not(.empty-state):hover {
-  background-color: #f5f5f5;
-} */
 
 
-/* Favorite notification container */
+
+
 .favorite-notification-container {
   position: relative;
   display: inline-block;
 }
 
 
-/* Notification bubble */
+
 .notification-bubble {
-  position: fixed; /* Changed from absolute to fixed */
-  top: 85px; /* Height of navbar + some spacing */
+  position: fixed;
+  top: 85px;
   left: 50%;
-  transform: translateX(-50%); /* Center horizontally */
-  margin-right: 0; /* Remove previous right margin */
+  transform: translateX(-50%);
+  margin-right: 0;
   padding: 8px 16px;
   border-radius: 10px;
   font-size: 1.1em;
@@ -686,19 +681,35 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   z-index: 1000;
   animation: fadeIn 0.3s ease-out;
-  text-align: center; /* Ensure text is centered */
-  max-width: 80%; /* Prevent too wide notifications */
-    white-space: normal; /* Changed from nowrap to allow wrapping */
-  word-wrap: break-word; /* Ensures long words will break */
-  overflow-wrap: break-word; /* Modern alternative to word-wrap */
-  max-width: 90vw; /* Limits width to 90% of viewport */
-  width: max-content; /* Bubble width fits content up to max-width */
-  min-width: 120px; /* Minimum width for very short messages */
-  padding: 12px 20px; /* Increased padding for better spacing */
-  text-align: center; /* Center the text */
+  text-align: center; 
+  max-width: 80%; 
+  white-space: normal; 
+  word-wrap: break-word; 
+  overflow-wrap: break-word; 
+  max-width: 90vw; 
+  width: max-content;
+  min-width: 120px; 
+  padding: 12px 20px; 
+  text-align: center; 
 }
 
-/* Update the animation to fade in from top */
+
+
+.notification-bubble.success {
+  color: #ffffff;
+  background-color: rgba(8, 118, 63, 0.8);
+  border: 1px solid #3b7548;
+}
+
+.notification-bubble.error {
+  color: #ffffff;
+  background-color: rgba(120, 27, 27, 0.8);
+  border: 1px solid #97313b;
+}
+
+
+
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -710,21 +721,10 @@
   }
 }
 
-/* Keep existing color classes */
-.notification-bubble.success {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.notification-bubble.error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
 
 
-/* Favorite Cards */
+
+
 .favorites-dropdown {
   min-width: 250px;
   max-height: 400px;
@@ -771,8 +771,8 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  width: 100%; /* Take full width */
-  justify-content: flex-start; /* Align items to the left */
+  width: 100%; 
+  justify-content: flex-start; 
 }
 
 .favorite-temp {
@@ -799,7 +799,7 @@
   font-size: 1rem;
   text-transform: capitalize;
   color: #666;
-  line-height: 1; /* Prevents extra space from line height */
+  line-height: 1;
   margin: 0;
   padding: 0;
 }
@@ -831,30 +831,20 @@
   color: #6c757d;
 }
 
-/* Animation for favorite cards */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+
 
 .favorite-card {
   animation: fadeInUp 0.3s ease-out forwards;
 }
 
-/* Delay animations for each card */
+
 .favorite-card:nth-child(1) { animation-delay: 0.05s; }
 .favorite-card:nth-child(2) { animation-delay: 0.1s; }
 .favorite-card:nth-child(3) { animation-delay: 0.15s; }
 .favorite-card:nth-child(4) { animation-delay: 0.2s; }
 .favorite-card:nth-child(5) { animation-delay: 0.25s; }
 
-/* Search Suggestions */
+
 .search-input-container {
   position: relative;
   width: 100%;
@@ -889,7 +879,7 @@
   color: black;
 }
 
-/* Update the search input container to include the suggestions */
+
 .input-with-add {
   position: relative;
   flex-grow: 1;
@@ -897,7 +887,7 @@
   flex-direction: column;
 }
 
-/* Update the search input to match the new structure */
+
 .search-input {
   padding: 8px 80px 8px 42px;
   width: 100%;
@@ -909,11 +899,11 @@
   background-color: #dad8c7;
 }
 
-/* Responsive adjustments */
+
 @media (max-width: 768px) {
   .notification-bubble {
-    top: 150px; /* Adjust based on your mobile navbar height */
-    width: 90%; /* Slightly wider on mobile */
+    top: 150px; 
+    width: 90%;
   }
 
   .navbar {
@@ -922,14 +912,14 @@
     padding: 10px 15px;
     align-items: center;
     justify-content: space-between;
-    gap: 10px; /* Reduced gap */
+    gap: 10px; 
   }
 
   .logo {
     position: static;
     order: 1;
-    margin-right: 0; /* Removed margin-right */
-    height: 32px; /* Consistent height with icons */
+    margin-right: 0; 
+    height: 32px;
     display: flex;
     align-items: center;
   }
@@ -938,19 +928,19 @@
     position: static;
     order: 2;
     display: flex;
-    gap: 0px; /* Reduced gap between icons */
+    gap: 0px; 
     align-items: center;
-    height: 32px; /* Consistent height with logo */
+    height: 32px;
   }
 
   .search-container {
     order: 3;
     width: 100%;
-    margin: 10px 0 0 0; /* Adjusted margin */
+    margin: 10px 0 0 0; 
     padding: 0;
   }
 
-  /* Ensure all icons have consistent sizing and alignment */
+  
   .logo-image, 
   .warning-icon, 
   .favorite-icon, 
@@ -961,67 +951,67 @@
     object-fit: contain;
   }
 
-  /* Specific adjustments for each icon */
+  
   .warning-icon {
-    width: 25px; /* Slightly different aspect ratio */
-    margin: 0 -2px; /* Compensate for different width */
+    width: 25px; 
+    margin: 0 -2px; 
   }
 
   .favorite-icon {
-    width: 24px; /* Slightly different aspect ratio */
-    margin: 0 1px; /* Compensate for different width */
+    width: 24px; 
+    margin: 0 1px; 
   }
 
   .settings-icon {
-    width: 24px; /* Slightly different aspect ratio */
-    margin: 0 1px; /* Compensate for different width */
+    width: 24px; 
+    margin: 0 1px; 
   }
 
 
 
-  /* Ensure circular hover effects */
+  
   .icon-button {
-    width: 40px; /* Fixed width for perfect circle */
-    height: 40px; /* Fixed height matching width */
+    width: 40px; 
+    height: 40px; 
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    padding: 8px; /* Maintain padding */
+    padding: 8px; 
   }
 
-  /* Adjust icon sizes to fit within circular hover area */
+
   .warning-icon, 
   .favorite-icon, 
   .settings-icon,
   .profile-icon {
-    height: 24px; /* Slightly smaller to fit in circle */
-    width: 24px; /* Maintain aspect ratio */
-    margin: 0; /* Remove any margins */
+    height: 24px;
+    width: 24px;
+    margin: 0;
   }
 
-  /* Specific icon adjustments */
+  
   .warning-icon {
-    width: 21px; /* Adjusted for this specific icon */
+    width: 21px; 
   }
 
-  /* Center the search bar */
+  
   .search-container {
     order: 3;
     width: 100%;
     margin: 10px 0 0 0;
     padding: 0;
-    transform: none; /* Remove previous transform */
+    transform: none; 
     display: flex;
-    justify-content: center; /* Center the search */
+    justify-content: center;
   }
 
   .input-with-add {
     width: 100%;
-    max-width: 400px; /* Prevent search from getting too wide */
+    max-width: 400px; 
   }
 
-  /* Ensure search input stays centered */
+  
   .search-input-wrapper {
     width: 100%;
     margin: 0 auto;
@@ -1038,7 +1028,7 @@
     justify-content: center;
   }
 
-  /* Adjust dropdown menus for mobile */
+  
   .dropdown-menu {
     position: fixed;
     bottom: 0;
@@ -1065,7 +1055,7 @@
     margin: -10px auto 15px;
   }
 
-  /* Larger dropdown items */
+ 
   .dropdown-item {
     padding: 18px 25px;
     font-size: 18px;
@@ -1074,7 +1064,7 @@
     gap: 15px;
   }
 
-  /* Add icons to menu items */
+  
   .dropdown-item.profile::before {
     content: '👤';
     font-size: 20px;
@@ -1090,7 +1080,7 @@
     font-size: 20px;
   }
 
-  /* Close button styling */
+  
   .dropdown-close-btn {
     position: absolute;
     top: 15px;

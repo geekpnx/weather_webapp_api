@@ -1,17 +1,14 @@
 
-import { FavoriteLocation, ForecastItem } from '../types/types'; // Import the ForecastItem interface
-import { NewsArticle, WeatherAlert } from '../types/types'; // Import the NewsArticle interface
+import { FavoriteLocation, ForecastItem } from '../types/types'; 
+import { NewsArticle, WeatherAlert } from '../types/types'; 
 
 const WEATHER_BASE_URL = import.meta.env.VITE_WEATHER_API_BASE_URL;
 const OPENWEATHER_BASE_URL = import.meta.env.VITE_OPENWEATHERMAP_API_BASE_URL;
 
-
-// Helper function to get the authentication token
 const getAuthToken = (): string | null => {
   return localStorage.getItem('auth_token');
 };
 
-// Fetch coordinates (latitude and longitude) for a given city name
 export const fetchCoordinates = async (location: string): Promise<{ lat: number; lon: number }> => {
   try {
     const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
@@ -42,7 +39,7 @@ export const fetchCoordinates = async (location: string): Promise<{ lat: number;
   }
 };
 
-// Fetch current weather by location name or geolocation
+
 export const fetchCurrentWeather = async (location?: string, lat?: number, lon?: number, unit: 'metric' | 'imperial' = 'metric') => {
   try {
     let url = `${WEATHER_BASE_URL}/current/`;
@@ -73,10 +70,10 @@ export const fetchCurrentWeather = async (location?: string, lat?: number, lon?:
   }
 };
 
-// Helper function to fetch UV index
+
 const fetchUVIndex = async (lat: number, lon: number): Promise<number> => {
   try {
-    const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY; // For Vite
+    const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY; 
     if (!api_key) {
       throw new Error('OpenWeatherMap API key is not configured.');
     }
@@ -101,10 +98,10 @@ const fetchUVIndex = async (lat: number, lon: number): Promise<number> => {
   }
 };
 
-// Fetch forecast by location name or geolocation
+
 export const fetchForecast = async (location?: string, lat?: number, lon?: number): Promise<ForecastItem[]> => {
   try {
-    const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY; // For Vite
+    const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
     if (!api_key) {
       throw new Error('OpenWeatherMap API key is not configured.');
     }
@@ -126,21 +123,21 @@ export const fetchForecast = async (location?: string, lat?: number, lon?: numbe
 
     const data = await response.json();
 
-    // Get today's date for comparison
+ 
     const today = new Date();
-    const todayDateString = today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    const todayDateString = today.toISOString().split('T')[0]; 
 
-    // Fetch UV index for the location
+
     const uvIndex = await fetchUVIndex(data.city.coord.lat, data.city.coord.lon);
 
-    // Extract sunrise and sunset times
+
     const sunrise = data.city.sunrise ? new Date(data.city.sunrise * 1000).toLocaleTimeString() : undefined;
     const sunset = data.city.sunset ? new Date(data.city.sunset * 1000).toLocaleTimeString() : undefined;
 
-    // Group forecasts by day
+ 
     const groupedForecasts = data.list.reduce((acc: { [key: string]: any }, entry: any) => {
-      const entryDate = new Date(entry.dt * 1000); // Convert timestamp to Date object
-      const entryDateString = entryDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+      const entryDate = new Date(entry.dt * 1000); 
+      const entryDateString = entryDate.toISOString().split('T')[0];
 
       if (!acc[entryDateString]) {
         acc[entryDateString] = {
@@ -148,31 +145,31 @@ export const fetchForecast = async (location?: string, lat?: number, lon?: numbe
             ? "Today"
             : entryDateString === new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]
               ? "Tomorrow"
-              : entryDate.toLocaleDateString('en-US', { weekday: 'long' }), // Full day name (e.g., "Tuesday")
+              : entryDate.toLocaleDateString('en-US', { weekday: 'long' }), 
           date: entryDateString,
           uv_index: uvIndex,
           sunrise,
           sunset,
-          forecasts: [], // Array to store individual forecasts for the day
+          forecasts: [], 
         };
       }
 
       acc[entryDateString].forecasts.push({
-        datetime: entry.dt_txt, // Date and time from API
-        temperature: entry.main.temp, // Temperature
-        feels_like: entry.main.feels_like, // Feels-like temperature
-        temp_min: entry.main.temp_min, // Minimum temperature
-        temp_max: entry.main.temp_max, // Maximum temperature
-        weather_description: entry.weather[0].description, // Weather description
-        weather_icon: entry.weather[0].icon, // Weather icon code
-        humidity: entry.main.humidity, // Humidity
-        wind_speed: entry.wind.speed, // Wind speed
+        datetime: entry.dt_txt, 
+        temperature: entry.main.temp, 
+        feels_like: entry.main.feels_like, 
+        temp_min: entry.main.temp_min, 
+        temp_max: entry.main.temp_max, 
+        weather_description: entry.weather[0].description, 
+        weather_icon: entry.weather[0].icon,
+        humidity: entry.main.humidity, 
+        wind_speed: entry.wind.speed, 
       });
 
       return acc;
     }, {});
 
-    // Convert groupedForecasts object into an array
+
     return Object.values(groupedForecasts);
   } catch (error) {
     console.error("Error fetching forecast:", error);
@@ -185,11 +182,11 @@ export const fetchForecast = async (location?: string, lat?: number, lon?: numbe
 };
 
 
-// Fetch news articles
+
 export const fetchNews = async (location?: string): Promise<NewsArticle[]> => {
   try {
     const token = getAuthToken();
-    if (!token) return []; // Silent fail for unauthenticated users
+    if (!token) return [];
 
     const url = `${WEATHER_BASE_URL}/news/${location ? `?location=${encodeURIComponent(location)}` : ''}`;
     const response = await fetch(url, {
@@ -200,14 +197,14 @@ export const fetchNews = async (location?: string): Promise<NewsArticle[]> => {
     });
 
     if (!response.ok) {
-      // Silent handling of 404s
+ 
       if (response.status === 404) return [];
-      // Only throw for rate limits
+
       if (response.status === 429) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'News API limit reached');
       }
-      return []; // Silent fail for other errors
+      return []; 
     }
 
     const data = await response.json();
@@ -227,7 +224,7 @@ export const fetchNews = async (location?: string): Promise<NewsArticle[]> => {
   }
 };
 
-// Fetch radar image from Django backend
+
 export const fetchRadarImage = async (
   lat: number,
   lon: number,
@@ -288,7 +285,7 @@ export const fetchFavoriteLocations = async (): Promise<{
 };
 
 
-// Add location to favorites
+
 export const addToFavorites = async (city_name: string, country_code: string, latitude: number, longitude: number) => {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated. Please log in.');
@@ -308,7 +305,7 @@ export const addToFavorites = async (city_name: string, country_code: string, la
       }),
     });
 
-    // Handle HTML error responses
+
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const errorText = await response.text();
@@ -328,7 +325,7 @@ export const addToFavorites = async (city_name: string, country_code: string, la
   }
 };
 
-// Remove location from favorites
+
 export const removeFromFavorites = async (favorite: FavoriteLocation) => {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated. Please log in.');
@@ -375,8 +372,7 @@ export const fetchWeatherAlerts = async (authToken: string, location?: string): 
 
     const data = await response.json();
 
-    // The backend now returns a 404 if no alerts are found for a specific location.
-    // We can return an empty array in this case to simplify handling in the component.
+
     if (response.status === 404 && data && data.error === 'No alerts found for your location!!!') {
       return [];
     }
@@ -389,7 +385,6 @@ export const fetchWeatherAlerts = async (authToken: string, location?: string): 
 };
 
 
-// Add this to your frontend/src/api/weather.ts file
 export const searchCities = async (query: string): Promise<string[]> => {
   try {
     const api_key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
@@ -407,7 +402,7 @@ export const searchCities = async (query: string): Promise<string[]> => {
 
     const data = await response.json();
     
-    // Create a Set to store unique city names
+
     const uniqueCities = new Set<string>();
     
     return data
@@ -417,7 +412,7 @@ export const searchCities = async (query: string): Promise<string[]> => {
         if (city.country) name += `, ${city.country}`;
         return name;
       })
-      // Filter out duplicates
+
       .filter((city: string) => {
         if (!uniqueCities.has(city)) {
           uniqueCities.add(city);

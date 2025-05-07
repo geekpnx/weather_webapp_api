@@ -1,18 +1,9 @@
 // frontend/src/context/AuthContext.tsx
 import React, { createContext, useState, useContext, ReactNode, useEffect, useCallback } from 'react';
 import { fetchUserProfile } from '../api/user';
-import { UserProfileData } from '../types/types';
+import { UserProfileData, AuthContextType } from '../types/types';
 
-interface AuthContextType {
-  isAuthenticated: boolean;
-  authToken: string | null; // Add authToken to the context type
-  userProfile: UserProfileData | null;
-  login: () => void;
-  logout: () => void;
-  refreshProfile: (force?: boolean) => Promise<void>;
-  updateFavorites: (newFavorites: string[]) => void;
-  updateUserContext: (profileData: Partial<UserProfileData>) => void; // Add this line
-}
+
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -20,13 +11,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
     () => !!localStorage.getItem('auth_token')
   );
-  const [authToken, setAuthToken] = useState<string | null>(localStorage.getItem('auth_token')); // Add authToken state
+  const [authToken, setAuthToken] = useState<string | null>(localStorage.getItem('auth_token'));
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
 
   const logout = useCallback(() => {
     localStorage.removeItem('auth_token');
     setIsAuthenticated(false);
-    setAuthToken(null); // Clear authToken on logout
+    setAuthToken(null); 
     setUserProfile(null);
   }, []);
 
@@ -36,7 +27,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       logout();
       return;
     }
-    setAuthToken(token); // Ensure authToken is updated on refresh
+    setAuthToken(token); 
 
     try {
       if (force || !userProfile) {
@@ -56,7 +47,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
     setIsAuthenticated(true);
-    setAuthToken(token); // Set authToken on login
+    setAuthToken(token); 
     refreshProfile(true);
   }, [refreshProfile, logout]);
 
@@ -106,13 +97,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return (
     <AuthContext.Provider value={{
       isAuthenticated,
-      authToken, // Include authToken in the context value
+      authToken, 
       userProfile,
       login,
       logout,
       refreshProfile,
       updateFavorites,
-      updateUserContext // Include updateUserContext in the context value
+      updateUserContext 
     }}>
       {children}
     </AuthContext.Provider>

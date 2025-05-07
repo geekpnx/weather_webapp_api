@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import '../assets/css/ForecastDisplay.css';
-import { ForecastItem } from '../types/types';
+import { ForecastDisplayProps } from '../types/types';
 import { usePreferences } from '../context/PreferencesContext';
 
 const OPENWEATHER_URL = import.meta.env.VITE_OPENWEATHERMAP_BASE_URL;
-interface ForecastDisplayProps {
-  data: ForecastItem[];
-}
 
 const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
   const [expandedDayIndex, setExpandedDayIndex] = useState<number | null>(null);
@@ -15,7 +12,7 @@ const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
   const { temperatureUnit } = usePreferences();
   const { convertTemp } = usePreferences(); 
 
-  // Initialize tab refs array
+
   useEffect(() => {
     tabRefs.current = tabRefs.current.slice(0, data.length);
   }, [data]);
@@ -41,14 +38,14 @@ const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
     return `${Math.round(convertedTemp)}°`;
   };
 
-  // Convert wind speed based on unit (m/s for metric, mph for imperial)
+
   const formatWindSpeed = (speed: number) => {
     return temperatureUnit === 'F' 
-      ? `${(speed * 2.237).toFixed(1)} mph` // Convert m/s to mph
+      ? `${(speed * 2.237).toFixed(1)} mph` 
       : `${speed} m/s`;
   };
 
-  // Handle click outside to close expanded card
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (expandedRef.current && !expandedRef.current.contains(event.target as Node)) {
@@ -65,7 +62,7 @@ const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
     };
   }, [expandedDayIndex]);
 
-  // Calculate popup position based on active tab
+
   const getPopupStyle = useCallback(() => {
     if (expandedDayIndex !== null && tabRefs.current[expandedDayIndex]) {
       const tab = tabRefs.current[expandedDayIndex];
@@ -83,7 +80,7 @@ const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
     return {};
   }, [expandedDayIndex]);
 
-  // Proper ref callback function
+
   const setTabRef = useCallback((index: number) => (el: HTMLDivElement | null) => {
     tabRefs.current[index] = el;
   }, []);

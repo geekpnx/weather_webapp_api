@@ -1,14 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { updateUserPreferences } from '../api/user';
+import { PreferencesContextType } from '../types/types'
 
-interface PreferencesContextType {
-  temperatureUnit: 'C' | 'F';
-  theme: 'light' | 'dark';
-  toggleTemperatureUnit: () => void;
-  toggleTheme: () => void;
-  convertTemp: (temp: number) => number;
-}
 
 const PreferencesContext = createContext<PreferencesContextType | null>(null);
 
@@ -23,7 +17,6 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setTemperatureUnit(userProfile.preferred_temperature_unit);
       }
       if (userProfile.preferred_theme) {
-        // Add type validation
         const validTheme = userProfile.preferred_theme === 'dark' ? 'dark' : 'light';
         setTheme(validTheme);
         document.body.setAttribute('data-theme', validTheme);
@@ -32,7 +25,7 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, [isAuthenticated, userProfile]);
 
   
-  // Set theme on initial load
+
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' || 'light';
     setTheme(savedTheme);
@@ -53,7 +46,7 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
       try {
         await updateUserPreferences({ 
           preferred_temperature_unit: newUnit,
-          preferred_theme: theme // Keep current theme when updating temp unit
+          preferred_theme: theme 
         });
         refreshProfile?.();
       } catch (error) {
@@ -72,12 +65,11 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
       try {
         await updateUserPreferences({ 
           preferred_theme: newTheme,
-          preferred_temperature_unit: temperatureUnit // Keep current temp unit
+          preferred_temperature_unit: temperatureUnit 
         });
         refreshProfile?.();
       } catch (error) {
         console.error('Failed to update theme:', error);
-        // Revert if API call fails
         setTheme(theme);
         document.body.setAttribute('data-theme', theme);
       }

@@ -2,19 +2,9 @@ import React from 'react';
 import ForecastDisplay from './ForecastDisplay';
 import '../assets/css/WeatherDisplay.css';
 import { usePreferences } from '../context/PreferencesContext';
+import { WeatherDisplayProps } from '../types/types'
 
 const OPENWEATHER_URL = import.meta.env.VITE_OPENWEATHERMAP_BASE_URL;
-
-interface WeatherDisplayProps {
-  data: any;
-  uvi?: number; 
-  current?: {
-    uvi?: number;
-  };
-  forecastData: any[];
-}
-
-
 
 const getUvIntensity = (uvi: number): string => {
   if (uvi <= 2) return 'Low';
@@ -53,7 +43,6 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ data, forecastData }) =
     return `${Math.round(convertedTemp)}°`;
   };
 
-  // Convert wind speed based on unit (m/s for metric, mph for imperial)
   const formatWindSpeed = (speed: number) => {
     return temperatureUnit === 'F' 
       ? `${(speed * 2.237).toFixed(1)} mph` 
@@ -63,7 +52,6 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ data, forecastData }) =
   return (
     <div className="weather-card">
       <div className="current-weather">
-        {/* Left Section */}
         <div className="weather-main">
           <h1 className="location">{data?.name?.toUpperCase()}</h1>
           <div className="temperature-container">
@@ -78,7 +66,6 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ data, forecastData }) =
           </span>
         </div>
 
-        {/* Right Section */}
         {weather && (
           <div className="weather-status">
             <img
@@ -97,7 +84,6 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ data, forecastData }) =
         )}
       </div>
 
-      {/* Additional Current Weather Info */}
       <div className="additional-info">
         <div className="info-item">
           <span className="label">Humidity</span>

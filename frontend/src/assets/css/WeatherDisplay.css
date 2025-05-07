@@ -1,8 +1,7 @@
-/* WeatherDisplay.css */
 .weather-card {
   width: 100%;
-  max-width: 800px; /* Fixed maximum width */
-  min-width: 300px; /* Minimum width */
+  max-width: 800px; 
+  min-width: 300px;
   margin: 4rem auto;
   box-sizing: border-box;
 }
@@ -10,7 +9,7 @@
 .current-weather {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; /* Changed from center */
+  align-items: flex-start;
   margin-bottom: 2rem;
   gap: 20px;
   width: 90%;
@@ -25,26 +24,26 @@
 
 .weather-main {
   display: grid;
-  grid-template-columns: 1fr; /* Single column to keep left alignment */
+  grid-template-columns: 1fr;
   gap: 0.5rem;
-  text-align: left; /* Ensure left alignment */
-  margin-left: 4rem; /* Keep your existing margin */
+  text-align: left;
+  margin-left: 4rem; 
 }
 
 .location {
   font-size: 2.5rem;
   color: #000000;
   text-transform: capitalize;
-  overflow-wrap: break-word; /* Allow breaking long words */
-  word-break: break-word; /* Fallback for older browsers */
-  hyphens: auto; /* Better hyphenation support */
-  margin: 0 0 0.5rem 0; /* Reset margin */
+  overflow-wrap: break-word; 
+  word-break: break-word; 
+  hyphens: auto; 
+  margin: 0 0 0.5rem 0; 
 }
 
 .temperature-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Force left alignment */
+  align-items: flex-start; 
   margin: 1rem 0;
 }
 
@@ -62,7 +61,7 @@
   color: #dfdfdf;
   margin: 0.5rem 0 0 0;
   padding: 0;
-  justify-content: flex-start; /* Ensure left alignment */
+  justify-content: flex-start; 
 }
 
 .feels-like {
@@ -73,11 +72,9 @@
 }
 
 .weather-status {
-  /* Position in grid */
   grid-column: 2;
   grid-row: 2 / span 3;
   align-self: center;
-  /* Original styles */
   min-width: 180px;
   text-align: center;
   margin-bottom: 100px;
@@ -160,18 +157,18 @@
   }
 
   .weather-main {
-    grid-template-columns: 1fr; /* Single column */
+    grid-template-columns: 1fr;
     margin-left: 0;
-    text-align: center; /* Center everything */
+    text-align: center;
   }
 
   .temperature-container {
     grid-column: 1;
-    align-items: center; /* Center temp & range */
+    align-items: center; 
   }
 
   .temp-range {
-    justify-content: center; /* Center "H:" and "L:" */
+    justify-content: center;
   }
 
 
@@ -197,7 +194,7 @@
 /* ==================== */
 /* DARK MODE OVERRIDES  */
 /* ==================== */
-[data-theme="dark"] .weather-card {
+/* [data-theme="dark"] .weather-card {
   background-color: #1e1e1e;
 }
 
@@ -215,4 +212,4 @@
 
 [data-theme="dark"] .weather-icon {
   filter: brightness(0.8) contrast(1.2);
-}
+} */

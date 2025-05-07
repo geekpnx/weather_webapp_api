@@ -1,17 +1,8 @@
-import { UserProfileData, PreferencesData, ProfilePictureResponse } from '../types/types';
+import { UserProfileData, PreferencesData, ProfilePictureResponse, ApiError } from '../types/types';
 
 const USER_BASE_URL = import.meta.env.VITE_USER_API_BASE_URL;
 
 
-// Add proper error handling interface
-interface ApiError {
-  message: string;
-  details?: string;
-  profile_errors?: Record<string, string[]>;
-  user_errors?: Record<string, string[]>;
-}
-
-// Enhanced response handler
 const handleResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
     const errorData: ApiError = await response.json().catch(() => ({}));
@@ -23,14 +14,13 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
       Object.entries(errorData.user_errors || {})
         .flatMap(([field, errors]) => errors.map(e => `${field}: ${e}`))
         .join(', ') ||
-      'Username and Password do not match';
+      'Incorrect Username and Password';
     throw new Error(errorMessage);
   }
   return response.json();
 };
 
 
-// Helper function to get the authentication token
 const getAuthToken = (): string | null => {
   return localStorage.getItem('auth_token');
 };
@@ -78,12 +68,12 @@ export const loginUser = async (username: string, password: string) => {
   });
 
   return handleResponse<{ token: string }>(response).then(data => {
-    localStorage.setItem('auth_token', data.token); // Store token in localStorage
+    localStorage.setItem('auth_token', data.token); 
     return data;
   });
 };
 
-// Register user
+
 export const registerUser = async (
   username: string,
   email: string,
@@ -108,7 +98,7 @@ export const registerUser = async (
   return handleResponse<any>(response);
 };
 
-// Fetch user profile
+
 export const fetchUserProfile = async (): Promise<UserProfileData> => {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated. Please log in.');
@@ -120,7 +110,7 @@ export const fetchUserProfile = async (): Promise<UserProfileData> => {
   return handleResponse<UserProfileData>(response);
 };
 
-// Logout user
+
 export const logoutUser = async () => {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated. Please log in.');
@@ -131,7 +121,7 @@ export const logoutUser = async () => {
   });
 
   return handleResponse<any>(response).then(data => {
-    localStorage.removeItem('auth_token'); // Remove token from localStorage
+    localStorage.removeItem('auth_token'); 
     return data;
   });
 };
@@ -155,11 +145,11 @@ export const deleteAccount = async (password: string): Promise<boolean> => {
     localStorage.removeItem('auth_token');
     return true;
   } else {
-    return handleResponse<any>(response).then(() => false); // Ensure promise resolves with a boolean
+    return handleResponse<any>(response).then(() => false); 
   }
 };
 
-// Update API functions to use the single handleResponse
+
 export const updateUserProfile = async (data: Partial<UserProfileData>): Promise<UserProfileData> => {
   const response = await fetch(`${USER_BASE_URL}/profile/`, {
     method: 'PUT',
@@ -173,7 +163,6 @@ export const updateUserProfile = async (data: Partial<UserProfileData>): Promise
 };
 
 export const uploadProfilePicture = async (file: File): Promise<UserProfileData> => {
-  // Keep your existing validations
   if (file.size > 2 * 1024 * 1024) {
     throw new Error('File size must be less than 2MB');
   }
@@ -204,7 +193,7 @@ export const uploadProfilePicture = async (file: File): Promise<UserProfileData>
 
     const data = await response.json();
     
-    // Dispatch custom event to notify all components of profile update
+
     window.dispatchEvent(new CustomEvent('profile-updated', {
       detail: { newProfile: data }
     }));
@@ -255,7 +244,7 @@ export const updateTemperatureUnit = async (unit: 'C' | 'F'): Promise<Preference
 };
 
 
-// Update the parameter type to include both preferences
+
 export const updateUserPreferences = async (preferences: {
   preferred_temperature_unit?: 'C' | 'F';
   preferred_theme?: 'light' | 'dark';
@@ -263,7 +252,7 @@ export const updateUserPreferences = async (preferences: {
   const token = getAuthToken();
   if (!token) throw new Error('User is not authenticated');
 
-  // Try PUT if PATCH fails
+
   let method = 'PATCH';
   let response = await fetch(`${USER_BASE_URL}/profile/`, {
     method,
@@ -274,7 +263,7 @@ export const updateUserPreferences = async (preferences: {
     body: JSON.stringify(preferences),
   });
 
-  // If PATCH fails, try PUT
+
   if (response.status === 405) {
     method = 'PUT';
     response = await fetch(`${USER_BASE_URL}/profile/`, {

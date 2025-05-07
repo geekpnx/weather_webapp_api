@@ -1,4 +1,3 @@
-// components/ProfileModal.tsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../assets/css/ProfileModal.css';
@@ -13,14 +12,7 @@ import {
 import { sanitizeImageUrl } from '../utils/utils';
 import { useProfile } from '../context/ProfileContext';
 import { usePreferences } from '../context/PreferencesContext';
-// import ThemeToggle from './ThemeToggle';
-
-
-interface ProfileModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  initialTab?: 'profile' | 'settings';  
-}
+import { ProfileModalProps } from '../types/types'
 
 
 
@@ -40,7 +32,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
   const isDefaultImage = () => {
     if (!userData?.profile_picture) return true;
     
-    // Compare only the path part of the URL
     const extractPath = (url: string) => url.split('/').slice(3).join('/');
     return extractPath(userData.profile_picture) === extractPath(defaultProPic);
   };
@@ -66,7 +57,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
     if (!file) return;
   
     try {
-      console.log('Uploading file:', file.name, file.size, file.type); // Add this
+      console.log('Uploading file:', file.name, file.size, file.type); 
       await uploadProfilePicture(file);
       triggerProfileUpdate();
       await loadProfile();
@@ -74,7 +65,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
       setError('');
       refreshProfile();
     } catch (error) {
-      console.error('Upload error:', error); // Add this
+      console.error('Upload error:', error); 
       setError('Failed to upload image');
     }
   };
@@ -87,7 +78,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
       await loadProfile();
       setSuccess('Profile picture removed successfully');
       setError('');
-      refreshProfile(); // Add this from useAuth context
+      refreshProfile(); 
     } catch (error) {
       setError(error instanceof Error ? 
         error.message : 
@@ -97,31 +88,36 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
   };
 
   useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
     if (success) {
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setSuccess('');
-      }, 3000); // Message will disappear after 3 seconds (3000ms)
-  
-      // Clear timeout when component unmounts or before setting new success message
-      return () => clearTimeout(timer);
+      }, 2000);
     }
-  }, [success]);  
 
-  // Add similar useEffect for errors
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [success]);
+
   useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
     if (error) {
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setError('');
-      }, 3000); // Errors stay longer (5 seconds)
-
-      return () => clearTimeout(timer);
+      }, 1000);
     }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [error]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Prepare the data in the correct format
       const updateData = {
         user: {
           username: userData.user.username,
@@ -135,7 +131,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
         preferred_theme: userData.preferred_theme,
       };
   
-      // Use the updateUserProfile API function
       await updateUserProfile(updateData);
       setSuccess('Profile updated successfully');
       await loadProfile();
@@ -144,7 +139,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
       setError(error instanceof Error ? error.message : 'Failed to update profile');
     }
   };
-
 
 
   const handleDeleteAccount = async () => {
@@ -169,19 +163,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
       <div className="profile-modal">
         <button className="close-button" onClick={onClose}>×</button>
 
-        {success && (
-          <div className="global-message success">
-            {success}
-          </div>
-        )}
-
-        {error && (
-          <div className="global-message error">
-            {error}
-          </div>
-        )}
-
-        {/* Profile Picture Section - Now outside tabs */}
         <div className="profile-picture-section">
           <div className="profile-picture-container">
           <img 
@@ -214,7 +195,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
           </div>
         </div>
 
-        {/* Tabs under profile picture */}
         <div className="modal-tabs">
           <button 
             onClick={() => setActiveTab('profile')} 
@@ -230,10 +210,21 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
           </button>
         </div>
 
-
-        {/* Profile Tab Content */}
         {activeTab === 'profile' && userData && (
           <form onSubmit={handleUpdateProfile} className="tab-content">
+
+          <div className="message-container">
+            {success && (
+              <div className="success-message show">
+                {success}
+              </div>
+            )}
+            {error && (
+              <div className="error-message show">
+                {error}
+              </div>
+            )}
+          </div>
             <div className="form-group">
               <label>Username</label>
               <input
@@ -298,7 +289,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
           </form>
         )}
 
-        {/* Settings Tab Content */}
         {activeTab === 'settings' && userData && (
           <div className="settings-content">
             {/* Temperature Unit Row */}
@@ -320,17 +310,11 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
                 </div>
               </div>
             </div>
-
-            {/* <ThemeToggle /> */}
-
           </div>
         )}
-
-        {/* Danger Zone - Moved outside tabs */}
         <div className="danger-zone">
           <h3>Delete Account</h3>
           <form onSubmit={(e) => e.preventDefault()}>
-            {/* Add hidden username field for password managers */}
             <input
               type="text"
               name="username"
@@ -345,7 +329,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
               <input
                 type="password"
                 id="confirm-password"
-                name="current-password"  // Changed from confirm-password
+                name="current-password" 
                 placeholder="Enter password to confirm"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

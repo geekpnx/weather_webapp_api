@@ -9,7 +9,7 @@ import settingsIcon from '../assets/images/icons/settings-icon.svg';
 import ProfileModal from './ProfileModal';
 import { useAuth } from '../context/AuthContext';
 import { removeFromFavorites, fetchCurrentWeather, fetchCoordinates, fetchFavoriteLocations, addToFavorites} from '../api/weather';
-import { FavoriteLocation } from '../types/types';
+import { FavoriteLocation, NavBarProps } from '../types/types';
 import AlertsDisplay from './AlertsDisplay';
 import { usePreferences } from '../context/PreferencesContext'; 
 import { searchCities } from '../api/weather';
@@ -18,13 +18,6 @@ import { useProfile } from '../context/ProfileContext';
 
 
 
-interface NavBarProps {
-  onSearch: (location: string) => void;
-  onLogin: () => void;
-  onRegister: () => void;
-  favoriteLocations: string[]; // Add this line
-  onAddFavorite?: (location: string) => void; // Make it optional
-}
 
 const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const { isAuthenticated, logout, userProfile, refreshProfile } = useAuth();
@@ -66,7 +59,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   : defaultProPic;
 
 
-  // Refs for click outside detection
+
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const favoriteDropdownRef = useRef<HTMLDivElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
@@ -85,14 +78,12 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   };
 
 
-  // Click outside detection
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Get the actual target element that was clicked
       const target = event.target as HTMLElement;
       const clickedElement = target.closest('button') || target;
   
-      // Check for profile dropdown
+
       if (showProfileMenu && profileDropdownRef.current && profileButtonRef.current) {
         const profileElements = [
           profileDropdownRef.current,
@@ -103,7 +94,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
         }
       }
   
-      // Check for favorites dropdown
       if (showFavorites && favoriteDropdownRef.current && favoriteButtonRef.current) {
         const favoriteElements = [
           favoriteDropdownRef.current,
@@ -114,7 +104,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
         }
       }
   
-      // Check for settings dropdown (new addition)
       if (showSettingsDropdown && settingsDropdownRef.current && settingsButtonRef.current) {
         const settingsElements = [
           settingsDropdownRef.current,
@@ -128,9 +117,9 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showProfileMenu, showFavorites, showSettingsDropdown]); // Add showSettingsDropdown to dependencies
+  }, [showProfileMenu, showFavorites, showSettingsDropdown]); 
 
-  // Reset dropdowns on auth change
+
   useEffect(() => {
     setShowProfileMenu(false);
     setShowFavorites(false);
@@ -139,10 +128,10 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
 
   const handleCloseProfileModal = () => {
     setShowProfileModal(false);
-    setModalInitialTab('profile'); // Reset to default tab
+    setModalInitialTab('profile'); 
   };
 
-  // Fetch weather data for favorites
+
   useEffect(() => {
     const fetchFavoritesWeather = async () => {
       if (!isAuthenticated) {
@@ -152,17 +141,15 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
 
       setIsLoadingFavorites(true);
       try {
-        // First get the raw favorite locations from the backend
         const favoritesResponse = await fetchFavoriteLocations();
         const favoriteLocations = favoritesResponse.favorites || [];
 
-        // If no favorites, set empty array and return
+
         if (favoriteLocations.length === 0) {
           setLocalFavorites([]);
           return;
         }
 
-        // Then fetch weather for each
         const favoritesWithWeather = await Promise.all(
           favoriteLocations.map(async (location: any) => {
             try {
@@ -197,9 +184,8 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
     };
 
     fetchFavoritesWeather();
-  }, [isAuthenticated]); // Removed userProfile?.favorite_locations dependency
+  }, [isAuthenticated]); 
 
-  // Notification timeout
   useEffect(() => {
     if (notification) {
       const timer = setTimeout(() => setNotification(null), 3000);
@@ -208,10 +194,9 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   }, [notification]);
 
 
-  // Fetch city suggestions when search location changes
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (searchLocation.trim().length > 2) { // Only fetch after 3 characters
+      if (searchLocation.trim().length > 2) { 
         try {
           const suggestions = await searchCities(searchLocation);
           setCitySuggestions(suggestions);
@@ -226,12 +211,12 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
       }
     };
 
-    const debounceTimer = setTimeout(fetchSuggestions, 300); // Debounce to avoid too many API calls
+    const debounceTimer = setTimeout(fetchSuggestions, 300); 
     
     return () => clearTimeout(debounceTimer);
   }, [searchLocation]);
 
-  // Handle click outside to close suggestions
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchInputRef.current && !searchInputRef.current.contains(event.target as Node)) {
@@ -246,7 +231,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
 
 
 
-  // Format the search input to capitalize first letter
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value.length === 0) {
@@ -254,7 +238,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
       return;
     }
     
-    // Capitalize first letter and keep the rest as-is
+
     const formattedValue = value.charAt(0).toUpperCase() + value.slice(1);
     setSearchLocation(formattedValue);
   };
@@ -274,9 +258,8 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
     }
 
     try {
-      // First validate it's a real city by getting coordinates
+
       await fetchCoordinates(location);
-      // If we get here, the city is valid
       onSearch(location);
       setShowSuggestions(false);
     } catch (error) {
@@ -299,10 +282,9 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
     }
   
     try {
-      // First validate the city exists by fetching coordinates
+  
       const { lat, lon } = await fetchCoordinates(location);
       
-      // Check for duplicates (case-insensitive)
       const normalizedInput = location.toLowerCase().trim();
       const isDuplicate = localFavorites.some(fav => 
         fav.name.toLowerCase() === normalizedInput
@@ -316,10 +298,10 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
         return;
       }
       
-      // Add to backend
+
       await addToFavorites(location, '', lat, lon);
       
-      // Update local state optimistically
+
       const newFavorite = {
         name: location,
         temp: 0,
@@ -332,7 +314,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
       
       setLocalFavorites(prev => [newFavorite, ...prev]);
       
-      // Now fetch weather data to update the favorite
       try {
         const weatherData = await fetchCurrentWeather(location);
         setLocalFavorites(prev => 
@@ -349,7 +330,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
         );
       } catch (weatherError) {
         console.error("Couldn't fetch weather for new favorite:", weatherError);
-        // Keep the favorite even if weather fetch fails
       }
       
       setNotification({ 
@@ -546,7 +526,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
             </div>
           </div>
         )}
-        {/* Settings Dropdown */}
         <div className="dropdown-container" ref={settingsDropdownRef}>
           <button
             className="icon-button"
@@ -651,7 +630,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
         isOpen={showProfileModal}
         onClose={() => {
           handleCloseProfileModal();
-          setModalKey(prev => prev + 1); // Force remount on close
+          setModalKey(prev => prev + 1); 
         }}
         initialTab={modalInitialTab}
       />

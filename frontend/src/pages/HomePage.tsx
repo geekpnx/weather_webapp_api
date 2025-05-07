@@ -101,7 +101,7 @@ const HomePage = () => {
         setBackgroundVideo(getBackgroundVideo(current.weather[0].description));
       }
   
-      // Get already transformed forecast data
+
       const forecastData = await fetchForecast(
         typeof location === 'string' ? location : undefined,
         coordinates.lat,

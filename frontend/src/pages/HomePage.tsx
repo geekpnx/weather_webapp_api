@@ -246,14 +246,12 @@ const HomePage = () => {
 
       <div className="top-messages">
         {error && <div className="error-message">{error}</div>}
-        {isFetchingLocation && <p className="fetching-message">Fetching your location...</p>}
-        {/* <button 
-          onClick={handleUseMyLocation} 
-          className="location-button"
-          disabled={isFetchingLocation}
-        >
-          {isFetchingLocation ? 'Locating...' : 'Use My Current Location'}
-        </button> */}
+        {isFetchingLocation && (
+          <p className="fetching-message">
+            <span className="loading-circle"></span>
+            Fetching your location
+          </p>
+        )}
       </div>
   
       <div className="content-container">

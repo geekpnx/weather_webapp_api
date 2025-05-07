@@ -71,15 +71,22 @@ const ForecastDisplay: React.FC<ForecastDisplayProps> = ({ data }) => {
         const containerRect = tab.parentElement?.getBoundingClientRect();
         if (containerRect) {
           const arrowPos = (tabRect.left + tabRect.width / 2) - containerRect.left;
+          
+          // For mobile view (3 columns), we need to adjust the positioning
+          const isMobile = window.innerWidth <= 768;
+          const mobileOffset = isMobile ? 
+            (expandedDayIndex % 3) * (100 / 3) + (100 / 6) : 
+            arrowPos;
+          
           return {
-            '--arrow-pos': `${arrowPos}px`
+            '--arrow-pos': `${isMobile ? mobileOffset : arrowPos}px`,
+            '--mobile-offset': isMobile ? `${Math.floor(expandedDayIndex / 3) * 100}%` : '0'
           } as React.CSSProperties;
         }
       }
     }
     return {};
   }, [expandedDayIndex]);
-
 
   const setTabRef = useCallback((index: number) => (el: HTMLDivElement | null) => {
     tabRefs.current[index] = el;

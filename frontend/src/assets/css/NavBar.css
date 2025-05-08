@@ -267,6 +267,7 @@
 .dropdown-menu:not(.settings-dropdown) .dropdown-item:hover {
   background-color: #f5f5f5;
   color: black;
+  border-radius: 8px;
 }
 
 

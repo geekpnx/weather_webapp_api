@@ -39,7 +39,7 @@
 }
 
 .forecast-tab.active {
-  background: rgba(15, 15, 15, 0.75);
+  background: rgb(50 50 50 / 85%);
 }
 
 .tab-day {
@@ -73,7 +73,7 @@
 
 
 .forecast-expanded {
-  background: rgba(15, 15, 15, 0.75);
+  background: rgb(50 50 50 / 85%);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   position: absolute;
   bottom: calc(100% + 10px);

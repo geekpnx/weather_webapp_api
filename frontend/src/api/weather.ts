@@ -356,31 +356,43 @@ export const fetchWeatherAlerts = async (authToken: string, location?: string): 
   try {
     let url = `${WEATHER_BASE_URL}/alerts/`;
     if (location) {
-      url += `?location=${location}`;
+      url += `?location=${encodeURIComponent(location)}`;
     }
 
     const response = await fetch(url, {
       headers: {
         'Authorization': `Token ${authToken}`,
+        'Content-Type': 'application/json'
       },
     });
 
+    // Handle non-2xx responses
     if (!response.ok) {
-      const errorBody = await response.json();
-      throw new Error(errorBody.error || 'Failed to fetch weather alerts');
+      // Try to parse error response
+      let errorMessage = 'Failed to fetch weather alerts';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
+      } catch (e) {
+        // Couldn't parse JSON error response
+        errorMessage = `Server error: ${response.status} ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
     }
 
-    const data = await response.json();
-
-
-    if (response.status === 404 && data && data.error === 'No alerts found for your location!!!') {
+    // Handle empty responses
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
       return [];
     }
 
-    return data as WeatherAlert[];
+    const data = await response.json();
+    
+    // Handle case where backend returns { alerts: [...] } vs direct array
+    return Array.isArray(data) ? data : data.alerts || [];
   } catch (error: any) {
     console.error('Error fetching weather alerts:', error);
-    throw error;
+    throw new Error(error.message || 'Failed to fetch weather alerts');
   }
 };
 

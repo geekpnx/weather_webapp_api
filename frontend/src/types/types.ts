@@ -139,7 +139,6 @@ export interface MapComponentProps {
 }
 
 
-
 export interface FavoriteLocation {
   id?: number;
   name: string;

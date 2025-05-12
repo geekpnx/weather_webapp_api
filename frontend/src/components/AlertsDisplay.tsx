@@ -14,24 +14,33 @@ const AlertsDisplay: React.FC = () => {
   const alertButtonRef = useRef<HTMLButtonElement>(null);
   const { isAuthenticated, authToken } = useAuth();
 
-  useEffect(() => {
-    if (isAuthenticated && authToken) {
-      setIsLoading(true);
-      fetchWeatherAlerts(authToken)
-        .then(data => {
-          setAlerts(data);
-          setIsLoading(false);
-        })
-        .catch(err => {
-          setError('Failed to fetch alerts.');
-          console.error('Error fetching alerts:', err);
-          setIsLoading(false);
-        });
-    } else {
-      setAlerts([]);
-      setIsLoading(false);
-    }
-  }, [isAuthenticated, authToken]);
+useEffect(() => {
+  if (isAuthenticated && authToken) {
+    setIsLoading(true);
+    setError(null);
+    
+    fetchWeatherAlerts(authToken)
+      .then(data => {
+        setAlerts(data);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        // Only show user-friendly message for certain errors
+        const errorMessage = err.message.includes('404') 
+          ? 'No alerts found for your location'
+          : err.message.includes('401')
+          ? 'Please log in to view alerts'
+          : 'Failed to load alerts. Please try again later.';
+          
+        setError(errorMessage);
+        console.error('Error fetching alerts:', err);
+        setIsLoading(false);
+      });
+  } else {
+    setAlerts([]);
+    setIsLoading(false);
+  }
+}, [isAuthenticated, authToken]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);

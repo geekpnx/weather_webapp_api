@@ -61,7 +61,6 @@
 
 
 * {
-  transition: background-color 0.3s ease, color 0.3s ease;
   font-family: 'Roboto Condensed', Helvetica, Verdana, sans-serif;
   font-style: normal;
   font-weight: 400;
@@ -71,8 +70,7 @@
   box-sizing: border-box;
   align-items: center; 
   justify-content: center; 
-  text-decoration: none;
-  
+  text-decoration: none;  
 }
 
 body, html, #root {

@@ -366,19 +366,15 @@ export const fetchWeatherAlerts = async (authToken: string, location?: string): 
       },
     });
 
-    // Handle non-2xx responses
     if (!response.ok) {
-      // Try to parse error response
-      let errorMessage = 'Failed to fetch weather alerts';
+      let errorMessage = 'Failed to fetch alerts';
       try {
         const errorData = await response.json();
-        errorMessage = errorData.error || errorData.message || errorMessage;
-      } catch (e) {
-        // Couldn't parse JSON error response
-        errorMessage = `Server error: ${response.status} ${response.statusText}`;
-      }
+        errorMessage = errorData.message || errorMessage;
+      } catch (e) {}
       throw new Error(errorMessage);
     }
+
 
     // Handle empty responses
     const contentType = response.headers.get('content-type');

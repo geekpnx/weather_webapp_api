@@ -32,7 +32,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const [isLoadingFavorites, setIsLoadingFavorites] = useState<boolean>(false);
   const { temperatureUnit, toggleTemperatureUnit, convertTemp } = usePreferences();
   const { profileVersion } = useProfile();
-
+  const [alertLocation, setAlertLocation] = useState<string | undefined>();
 
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
@@ -261,6 +261,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
 
       await fetchCoordinates(location);
       onSearch(location);
+      setAlertLocation(location);
       setShowSuggestions(false);
     } catch (error) {
       setNotification({ 
@@ -445,7 +446,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
         </div>
       </div>
       <div className="nav-icons">
-      {isAuthenticated && <AlertsDisplay />}
+      {isAuthenticated && <AlertsDisplay location={alertLocation} />}
         {isAuthenticated && (
           <div className="favorite-notification-container">
             <div className="dropdown-container" ref={favoriteDropdownRef}>
@@ -487,6 +488,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
                         className="favorite-content"
                         onClick={() => {
                           onSearch(favorite.name);
+                          setAlertLocation(favorite.name); 
                           setShowFavorites(false);
                         }}
                       >

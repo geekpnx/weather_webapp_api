@@ -5,59 +5,57 @@ import { useAuth } from '../context/AuthContext';
 import { fetchWeatherAlerts } from '../api/weather';
 import { WeatherAlert } from '../types/types';
 
-const AlertsDisplay: React.FC = () => {
+interface AlertsDisplayProps {
+  location?: string; 
+}
+
+
+
+const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
   const [alerts, setAlerts] = useState<WeatherAlert[]>([]);
-  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const alertButtonRef = useRef<HTMLButtonElement>(null);
   const { isAuthenticated, authToken } = useAuth();
 
-useEffect(() => {
-  if (isAuthenticated && authToken) {
-    setIsLoading(true);
-    setError(null);
-    
-    fetchWeatherAlerts(authToken)
-      .then(data => {
-        setAlerts(data);
-        setIsLoading(false);
-      })
-      .catch(err => {
-        // Only show user-friendly message for certain errors
-        const errorMessage = err.message.includes('404') 
-          ? 'No alerts found for your location'
-          : err.message.includes('401')
-          ? 'Please log in to view alerts'
-          : 'Failed to load alerts. Please try again later.';
-          
-        setError(errorMessage);
-        console.error('Error fetching alerts:', err);
-        setIsLoading(false);
-      });
-  } else {
-    setAlerts([]);
-    setIsLoading(false);
-  }
-}, [isAuthenticated, authToken]);
+  useEffect(() => {
+    if (isAuthenticated && authToken) {
+      setIsLoading(true);
+      setError(null);
+      
+      fetchWeatherAlerts(authToken, location)
+        .then(data => {
+          setAlerts(data);
+          setIsLoading(false);
+        })
+        .catch(err => {
+          setError('Failed to fetch alerts');
+          console.error('Error fetching alerts:', err);
+          setIsLoading(false);
+        });
+    } else {
+      setAlerts([]);
+      setIsLoading(false);
+    }
+  }, [isAuthenticated, authToken, location]); 
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
+  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (dropdownRef.current && alertButtonRef.current && !dropdownRef.current.contains(event.target as Node) && !alertButtonRef.current.contains(event.target as Node)) {
+    if (dropdownRef.current && 
+        alertButtonRef.current && 
+        !dropdownRef.current.contains(event.target as Node) && 
+        !alertButtonRef.current.contains(event.target as Node)) {
       setIsDropdownOpen(false);
     }
   };
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isDropdownOpen]);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const hasActiveAlerts = alerts.length > 0;
 
@@ -73,26 +71,41 @@ useEffect(() => {
       >
         <div className="warning-icon-container">
           <img src={warningIcon} alt="Warning Icon" className="warning-icon" />
+          {hasActiveAlerts && <span className="alert-badge"></span>}
         </div>
       </button>
 
       {isDropdownOpen && (
         <div className="alerts-dropdown">
+          {location && (
+            <div className="alerts-location-header">
+              Alerts for: <strong>{location}</strong>
+            </div>
+          )}
+          
           {isLoading && <div className="alerts-loading">Loading alerts...</div>}
           {error && <div className="alerts-error">{error}</div>}
-          {!isLoading && alerts.length === 0 && <div className="alerts-empty">No active alerts</div>}
-          {!isLoading &&
-            alerts.map((alert, index) => (
-              <div key={index} className={`alert-card urgency-${alert.urgency?.toLowerCase().replace(' ', '-') || 'unknown'}`}>
-                <h4 className="alert-headline">{alert.headline}</h4>
-                <p className="alert-event"><strong>Event:</strong> {alert.event}</p>
-                <p className="alert-type"><strong>Type:</strong> {alert.msgtype}</p>
-                <p className="alert-urgency"><strong>Urgency:</strong> {alert.urgency}</p>
-                <p className="alert-description">{alert.desc}</p>
-                <p className="alert-effective">Effective: {new Date(alert.effective).toLocaleString()}</p>
-                <p className="alert-expires">Expires: {new Date(alert.expires).toLocaleString()}</p>
+          
+          {!isLoading && alerts.length === 0 && (
+            <div className="alerts-empty">
+              {location ? `No active alerts for ${location}` : 'No active alerts'}
+            </div>
+          )}
+          
+          {!isLoading && alerts.map((alert, index) => (
+            <div key={index} className={`alert-card urgency-${alert.urgency?.toLowerCase().replace(' ', '-') || 'unknown'}`}>
+              <h4 className="alert-headline">{alert.headline}</h4>
+              <div className="alert-meta">
+                <span><strong>Event:</strong> {alert.event}</span>
+                <span><strong>Urgency:</strong> {alert.urgency}</span>
               </div>
-            ))}
+              <p className="alert-description">{alert.desc}</p>
+              <div className="alert-times">
+                <span>From: {new Date(alert.effective).toLocaleString()}</span>
+                <span>Until: {new Date(alert.expires).toLocaleString()}</span>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

@@ -126,7 +126,7 @@
   padding: 22px;
   margin-bottom: 12px;
   border-radius: 6px;
-  background: #fff9f9;
+  background: #e9e9e9;
   border-left: 4px solid #ff6b6b;
 }
 
@@ -148,8 +148,9 @@
 
 .alert-meta {
   display: flex;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 15px;
+  margin-top: 22px;
   color: #555;
   flex-direction: column;
   align-items: flex-start;
@@ -165,7 +166,7 @@
   justify-content: space-between;
   font-size: 0.8rem;
   color: #666;
-  margin-top: 8px;
+  margin-top: 20px;
   text-shadow: 0.55px 0 0 currentColor;
   font-weight: bolder; 
   letter-spacing: 0.03em;

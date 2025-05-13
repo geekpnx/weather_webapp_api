@@ -17,8 +17,6 @@ import { sanitizeImageUrl } from '../utils/utils';
 import { useProfile } from '../context/ProfileContext';
 
 
-
-
 const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const { isAuthenticated, logout, userProfile, refreshProfile } = useAuth();
   const [searchLocation, setSearchLocation] = useState<string>('');
@@ -77,6 +75,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
     setShowProfileMenu(false);
   };
 
+  
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

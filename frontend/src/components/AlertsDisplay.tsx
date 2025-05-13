@@ -10,7 +10,6 @@ interface AlertsDisplayProps {
 }
 
 
-
 const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
   const [alerts, setAlerts] = useState<WeatherAlert[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -77,12 +76,6 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
 
       {isDropdownOpen && (
         <div className="alerts-dropdown">
-          {location && (
-            <div className="alerts-location-header">
-              Alerts for: <strong>{location}</strong>
-            </div>
-          )}
-          
           {isLoading && <div className="alerts-loading">Loading alerts...</div>}
           {error && <div className="alerts-error">{error}</div>}
           

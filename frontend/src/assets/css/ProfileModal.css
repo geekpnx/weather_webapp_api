@@ -214,7 +214,14 @@
   background-size: 1em;
 }
 
-
+.read-only-input {
+  background-color: #b8b49b !important;  /* Light gray background */
+  color: #555;                /* Darker gray text for better readability */
+  border: 1px solid #ccc;     /* Subtle border */
+  padding: 8px 12px;          /* Match your other input fields */
+  border-radius: 4px;         /* Optional: rounded corners */
+  cursor: not-allowed;        /* Shows a "not allowed" cursor on hover */
+}
 
 
 .error-message, 

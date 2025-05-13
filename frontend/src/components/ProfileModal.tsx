@@ -226,16 +226,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
             )}
           </div>
             <div className="form-group">
-              <label>Username</label>
-              <input
-                type="text"
-                value={userData.user.username}
-                onChange={(e) => setUserData({
-                  ...userData,
-                  user: {...userData.user, username: e.target.value}
-                })}
-              />
-            </div>
+            <label>Username</label>
+            <input
+              type="text"
+              value={userData.user.username}
+              readOnly
+              className="read-only-input" // Optional: for styling
+            />
+          </div>
 
             <div className="form-group">
               <label>First Name</label>

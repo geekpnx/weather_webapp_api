@@ -4,7 +4,7 @@ import warningIcon from '../assets/images/icons/warning-icon.svg';
 import { useAuth } from '../context/AuthContext';
 import { fetchWeatherAlerts } from '../api/weather';
 import { WeatherAlert, AlertsDisplayProps } from '../types/types';
-import { usePreventPullToRefresh } from '../hooks/usePreventPullToRefresh'
+
 
 
 const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
@@ -16,13 +16,9 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
   const alertButtonRef = useRef<HTMLButtonElement>(null);
   const { isAuthenticated, authToken } = useAuth();
 
-  const dropdownContentRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef<number>(0);
   const touchCurrentY = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
-
-
-  usePreventPullToRefresh(isDropdownOpen);
 
   useEffect(() => {
     if (isAuthenticated && authToken) {
@@ -47,13 +43,13 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
+  // Handle touch events for dropdown
   const handleTouchStart = (e: React.TouchEvent) => {
-    // Only start tracking if at very top of scrollable content
-    if (dropdownContentRef.current?.scrollTop === 0) {
-      touchStartY.current = e.touches[0].clientY;
-      touchCurrentY.current = touchStartY.current;
-      isDragging.current = true;
-    }
+    if (!dropdownRef.current) return;
+    
+    touchStartY.current = e.touches[0].clientY;
+    touchCurrentY.current = touchStartY.current;
+    isDragging.current = true;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -62,9 +58,8 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
     touchCurrentY.current = e.touches[0].clientY;
     const deltaY = touchCurrentY.current - touchStartY.current;
     
-    // Only allow downward swipe when at top
+    // Only allow downward swipe
     if (deltaY > 0) {
-      e.preventDefault(); // Prevent scroll when swiping down
       dropdownRef.current.style.transform = `translateY(${deltaY}px)`;
     }
   };
@@ -74,14 +69,18 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
     
     const deltaY = touchCurrentY.current - touchStartY.current;
     
+    // If swiped down more than 50px, close the dropdown
     if (deltaY > 50) {
       setIsDropdownOpen(false);
     } else {
+      // Return to original position
       dropdownRef.current.style.transform = 'translateY(0)';
     }
     
     isDragging.current = false;
   };
+
+
 
   const handleClickOutside = (event: MouseEvent) => {
     if (dropdownRef.current && 
@@ -102,7 +101,7 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
   const hasActiveAlerts = alerts.length > 0;
 
   return (
-    <div className="alerts-container">
+    <div className="alerts-container" ref={dropdownRef}>
       <button
         ref={alertButtonRef}
         className={`alerts-button ${hasActiveAlerts ? 'has-alerts' : ''}`}
@@ -125,34 +124,29 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          <div 
-            className="alerts-dropdown-content"
-            ref={dropdownContentRef}
-          >
-            {isLoading && <div className="alerts-loading">Loading alerts...</div>}
-            {error && <div className="alerts-error">{error}</div>}
-            
-            {!isLoading && alerts.length === 0 && (
-              <div className="alerts-empty">
-                {location ? `No active alerts for ${location}` : 'No active alerts'}
+          {isLoading && <div className="alerts-loading">Loading alerts...</div>}
+          {error && <div className="alerts-error">{error}</div>}
+          
+          {!isLoading && alerts.length === 0 && (
+            <div className="alerts-empty">
+              {location ? `No active alerts for ${location}` : 'No active alerts'}
+            </div>
+          )}
+          
+          {!isLoading && alerts.map((alert, index) => (
+            <div key={index} className={`alert-card urgency-${alert.urgency?.toLowerCase().replace(' ', '-') || 'unknown'}`}>
+              <h4 className="alert-headline">{alert.headline}</h4>
+              <div className="alert-meta">
+                <span><strong>Event:</strong> {alert.event}</span>
+                <span><strong>Urgency:</strong> {alert.urgency}</span>
               </div>
-            )}
-            
-            {!isLoading && alerts.map((alert, index) => (
-              <div key={index} className={`alert-card urgency-${alert.urgency?.toLowerCase().replace(' ', '-') || 'unknown'}`}>
-                <h4 className="alert-headline">{alert.headline}</h4>
-                <div className="alert-meta">
-                  <span><strong>Event:</strong> {alert.event}</span>
-                  <span><strong>Urgency:</strong> {alert.urgency}</span>
-                </div>
-                <p className="alert-description">{alert.desc}</p>
-                <div className="alert-times">
-                  <span>From: {new Date(alert.effective).toLocaleString()}</span>
-                  <span>Until: {new Date(alert.expires).toLocaleString()}</span>
-                </div>
+              <p className="alert-description">{alert.desc}</p>
+              <div className="alert-times">
+                <span>From: {new Date(alert.effective).toLocaleString()}</span>
+                <span>Until: {new Date(alert.expires).toLocaleString()}</span>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

@@ -142,6 +142,7 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  touch-action: pan-y; /* Enable vertical scrolling */
 }
 
 .alerts-loading,

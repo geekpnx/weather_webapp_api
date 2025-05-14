@@ -21,6 +21,8 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
   const touchCurrentY = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
 
+  const [touchCount, setTouchCount] = useState(0);
+
   usePreventPullToRefresh(isDropdownOpen);
 
   useEffect(() => {
@@ -46,59 +48,54 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
-  // Handle touch events for dropdown
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (!dropdownRef.current) return;
+    // Count how many fingers are touching
+    setTouchCount(e.touches.length);
     
-    touchStartY.current = e.touches[0].clientY;
-    touchCurrentY.current = touchStartY.current;
-    isDragging.current = true;
+    // Only start swipe-to-close if single finger
+    if (e.touches.length === 1) {
+      touchStartY.current = e.touches[0].clientY;
+      touchCurrentY.current = touchStartY.current;
+      isDragging.current = true;
+    }
   };
 
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging.current || !dropdownRef.current) return;
-    
-    touchCurrentY.current = e.touches[0].clientY;
-    const deltaY = touchCurrentY.current - touchStartY.current;
-    
-    // Check if we're trying to scroll the content
-    if (dropdownContentRef.current) {
-      const isScrolling = dropdownContentRef.current.scrollHeight > dropdownContentRef.current.clientHeight;
-      const isAtTop = dropdownContentRef.current.scrollTop === 0;
-      const isAtBottom = dropdownContentRef.current.scrollTop + dropdownContentRef.current.clientHeight >= 
-                        dropdownContentRef.current.scrollHeight;
-      
-      // Allow content scrolling when not at boundaries or when scrolling up
-      if (isScrolling && (
-          (deltaY < 0 && !isAtBottom) || 
-          (deltaY > 0 && !isAtTop)
-        )) {
-        isDragging.current = false;
-        return;
-      }
+    // If two fingers, allow native scrolling
+    if (e.touches.length >= 2) {
+      isDragging.current = false;
+      return;
     }
     
-    // Only allow downward swipe to close
-    if (deltaY > 0) {
-      dropdownRef.current.style.transform = `translateY(${deltaY}px)`;
+    // Single finger swipe-to-close logic
+    if (isDragging.current && dropdownRef.current) {
+      touchCurrentY.current = e.touches[0].clientY;
+      const deltaY = touchCurrentY.current - touchStartY.current;
+      
+      // Only allow downward swipe
+      if (deltaY > 0) {
+        dropdownRef.current.style.transform = `translateY(${deltaY}px)`;
+      }
     }
   };
 
   const handleTouchEnd = () => {
-    if (!isDragging.current || !dropdownRef.current) return;
+    // Reset touch count
+    setTouchCount(0);
     
-    const deltaY = touchCurrentY.current - touchStartY.current;
-    
-    // If swiped down more than 50px, close the dropdown
-    if (deltaY > 50) {
-      setIsDropdownOpen(false);
-    } else {
-      // Return to original position
-      dropdownRef.current.style.transform = 'translateY(0)';
+    // Only process swipe-to-close if single finger was used
+    if (isDragging.current && dropdownRef.current) {
+      const deltaY = touchCurrentY.current - touchStartY.current;
+      
+      if (deltaY > 50) {
+        setIsDropdownOpen(false);
+      } else {
+        dropdownRef.current.style.transform = 'translateY(0)';
+      }
+      
+      isDragging.current = false;
     }
-    
-    isDragging.current = false;
   };
 
 

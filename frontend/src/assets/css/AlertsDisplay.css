@@ -132,7 +132,6 @@
   margin-top: 2px;
   padding: 10px;
   max-height: 400px;
-  overflow-y: auto;
   transition: transform 0.3s ease-out;
   overflow: hidden; 
 }
@@ -142,7 +141,18 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  touch-action: pan-y; /* Enable vertical scrolling */
+  touch-action: pan-y;
+  /* Add scrollbar styling for better UX */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.3) transparent;
+}
+
+.alerts-dropdown-content::-webkit-scrollbar {
+  width: 6px;
+}
+.alerts-dropdown-content::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,0.3);
+  border-radius: 3px;
 }
 
 .alerts-loading,

@@ -21,7 +21,6 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
   const touchCurrentY = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
 
-  const [touchCount, setTouchCount] = useState(0);
 
   usePreventPullToRefresh(isDropdownOpen);
 
@@ -49,55 +48,40 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    // Count how many fingers are touching
-    setTouchCount(e.touches.length);
-    
-    // Only start swipe-to-close if single finger
-    if (e.touches.length === 1) {
+    // Only start tracking if at very top of scrollable content
+    if (dropdownContentRef.current?.scrollTop === 0) {
       touchStartY.current = e.touches[0].clientY;
       touchCurrentY.current = touchStartY.current;
       isDragging.current = true;
     }
   };
 
-
   const handleTouchMove = (e: React.TouchEvent) => {
-    // If two fingers, allow native scrolling
-    if (e.touches.length >= 2) {
-      isDragging.current = false;
-      return;
-    }
+    if (!isDragging.current || !dropdownRef.current) return;
     
-    // Single finger swipe-to-close logic
-    if (isDragging.current && dropdownRef.current) {
-      touchCurrentY.current = e.touches[0].clientY;
-      const deltaY = touchCurrentY.current - touchStartY.current;
-      
-      // Only allow downward swipe
-      if (deltaY > 0) {
-        dropdownRef.current.style.transform = `translateY(${deltaY}px)`;
-      }
+    touchCurrentY.current = e.touches[0].clientY;
+    const deltaY = touchCurrentY.current - touchStartY.current;
+    
+    // Only allow downward swipe when at top
+    if (deltaY > 0) {
+      e.preventDefault(); // Prevent scroll when swiping down
+      dropdownRef.current.style.transform = `translateY(${deltaY}px)`;
     }
   };
 
   const handleTouchEnd = () => {
-    // Reset touch count
-    setTouchCount(0);
+    if (!isDragging.current || !dropdownRef.current) return;
     
-    // Only process swipe-to-close if single finger was used
-    if (isDragging.current && dropdownRef.current) {
-      const deltaY = touchCurrentY.current - touchStartY.current;
-      
-      if (deltaY > 50) {
-        setIsDropdownOpen(false);
-      } else {
-        dropdownRef.current.style.transform = 'translateY(0)';
-      }
-      
-      isDragging.current = false;
+    const deltaY = touchCurrentY.current - touchStartY.current;
+    
+    if (deltaY > 50) {
+      setIsDropdownOpen(false);
+    } else {
+      dropdownRef.current.style.transform = 'translateY(0)';
     }
+    
+    isDragging.current = false;
   };
-
 
   const handleClickOutside = (event: MouseEvent) => {
     if (dropdownRef.current && 

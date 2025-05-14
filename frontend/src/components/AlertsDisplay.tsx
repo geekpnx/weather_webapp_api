@@ -4,7 +4,7 @@ import warningIcon from '../assets/images/icons/warning-icon.svg';
 import { useAuth } from '../context/AuthContext';
 import { fetchWeatherAlerts } from '../api/weather';
 import { WeatherAlert, AlertsDisplayProps } from '../types/types';
-
+import { usePreventPullToRefresh } from '../hooks/usePreventPullToRefresh'
 
 
 const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
@@ -19,6 +19,8 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
   const touchStartY = useRef<number>(0);
   const touchCurrentY = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
+
+  usePreventPullToRefresh(isDropdownOpen);
 
   useEffect(() => {
     if (isAuthenticated && authToken) {

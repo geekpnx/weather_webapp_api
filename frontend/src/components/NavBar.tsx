@@ -15,6 +15,8 @@ import { usePreferences } from '../context/PreferencesContext';
 import { searchCities } from '../api/weather';
 import { sanitizeImageUrl } from '../utils/utils';
 import { useProfile } from '../context/ProfileContext';
+import { usePreventPullToRefresh } from '../hooks/usePreventPullToRefresh'
+
 
 
 const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
@@ -31,6 +33,10 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const { temperatureUnit, toggleTemperatureUnit, convertTemp } = usePreferences();
   const { profileVersion } = useProfile();
   const [alertLocation, setAlertLocation] = useState<string | undefined>();
+
+
+
+
 
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
@@ -196,6 +202,13 @@ const handleProfileTouchEnd = () => {
     
     isDragging.current = false;
   };
+
+  
+
+  usePreventPullToRefresh(showFavorites);
+  usePreventPullToRefresh(showProfileMenu);
+  usePreventPullToRefresh(showSettingsDropdown);
+
 
   useEffect(() => {
     if (!showFavorites && favoritesDropdownRef.current) {

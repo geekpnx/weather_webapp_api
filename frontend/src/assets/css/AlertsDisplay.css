@@ -1,3 +1,25 @@
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .alerts-container {
     position: relative;
     display: inline-block;
@@ -111,6 +133,7 @@
   padding: 10px;
   max-height: 400px;
   overflow-y: auto;
+  transition: transform 0.3s ease-out;
 }
 
 .alerts-loading,
@@ -128,9 +151,38 @@
   border-radius: 6px;
   background: #e9e9e9;
   border-left: 4px solid #ff6b6b;
+  animation: fadeInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  opacity: 0; /* Start invisible */
+  transform-origin: center bottom;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Staggered animation delays */
+.alert-card:nth-child(1) { 
+  animation-delay: 0.1s; 
+}
+.alert-card:nth-child(2) { 
+  animation-delay: 0.2s; 
+}
+.alert-card:nth-child(3) { 
+  animation-delay: 0.3s; 
+}
+.alert-card:nth-child(4) { 
+  animation-delay: 0.4s; 
+}
+.alert-card:nth-child(5) { 
+  animation-delay: 0.5s; 
 }
 
 
+.alert-card.urgency-severe {
+  animation-name: fadeInUp, scaleIn;
+  animation-duration: 0.4s, 0.3s;
+  animation-delay: var(--delay, 0.1s), var(--delay, 0.1s);
+  animation-fill-mode: forwards;
+  border-left-color: #ff4d4d;
+}
 
 .alert-headline {
   font-size: 1.1em;
@@ -229,8 +281,8 @@
     margin-top: 0;
     animation: slideUp 0.3s ease-out;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(0);
   }
-
 
   .alerts-dropdown::before {
     content: '';
@@ -242,9 +294,13 @@
     margin: 8px auto;
   }
 
+  .alerts-dropdown.closed {
+    transform: translateY(100%);
+  }
+
   .alert-card {
-    padding: 12px;
-    margin-bottom: 8px;
+    padding: 12px 16px;
+    margin: 0 5px 12px;
   }
 
 

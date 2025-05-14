@@ -3,11 +3,8 @@ import '../assets/css/AlertsDisplay.css';
 import warningIcon from '../assets/images/icons/warning-icon.svg';
 import { useAuth } from '../context/AuthContext';
 import { fetchWeatherAlerts } from '../api/weather';
-import { WeatherAlert } from '../types/types';
+import { WeatherAlert, AlertsDisplayProps } from '../types/types';
 
-interface AlertsDisplayProps {
-  location?: string; 
-}
 
 
 const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
@@ -18,6 +15,10 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const alertButtonRef = useRef<HTMLButtonElement>(null);
   const { isAuthenticated, authToken } = useAuth();
+
+  const touchStartY = useRef<number>(0);
+  const touchCurrentY = useRef<number>(0);
+  const isDragging = useRef<boolean>(false);
 
   useEffect(() => {
     if (isAuthenticated && authToken) {
@@ -42,6 +43,45 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
+  // Handle touch events for dropdown
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!dropdownRef.current) return;
+    
+    touchStartY.current = e.touches[0].clientY;
+    touchCurrentY.current = touchStartY.current;
+    isDragging.current = true;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging.current || !dropdownRef.current) return;
+    
+    touchCurrentY.current = e.touches[0].clientY;
+    const deltaY = touchCurrentY.current - touchStartY.current;
+    
+    // Only allow downward swipe
+    if (deltaY > 0) {
+      dropdownRef.current.style.transform = `translateY(${deltaY}px)`;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging.current || !dropdownRef.current) return;
+    
+    const deltaY = touchCurrentY.current - touchStartY.current;
+    
+    // If swiped down more than 50px, close the dropdown
+    if (deltaY > 50) {
+      setIsDropdownOpen(false);
+    } else {
+      // Return to original position
+      dropdownRef.current.style.transform = 'translateY(0)';
+    }
+    
+    isDragging.current = false;
+  };
+
+
+
   const handleClickOutside = (event: MouseEvent) => {
     if (dropdownRef.current && 
         alertButtonRef.current && 
@@ -55,6 +95,8 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  
 
   const hasActiveAlerts = alerts.length > 0;
 
@@ -75,7 +117,13 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
       </button>
 
       {isDropdownOpen && (
-        <div className="alerts-dropdown">
+        <div 
+          className={`alerts-dropdown ${!isDropdownOpen ? 'closed' : ''}`}
+          ref={dropdownRef}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {isLoading && <div className="alerts-loading">Loading alerts...</div>}
           {error && <div className="alerts-error">{error}</div>}
           

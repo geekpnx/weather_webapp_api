@@ -35,6 +35,14 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Touch interaction refs for favorites dropdown
+  const favoritesDropdownRef = useRef<HTMLDivElement>(null);
+  const touchStartY = useRef<number>(0);
+  const touchCurrentY = useRef<number>(0);
+  const isDragging = useRef<boolean>(false);
+
+
   const selectSuggestion = (city: string) => {
     setSearchLocation(city);
     onSearch(city);
@@ -42,10 +50,48 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   };
 
 
-
   const [showSettingsDropdown, setShowSettingsDropdown] = useState<boolean>(false);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
   const settingsDropdownRef = useRef<HTMLDivElement>(null);
+  const settingsTouchStartY = useRef<number>(0);
+  const settingsTouchCurrentY = useRef<number>(0);
+  const isSettingsDragging = useRef<boolean>(false);
+
+  const handleSettingsTouchStart = (e: React.TouchEvent) => {
+    if (!settingsDropdownRef.current) return;
+    
+    settingsTouchStartY.current = e.touches[0].clientY;
+    settingsTouchCurrentY.current = settingsTouchStartY.current;
+    isSettingsDragging.current = true;
+  };
+
+  const handleSettingsTouchMove = (e: React.TouchEvent) => {
+    if (!isSettingsDragging.current || !settingsDropdownRef.current) return;
+    
+    settingsTouchCurrentY.current = e.touches[0].clientY;
+    const deltaY = settingsTouchCurrentY.current - settingsTouchStartY.current;
+    
+    // Only allow downward swipe
+    if (deltaY > 0) {
+      settingsDropdownRef.current.style.transform = `translateY(${deltaY}px)`;
+    }
+  };
+
+  const handleSettingsTouchEnd = () => {
+    if (!isSettingsDragging.current || !settingsDropdownRef.current) return;
+    
+    const deltaY = settingsTouchCurrentY.current - settingsTouchStartY.current;
+    
+    // If swiped down more than 50px, close the dropdown
+    if (deltaY > 50) {
+      setShowSettingsDropdown(false);
+    } else {
+      // Return to original position
+      settingsDropdownRef.current.style.transform = 'translateY(0)';
+    }
+    
+    isSettingsDragging.current = false;
+  };
 
   const OPENWEATHER_URL = import.meta.env.VITE_OPENWEATHERMAP_BASE_URL;
 
@@ -57,12 +103,14 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   : defaultProPic;
 
 
-
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const profileTouchStartY = useRef<number>(0);
+  const profileTouchCurrentY = useRef<number>(0);
+  const isProfileDragging = useRef<boolean>(false);
+
   const favoriteDropdownRef = useRef<HTMLDivElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
   const favoriteButtonRef = useRef<HTMLButtonElement>(null);
-
 
 
   const toggleProfileMenu = () => {
@@ -70,12 +118,90 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
     setShowFavorites(false);
   };
 
+  const handleProfileTouchStart = (e: React.TouchEvent) => {
+  if (!profileDropdownRef.current) return;
+  
+  profileTouchStartY.current = e.touches[0].clientY;
+  profileTouchCurrentY.current = profileTouchStartY.current;
+  isProfileDragging.current = true;
+};
+
+const handleProfileTouchMove = (e: React.TouchEvent) => {
+  if (!isProfileDragging.current || !profileDropdownRef.current) return;
+  
+  profileTouchCurrentY.current = e.touches[0].clientY;
+  const deltaY = profileTouchCurrentY.current - profileTouchStartY.current;
+  
+  // Only allow downward swipe
+  if (deltaY > 0) {
+    profileDropdownRef.current.style.transform = `translateY(${deltaY}px)`;
+  }
+};
+
+const handleProfileTouchEnd = () => {
+  if (!isProfileDragging.current || !profileDropdownRef.current) return;
+  
+  const deltaY = profileTouchCurrentY.current - profileTouchStartY.current;
+  
+  // If swiped down more than 50px, close the dropdown
+  if (deltaY > 50) {
+    setShowProfileMenu(false);
+  } else {
+    // Return to original position
+    profileDropdownRef.current.style.transform = 'translateY(0)';
+  }
+  
+  isProfileDragging.current = false;
+};
+
+
+  
   const toggleFavorites = () => {
     setShowFavorites(!showFavorites);
     setShowProfileMenu(false);
   };
 
-  
+   const handleTouchStart = (e: React.TouchEvent) => {
+    if (!favoritesDropdownRef.current) return;
+    
+    touchStartY.current = e.touches[0].clientY;
+    touchCurrentY.current = touchStartY.current;
+    isDragging.current = true;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging.current || !favoritesDropdownRef.current) return;
+    
+    touchCurrentY.current = e.touches[0].clientY;
+    const deltaY = touchCurrentY.current - touchStartY.current;
+    
+    // Only allow downward swipe
+    if (deltaY > 0) {
+      favoritesDropdownRef.current.style.transform = `translateY(${deltaY}px)`;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging.current || !favoritesDropdownRef.current) return;
+    
+    const deltaY = touchCurrentY.current - touchStartY.current;
+    
+    // If swiped down more than 50px, close the dropdown
+    if (deltaY > 50) {
+      setShowFavorites(false);
+    } else {
+      // Return to original position
+      favoritesDropdownRef.current.style.transform = 'translateY(0)';
+    }
+    
+    isDragging.current = false;
+  };
+
+  useEffect(() => {
+    if (!showFavorites && favoritesDropdownRef.current) {
+      favoritesDropdownRef.current.style.transform = 'translateY(0)';
+    }
+  }, [showFavorites]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -470,7 +596,12 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
                 />
               </button>
               {showFavorites && (
-                <div className="dropdown-menu favorites-dropdown">
+                <div className={`dropdown-menu favorites-dropdown ${!showFavorites ? 'closed' : ''}`}
+                  ref={favoritesDropdownRef}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  >
                   {isLoadingFavorites && (
                     <div className="loading-spinner">Loading...</div>
                   )}
@@ -543,7 +674,13 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
             <img src={settingsIcon} alt="Settings" className="settings-icon" />
           </button>
           {showSettingsDropdown && (
-            <div className="dropdown-menu settings-dropdown">
+            <div 
+              className={`dropdown-menu settings-dropdown ${!showSettingsDropdown ? 'closed' : ''}`}
+              ref={settingsDropdownRef}
+              onTouchStart={handleSettingsTouchStart}
+              onTouchMove={handleSettingsTouchMove}
+              onTouchEnd={handleSettingsTouchEnd}
+            >
               <div className="dropdown-item">
                 <div className="temperature-toggle">
                   <span className="unit">°C</span>
@@ -581,7 +718,13 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
           />
           </button>
           {showProfileMenu && (
-            <div className="dropdown-menu">
+            <div 
+              className={`dropdown-menu ${!showProfileMenu ? 'closed' : ''}`}
+              ref={profileDropdownRef}
+              onTouchStart={handleProfileTouchStart}
+              onTouchMove={handleProfileTouchMove}
+              onTouchEnd={handleProfileTouchEnd}
+            >
               {isAuthenticated ? (
                 <>
                   <div className="dropdown-item" onClick={() => {

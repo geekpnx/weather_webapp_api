@@ -82,7 +82,6 @@ export interface ForecastItem {
   }[];
 }
 
-
 export interface NewsArticle {
     title: string;
     url: string;
@@ -165,4 +164,9 @@ export interface WeatherAlert {
   effective: string;
   desc: string;
   expires: string;
+}
+
+
+export interface AlertsDisplayProps {
+  location?: string; 
 }

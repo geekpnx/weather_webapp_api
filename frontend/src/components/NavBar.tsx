@@ -205,9 +205,9 @@ const handleProfileTouchEnd = () => {
 
   
 
-  usePreventPullToRefresh(showFavorites);
-  usePreventPullToRefresh(showProfileMenu);
-  usePreventPullToRefresh(showSettingsDropdown);
+usePreventPullToRefresh(showFavorites);
+usePreventPullToRefresh(showProfileMenu);
+usePreventPullToRefresh(showSettingsDropdown);
 
 
   useEffect(() => {

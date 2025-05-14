@@ -16,6 +16,7 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
   const alertButtonRef = useRef<HTMLButtonElement>(null);
   const { isAuthenticated, authToken } = useAuth();
 
+  const dropdownContentRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef<number>(0);
   const touchCurrentY = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
@@ -54,13 +55,31 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
     isDragging.current = true;
   };
 
+
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging.current || !dropdownRef.current) return;
     
     touchCurrentY.current = e.touches[0].clientY;
     const deltaY = touchCurrentY.current - touchStartY.current;
     
-    // Only allow downward swipe
+    // Check if we're trying to scroll the content
+    if (dropdownContentRef.current) {
+      const isScrolling = dropdownContentRef.current.scrollHeight > dropdownContentRef.current.clientHeight;
+      const isAtTop = dropdownContentRef.current.scrollTop === 0;
+      const isAtBottom = dropdownContentRef.current.scrollTop + dropdownContentRef.current.clientHeight >= 
+                        dropdownContentRef.current.scrollHeight;
+      
+      // Allow content scrolling when not at boundaries or when scrolling up
+      if (isScrolling && (
+          (deltaY < 0 && !isAtBottom) || 
+          (deltaY > 0 && !isAtTop)
+        )) {
+        isDragging.current = false;
+        return;
+      }
+    }
+    
+    // Only allow downward swipe to close
     if (deltaY > 0) {
       dropdownRef.current.style.transform = `translateY(${deltaY}px)`;
     }
@@ -83,7 +102,6 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
   };
 
 
-
   const handleClickOutside = (event: MouseEvent) => {
     if (dropdownRef.current && 
         alertButtonRef.current && 
@@ -103,7 +121,7 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
   const hasActiveAlerts = alerts.length > 0;
 
   return (
-    <div className="alerts-container" ref={dropdownRef}>
+    <div className="alerts-container">
       <button
         ref={alertButtonRef}
         className={`alerts-button ${hasActiveAlerts ? 'has-alerts' : ''}`}
@@ -126,29 +144,34 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          {isLoading && <div className="alerts-loading">Loading alerts...</div>}
-          {error && <div className="alerts-error">{error}</div>}
-          
-          {!isLoading && alerts.length === 0 && (
-            <div className="alerts-empty">
-              {location ? `No active alerts for ${location}` : 'No active alerts'}
-            </div>
-          )}
-          
-          {!isLoading && alerts.map((alert, index) => (
-            <div key={index} className={`alert-card urgency-${alert.urgency?.toLowerCase().replace(' ', '-') || 'unknown'}`}>
-              <h4 className="alert-headline">{alert.headline}</h4>
-              <div className="alert-meta">
-                <span><strong>Event:</strong> {alert.event}</span>
-                <span><strong>Urgency:</strong> {alert.urgency}</span>
+          <div 
+            className="alerts-dropdown-content"
+            ref={dropdownContentRef}
+          >
+            {isLoading && <div className="alerts-loading">Loading alerts...</div>}
+            {error && <div className="alerts-error">{error}</div>}
+            
+            {!isLoading && alerts.length === 0 && (
+              <div className="alerts-empty">
+                {location ? `No active alerts for ${location}` : 'No active alerts'}
               </div>
-              <p className="alert-description">{alert.desc}</p>
-              <div className="alert-times">
-                <span>From: {new Date(alert.effective).toLocaleString()}</span>
-                <span>Until: {new Date(alert.expires).toLocaleString()}</span>
+            )}
+            
+            {!isLoading && alerts.map((alert, index) => (
+              <div key={index} className={`alert-card urgency-${alert.urgency?.toLowerCase().replace(' ', '-') || 'unknown'}`}>
+                <h4 className="alert-headline">{alert.headline}</h4>
+                <div className="alert-meta">
+                  <span><strong>Event:</strong> {alert.event}</span>
+                  <span><strong>Urgency:</strong> {alert.urgency}</span>
+                </div>
+                <p className="alert-description">{alert.desc}</p>
+                <div className="alert-times">
+                  <span>From: {new Date(alert.effective).toLocaleString()}</span>
+                  <span>Until: {new Date(alert.expires).toLocaleString()}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>

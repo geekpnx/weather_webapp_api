@@ -1,4 +1,3 @@
-// Create a new file usePreventPullToRefresh.ts
 import { useEffect } from 'react';
 
 export const usePreventPullToRefresh = (isOpen: boolean) => {

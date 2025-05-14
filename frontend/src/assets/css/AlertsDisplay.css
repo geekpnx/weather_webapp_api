@@ -134,6 +134,14 @@
   max-height: 400px;
   overflow-y: auto;
   transition: transform 0.3s ease-out;
+  overflow: hidden; 
+}
+
+.alerts-dropdown-content {
+  max-height: 60vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .alerts-loading,

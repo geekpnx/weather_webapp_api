@@ -301,20 +301,27 @@
     animation: slideUp 0.3s ease-out;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
     transform: translateY(0);
+    padding-top: 20px;
   }
 
   .alerts-dropdown::before {
     content: '';
-    display: block;
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
     width: 40px;
     height: 4px;
-    background: #ccc;
+    background: rgba(255,255,255,0.5);
     border-radius: 2px;
-    margin: 8px auto;
   }
 
   .alerts-dropdown.closed {
     transform: translateY(100%);
+  }
+
+  .alerts-dropdown-content {
+    max-height: calc(60vh - 30px); /* Account for handle space */
   }
 
   .alert-card {

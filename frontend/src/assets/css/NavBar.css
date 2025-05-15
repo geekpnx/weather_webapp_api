@@ -1043,7 +1043,7 @@
     width: 100% !important;
     max-width: none !important;
     min-width: auto !important;
-    max-height: 60vh;
+    max-height: 55vh;
     border-radius: 16px 16px 0 0;
     padding: 20px 0;
     animation: slideUp 0.3s ease-out;

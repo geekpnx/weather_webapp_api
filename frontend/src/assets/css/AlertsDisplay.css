@@ -276,7 +276,6 @@
     transform: translateY(0);
     touch-action: pan-y;
     overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
     transition: transform 0.2s ease-out;
     display: flex;
     flex-direction: column;

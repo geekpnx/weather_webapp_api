@@ -213,6 +213,15 @@
   background-color: #f0f0f0;
 }
 
+.alerts-dropdown {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.alerts-dropdown::-webkit-scrollbar {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .alerts-dropdown {
     position: fixed;

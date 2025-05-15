@@ -46,7 +46,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
 
   const [showSettingsDropdown, setShowSettingsDropdown] = useState<boolean>(false);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
-  const settingsDropdownRef = useRef<HTMLDivElement>(null);
 
   const OPENWEATHER_URL = import.meta.env.VITE_OPENWEATHERMAP_BASE_URL;
 
@@ -57,14 +56,13 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   ? `${sanitizeImageUrl(userProfile.profile_picture, defaultProPic)}?v=${profileVersion}`
   : defaultProPic;
 
+  const { dropdownRef: settingsDropdownRef } = useDragToClose(showSettingsDropdown, () => setShowSettingsDropdown(false));
+  const { dropdownRef: profileDropdownRef } = useDragToClose(showProfileMenu, () => setShowProfileMenu(false));
+  const { dropdownRef: favoritesDropdownRef } = useDragToClose(showFavorites, () => setShowFavorites(false));
 
-
-  const profileDropdownRef = useRef<HTMLDivElement>(null);
-  const favoriteDropdownRef = useRef<HTMLDivElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
   const favoriteButtonRef = useRef<HTMLButtonElement>(null);
 
-  const { dropdownRef: favoritesDropdownRef } = useDragToClose(showFavorites, () => setShowFavorites(false));
 
 
   const toggleProfileMenu = () => {
@@ -98,9 +96,9 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
         }
       }
   
-      if (showFavorites && favoriteDropdownRef.current && favoriteButtonRef.current) {
+      if (showFavorites && favoritesDropdownRef.current && favoriteButtonRef.current) {
         const favoriteElements = [
-          favoriteDropdownRef.current,
+          favoritesDropdownRef.current,
           favoriteButtonRef.current
         ];
         if (!favoriteElements.some(el => el.contains(clickedElement))) {
@@ -453,7 +451,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
       {isAuthenticated && <AlertsDisplay location={alertLocation} />}
         {isAuthenticated && (
           <div className="favorite-notification-container">
-            <div className="dropdown-container" ref={favoriteDropdownRef}>
+            <div className="dropdown-container" ref={favoritesDropdownRef}>
               {notification && (
                 <div className={`notification-bubble ${notification.type}`}>
                   {notification.message}
@@ -563,24 +561,30 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
             <img src={settingsIcon} alt="Settings" className="settings-icon" />
           </button>
           {showSettingsDropdown && (
-            <div className="dropdown-menu settings-dropdown">
-              <div className="dropdown-item">
-                <div className="temperature-toggle">
-                  <span className="unit">°C</span>
-                  <button
-                    type="button"
-                    className={`toggle-button ${temperatureUnit === 'F' ? 'active' : ''}`}
-                    onClick={toggleTemperatureUnit}
-                  >
-                    <div className="toggle-switch">
-                      <div className="toggle-knob" />
-                    </div>
-                  </button>
-                  <span className="unit">°F</span>
+            <div className="dropdown-menu settings-dropdown" ref={settingsDropdownRef}>
+              <div className="dropdown-header">
+                <div className="dropdown-handle"></div>
+              </div>
+              <div className="dropdown-content">
+                <div className="dropdown-item">
+                  <div className="temperature-toggle">
+                    <span className="unit">°C</span>
+                    <button
+                      type="button"
+                      className={`toggle-button ${temperatureUnit === 'F' ? 'active' : ''}`}
+                      onClick={toggleTemperatureUnit}
+                    >
+                      <div className="toggle-switch">
+                        <div className="toggle-knob" />
+                      </div>
+                    </button>
+                    <span className="unit">°F</span>
+                  </div>
                 </div>
               </div>
             </div>
           )}
+
         </div>
 
 
@@ -600,49 +604,57 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
             }}
           />
           </button>
+
           {showProfileMenu && (
-            <div className="dropdown-menu">
-              {isAuthenticated ? (
-                <>
-                  <div className="dropdown-item" onClick={() => {
-                    setModalInitialTab('profile');
-                    setShowProfileModal(true);
-                    setShowProfileMenu(false);
-                  }}>
-                    Profile
-                  </div>
-                  <div className="dropdown-item" onClick={() => {
-                    setModalInitialTab('settings');
-                    setShowProfileModal(true);
-                    setShowProfileMenu(false);
-                  }}>
-                    Settings
-                  </div>
-                  <div className="dropdown-item" onClick={() => {
-                    logout();
-                    setShowProfileMenu(false);
-                  }}>
-                    Logout
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="dropdown-item" onClick={() => {
-                    onLogin();
-                    setShowProfileMenu(false);
-                  }}>
-                    Login
-                  </div>
-                  <div className="dropdown-item" onClick={() => {
-                    onRegister();
-                    setShowProfileMenu(false);
-                  }}>
-                    Sign Up
-                  </div>
-                </>
-              )}
+            <div className="dropdown-menu" ref={profileDropdownRef}>
+              <div className="dropdown-header">
+                <div className="dropdown-handle"></div>
+              </div>
+              <div className="dropdown-content">
+                {isAuthenticated ? (
+                  <>
+                    <div className="dropdown-item" onClick={() => {
+                      setModalInitialTab('profile');
+                      setShowProfileModal(true);
+                      setShowProfileMenu(false);
+                    }}>
+                      Profile
+                    </div>
+                    <div className="dropdown-item" onClick={() => {
+                      setModalInitialTab('settings');
+                      setShowProfileModal(true);
+                      setShowProfileMenu(false);
+                    }}>
+                      Settings
+                    </div>
+                    <div className="dropdown-item" onClick={() => {
+                      logout();
+                      setShowProfileMenu(false);
+                    }}>
+                      Logout
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="dropdown-item" onClick={() => {
+                      onLogin();
+                      setShowProfileMenu(false);
+                    }}>
+                      Login
+                    </div>
+                    <div className="dropdown-item" onClick={() => {
+                      onRegister();
+                      setShowProfileMenu(false);
+                    }}>
+                      Sign Up
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           )}
+
+
         </div>
       </div>
 

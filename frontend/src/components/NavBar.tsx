@@ -15,6 +15,7 @@ import { usePreferences } from '../context/PreferencesContext';
 import { searchCities } from '../api/weather';
 import { sanitizeImageUrl } from '../utils/utils';
 import { useProfile } from '../context/ProfileContext';
+import { useDragToClose } from '../hooks/useDragToClose';
 
 
 const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
@@ -63,6 +64,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const profileButtonRef = useRef<HTMLButtonElement>(null);
   const favoriteButtonRef = useRef<HTMLButtonElement>(null);
 
+  const { dropdownRef: favoritesDropdownRef } = useDragToClose(showFavorites, () => setShowFavorites(false));
 
 
   const toggleProfileMenu = () => {
@@ -74,6 +76,9 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
     setShowFavorites(!showFavorites);
     setShowProfileMenu(false);
   };
+
+  const touchStartY = useRef<number>(0);
+  const isDragging = useRef<boolean>(false);
 
   
 
@@ -470,17 +475,31 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
                 />
               </button>
               {showFavorites && (
-                <div className="dropdown-menu favorites-dropdown">
-                  {isLoadingFavorites && (
-                    <div className="loading-spinner">Loading...</div>
-                  )}
-
-                  {!isLoadingFavorites && localFavorites.length === 0 && (
-                    <div className="dropdown-item empty-state">
-                      No favorite locations saved
-                    </div>
-                  )}
-
+                  <div 
+                    className="dropdown-menu favorites-dropdown"
+                    ref={favoritesDropdownRef}
+                  >
+                  <div 
+                    className="dropdown-header"
+                    onTouchStart={(e) => {
+                      const touch = e.touches[0];
+                      if (favoritesDropdownRef.current) {
+                        const header = favoritesDropdownRef.current.querySelector('.dropdown-header');
+                        if (header && header.contains(e.target as Node)) {
+                          e.preventDefault();
+                          touchStartY.current = touch.clientY;
+                          isDragging.current = true;
+                        }
+                      }
+                    }}
+                  >
+                    <div className="dropdown-handle"></div>
+                    {isLoadingFavorites && <div className="alerts-loading">Loading...</div>}
+                    {!isLoadingFavorites && localFavorites.length === 0 && (
+                      <div className="alerts-empty">No favorite locations saved</div>
+                    )}
+                  </div>
+                <div className="dropdown-content">
                   {!isLoadingFavorites && localFavorites.map((favorite, index) => (
                     <div key={`${favorite.name}-${index}`} className="favorite-card">
                       <div 
@@ -522,7 +541,8 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
                       </button>
                     </div>
                   ))}
-                </div>
+                  </div>
+              </div>
               )}
             </div>
           </div>

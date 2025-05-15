@@ -13,6 +13,7 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const alertButtonRef = useRef<HTMLButtonElement>(null);
   const { isAuthenticated, authToken } = useAuth();
+  
   const touchStartRef = useRef<number>(0);
   const scrollPositionRef = useRef<number>(0);
   const isDraggingRef = useRef<boolean>(false);
@@ -61,13 +62,14 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
     const target = e.target as HTMLElement;
     const header = dropdownRef.current.querySelector('.dropdown-header');
     
-    // Only prevent default if touching the header
     if (header && header.contains(target)) {
       e.preventDefault();
       touchStartRef.current = touch.clientY;
       isDraggingRef.current = true;
     }
   };
+
+  const easeOutQuad = (t: number) => t * (2 - t);
 
   const handleTouchMove = (e: TouchEvent) => {
     if (!isDropdownOpen || !isDraggingRef.current || !dropdownRef.current) return;
@@ -78,36 +80,25 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
     
     if (deltaY > 0) {
       e.preventDefault();
-      // Calculate percentage of how far we've dragged (0 to 1)
       const dragPercentage = Math.min(deltaY / dropdownHeight, 1);
-      // Smooth the movement with easing
       const easedPercentage = easeOutQuad(dragPercentage);
-      // Move the dropdown down proportionally
       dropdownRef.current.style.transform = `translateY(${easedPercentage * 100}%)`;
     }
   };
 
-  // Add this easing function at the top of the file
-  const easeOutQuad = (t: number) => {
-    return t * (2 - t);
-  };
-
-  // Update the handleTouchEnd function
   const handleTouchEnd = (e: TouchEvent) => {
     if (!isDropdownOpen || !dropdownRef.current) return;
     
     const touch = e.changedTouches[0];
     const deltaY = touch.clientY - touchStartRef.current;
     const dropdownHeight = dropdownRef.current.offsetHeight;
-    const closeThreshold = 0.3; // Close if dragged 30% of the height
+    const closeThreshold = 0.3;
     
     if (deltaY / dropdownHeight > closeThreshold && isDraggingRef.current) {
-      // Animate all the way down
       dropdownRef.current.style.transition = 'transform 0.2s ease-out';
       dropdownRef.current.style.transform = 'translateY(100%)';
       setTimeout(() => setIsDropdownOpen(false), 200);
     } else {
-      // Return to original position
       dropdownRef.current.style.transition = 'transform 0.2s ease-out';
       dropdownRef.current.style.transform = '';
       setTimeout(() => {
@@ -122,7 +113,6 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
 
   useEffect(() => {
     if (isDropdownOpen) {
-      // Disable pull-to-refresh while dropdown is open
       document.body.style.overscrollBehaviorY = 'contain';
     } else {
       document.body.style.overscrollBehaviorY = '';
@@ -167,7 +157,7 @@ const AlertsDisplay: React.FC<AlertsDisplayProps> = ({ location }) => {
 
       {isDropdownOpen && (
         <div 
-          className="alerts-dropdown"
+          className="dropdown-menu alerts-dropdown"
           ref={dropdownRef}
         >
           <div 

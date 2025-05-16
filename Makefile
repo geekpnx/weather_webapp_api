@@ -1,6 +1,8 @@
 start:
 	cd frontend/ && npm start
 
+###### BACKEND SETUP ###############
+
 dev-venv:
 	cd backend/ && python3 -m venv .venv --prompt $(name)
 

@@ -195,7 +195,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
           </div>
         </div>
 
-        <div className="modal-tabs">
+        <div className={`modal-tabs ${activeTab === 'settings' ? 'settings-active' : ''}`}>
           <button 
             onClick={() => setActiveTab('profile')} 
             className={activeTab === 'profile' ? 'active' : ''}
@@ -210,21 +210,24 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
           </button>
         </div>
 
+        <div className="message-container">
+          {success && (
+            <div className="success-message show">
+              {success}
+            </div>
+          )}
+          {error && (
+            <div className="error-message show">
+              {error}
+            </div>
+          )}
+        </div>
+
+      <div className="modal-content">
         {activeTab === 'profile' && userData && (
           <form onSubmit={handleUpdateProfile} className="tab-content">
 
-          <div className="message-container">
-            {success && (
-              <div className="success-message show">
-                {success}
-              </div>
-            )}
-            {error && (
-              <div className="error-message show">
-                {error}
-              </div>
-            )}
-          </div>
+
             <div className="form-group">
             <label>Username</label>
             <input
@@ -335,14 +338,15 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
                 required
               />
             </div>
-            <button 
-              onClick={handleDeleteAccount} 
-              className="btn-delete"
-              type="submit"
-            >
-              Delete Account
-            </button>
-          </form>
+              <button 
+                onClick={handleDeleteAccount} 
+                className="btn-delete"
+                type="submit"
+              >
+                Delete Account
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>

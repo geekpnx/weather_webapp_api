@@ -214,13 +214,11 @@
 }
 
 .alerts-dropdown {
-  scrollbar-width: none;
+  scrollbar-width: thin;
   -ms-overflow-style: none;
 }
 
-.alerts-dropdown::-webkit-scrollbar {
-  display: none;
-}
+
 
 @media (max-width: 768px) {
   .alerts-dropdown {

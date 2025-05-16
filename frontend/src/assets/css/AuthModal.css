@@ -144,9 +144,15 @@
 
 
 .message-container {
-  min-height: 25px; 
-  margin-bottom: 1.8rem;
-  position: relative; 
+  width: 100%; 
+  min-height: 25px;
+  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
+  position: static;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  text-align: center; 
 }
 
 .error-message {
@@ -161,6 +167,20 @@
   animation: none !important;
   transition: opacity 0.1s ease-out;
 }
+
+.error-message, 
+.success-message {
+  max-width: 90%; /* Prevent messages from being too wide */
+  padding: 12px 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  position: relative; /* Change from absolute to relative */
+  margin: 0 auto; /* Center horizontally */
+}
+
 
 .success-message {
   color: #51cf66;
@@ -186,8 +206,6 @@
   align-items: center;
   margin-bottom: 1.5rem;
 }
-
-
 
 
 
@@ -223,8 +241,8 @@
 
 .toggle-knob {
   position: absolute;
-  top: 2px;
-  left: -6px;
+  top: -6px;
+  left: -21px;
   width: 20px;
   height: 20px;
   border-radius: 50%;

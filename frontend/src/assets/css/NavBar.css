@@ -1078,7 +1078,7 @@
   }
 
   .dropdown-content {
-    height: calc(60vh - 60px);
+    max-height: calc(100vh - 60px);
     overflow-y: auto;
     padding: 0 5px 15px;
     touch-action: pan-y;
@@ -1086,7 +1086,7 @@
   
   .favorites-dropdown .dropdown-content {
     overflow-y: auto; 
-    height: 400px; 
+    max-height: 80hv; 
     scrollbar-width: thin; 
   }
   

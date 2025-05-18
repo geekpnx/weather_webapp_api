@@ -204,7 +204,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                       onClick={() => setPreferredTemperatureUnit(prev => prev === 'C' ? 'F' : 'C')}
                     >
                       <div className="toggle-switch">
-                        <div className="toggle-knob" />
+                        <div className="toggle-knob-auth" />
                       </div>
                     </button>
                     <span className="unit">°F</span>

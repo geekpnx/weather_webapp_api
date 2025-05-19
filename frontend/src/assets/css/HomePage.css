@@ -39,10 +39,6 @@
 } */
 
 
-.home-page {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-}
 
 .card {
   background-color: var(--card-bg);
@@ -80,7 +76,9 @@ html, body {
   overflow-x: hidden;
   height: 100%;
   width: 100%;
+  padding-top: 0; 
 }
+
 
 .video-background {
   position: fixed;
@@ -128,6 +126,9 @@ html, body {
   position: relative;
   z-index: 1;
   overflow-x: hidden;
+  padding-top: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 
@@ -157,8 +158,8 @@ html, body {
 }
 
 .fetching-message {
-  position: absolute;
-  top: 0;
+  position: fixed;
+  top: 80px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(41, 41, 41, 0.9);
@@ -203,6 +204,7 @@ html, body {
   max-width: 1200px;
   margin: 17px auto 40px;
   align-items: start; 
+  padding-top: 80px; 
 }
 
 
@@ -348,17 +350,6 @@ html, body {
 
 
 
-@media (max-width: 768px) {
-  .content-container {
-    flex-direction: column;
-  }
-  
-  .weather-current, 
-  .sidebar-container {
-    flex: 1 1 100%;
-  }
-}
-
 
 .footer {
   text-align: center;
@@ -376,18 +367,34 @@ html, body {
 
 
 @media (max-width: 768px) {
-  .logged-in-layout, .two-column-layout {
-    flex-direction: column;
-  }
-  .left-half, .right-half, .left-column, .right-column {
-    flex: none;
-    width: 100%;
-  }
+
 }
 
 
 
 @media (max-width: 768px) {
+  .content-container {
+    flex-direction: column;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 15px;
+    padding-top: 70px;
+    margin-top: 60px; 
+  }
+  
+  .weather-current, 
+  .sidebar-container {
+    flex: 1 1 100%;
+  }
+
+  .fetching-message {
+    top: 150px; 
+    width: 90%;
+    max-width: none;
+    white-space: normal;
+    padding: 10px 15px;
+  }
+
   .video-background {
     height: 100vh;
     width: 100vw;
@@ -396,13 +403,15 @@ html, body {
 
   .home-page {
     padding: 10px;
-    overflow: hidden;
+    overflow: visible;
   }
 
-  .content-container {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-    gap: 15px;
+  .logged-in-layout, .two-column-layout {
+    flex-direction: column;
+  }
+  .left-half, .right-half, .left-column, .right-column {
+    flex: none;
+    width: 100%;
   }
 
   .weather-current {

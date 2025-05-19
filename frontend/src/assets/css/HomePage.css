@@ -204,9 +204,8 @@ html, body {
   max-width: 1200px;
   margin: 17px auto 40px;
   align-items: start; 
-  padding-top: 80px; 
+  padding-top: 55px; 
 }
-
 
 
 .card {
@@ -366,9 +365,6 @@ html, body {
 }
 
 
-@media (max-width: 768px) {
-
-}
 
 
 
@@ -378,8 +374,7 @@ html, body {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
     gap: 15px;
-    padding-top: 70px;
-    margin-top: 60px; 
+    padding-top: 85px;
   }
   
   .weather-current, 

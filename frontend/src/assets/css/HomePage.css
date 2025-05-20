@@ -374,7 +374,6 @@ html, body {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
     gap: 15px;
-    padding-top: 55px !important;
     overflow: hidden;
     top: 25px;
   }
@@ -385,7 +384,8 @@ html, body {
   }
 
   .fetching-message {
-    top: 120px; 
+    position: fixed;
+    top: 120px; /* Reduced from 80px */
     width: 90%;
     max-width: none;
     white-space: normal;

@@ -129,6 +129,7 @@ html, body {
   padding-top: 0;
   background-color: var(--bg-color);
   color: var(--text-color);
+  min-height: -webkit-fill-available;
 }
 
 
@@ -204,7 +205,7 @@ html, body {
   max-width: 1200px;
   margin: 17px auto 40px;
   align-items: start; 
-  padding-top: 55px; 
+  padding-top: 55px !important; 
   position: relative;
 }
 
@@ -367,16 +368,13 @@ html, body {
 
 
 
-
-
 @media (max-width: 768px) {
   .content-container {
     flex-direction: column;
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
     gap: 15px;
-    padding-top: 85px;
-    margin-top: 20px; 
+    padding-top: 85px !important;
     overflow: hidden;
   }
   
@@ -386,7 +384,7 @@ html, body {
   }
 
   .fetching-message {
-    top: 150px; 
+    top: 120px; 
     width: 90%;
     max-width: none;
     white-space: normal;

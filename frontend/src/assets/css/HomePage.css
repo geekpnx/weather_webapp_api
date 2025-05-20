@@ -205,6 +205,7 @@ html, body {
   margin: 17px auto 40px;
   align-items: start; 
   padding-top: 55px; 
+  position: relative;
 }
 
 
@@ -375,6 +376,7 @@ html, body {
     grid-template-rows: auto auto auto;
     gap: 15px;
     padding-top: 85px;
+    margin-top: 20px; 
     overflow: hidden;
   }
   

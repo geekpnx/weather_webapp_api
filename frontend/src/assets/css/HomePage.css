@@ -129,7 +129,6 @@ html, body {
   padding-top: 0;
   background-color: var(--bg-color);
   color: var(--text-color);
-  min-height: -webkit-fill-available;
 }
 
 
@@ -365,6 +364,7 @@ html, body {
   font-size: 14px;
   margin-top: -30px;
 }
+
 
 
 

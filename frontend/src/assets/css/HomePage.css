@@ -112,7 +112,6 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.3); 
 }
 
 
@@ -350,7 +349,6 @@ html, body {
 }
 
 
-
 .footer {
   text-align: center;
   padding: 70px;
@@ -375,7 +373,7 @@ html, body {
     grid-template-rows: auto auto auto;
     gap: 15px;
     overflow: hidden;
-    top: 80px;
+    top: 75px;
   }
   
   .weather-current, 
@@ -385,7 +383,7 @@ html, body {
 
   .fetching-message {
     position: fixed;
-    top: 120px; /* Reduced from 80px */
+    top: 120px;
     width: 90%;
     max-width: none;
     white-space: normal;
@@ -400,7 +398,6 @@ html, body {
 
   .home-page {
     padding: 10px;
-    overflow: visible;
   }
 
   .logged-in-layout, .two-column-layout {

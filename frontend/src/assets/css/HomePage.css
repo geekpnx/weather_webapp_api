@@ -80,6 +80,7 @@ html, body {
 }
 
 
+
 .video-background {
   position: fixed;
   top: 0;
@@ -350,7 +351,6 @@ html, body {
 
 
 
-
 .footer {
   text-align: center;
   padding: 20px;
@@ -374,8 +374,9 @@ html, body {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
     gap: 15px;
-    padding-top: 85px !important;
+    padding-top: 55px !important;
     overflow: hidden;
+    top: 25px;
   }
   
   .weather-current, 

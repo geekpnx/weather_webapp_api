@@ -371,7 +371,7 @@ html, body {
     grid-template-rows: auto auto auto;
     gap: 15px;
     overflow: hidden;
-    /* top: 100px; */
+    margin-top: 50px;
   }
   
   .weather-current, 

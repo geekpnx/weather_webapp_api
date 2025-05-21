@@ -331,8 +331,6 @@ html, body {
 }
 
 
-
-
 .sidebar-container {
   flex: 1 1 35%;
   min-width: 300px;
@@ -367,12 +365,13 @@ html, body {
 
 @media (max-width: 768px) {
   .content-container {
+    top: auto;
     flex-direction: column;
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
     gap: 15px;
     overflow: hidden;
-    top: 100px;
+    /* top: 100px; */
   }
   
   .weather-current, 

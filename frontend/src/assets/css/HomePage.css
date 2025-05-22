@@ -132,12 +132,12 @@ html, body {
 
 
 
-/* .top-messages {
+.top-messages {
   position: relative;
   width: 100%;
   text-align: center;
   margin-top: 20px;
-} */
+}
 
 
 .loading-circle {

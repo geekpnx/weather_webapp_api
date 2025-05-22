@@ -1083,7 +1083,7 @@
   
   .favorites-dropdown .dropdown-content {
     overflow-y: auto; 
-    max-height: 35vh; 
+    max-height: 50vh; 
     scrollbar-width: thin; 
   }
 

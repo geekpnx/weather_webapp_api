@@ -347,7 +347,7 @@ html, body {
 
 .footer {
   text-align: center;
-  padding: 70px;
+  padding: 15px;
   margin-top: auto; 
   width: 100%;
 }
@@ -356,7 +356,6 @@ html, body {
   margin: 0;
   color: white;
   font-size: 14px;
-
 }
 
 

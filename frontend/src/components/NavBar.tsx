@@ -19,7 +19,7 @@ import { useDragToClose } from '../hooks/useDragToClose';
 
 
 const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
-  const { isAuthenticated, logout, userProfile, refreshProfile } = useAuth();
+  const { isAuthenticated, logout, refreshProfile } = useAuth();
   const [searchLocation, setSearchLocation] = useState<string>('');
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
@@ -52,9 +52,10 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
   const STATIC_BASE_URL = import.meta.env.VITE_STATIC_BASE_URL;
   const defaultProPic = `${STATIC_BASE_URL}/images/propic/user_propic.svg`;
 
-  const profileImageUrl = isAuthenticated && userProfile?.profile_picture
-  ? `${sanitizeImageUrl(userProfile.profile_picture, defaultProPic)}?v=${profileVersion}`
-  : defaultProPic;
+  const { profileData } = useProfile();
+  const profileImageUrl = isAuthenticated && profileData?.profile_picture
+    ? `${sanitizeImageUrl(profileData.profile_picture, defaultProPic)}?v=${profileVersion}`
+    : defaultProPic;
 
   const { dropdownRef: settingsDropdownRef } = useDragToClose(showSettingsDropdown, () => setShowSettingsDropdown(false));
   const { dropdownRef: profileDropdownRef } = useDragToClose(showProfileMenu, () => setShowProfileMenu(false));

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../assets/css/ProfileModal.css';
 import {
-  fetchUserProfile,
   deleteAccount,
   updateUserProfile,
   uploadProfilePicture,
@@ -15,15 +14,14 @@ import { usePreferences } from '../context/PreferencesContext';
 import { ProfileModalProps } from '../types/types'
 
 
-
 const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab = 'profile'  }) => {
-  const { logout, refreshProfile } = useAuth();
-  const [userData, setUserData] = useState<any>(null);
+  const { logout } = useAuth();
+   const { profileData: contextProfileData, refreshProfileData } = useProfile();
+  const [userData, setUserData] = useState<any>(contextProfileData);
   const [activeTab, setActiveTab] = useState<'profile' | 'settings'>(initialTab);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [password, setPassword] = useState('');
-  const { triggerProfileUpdate } = useProfile();
   const { profileVersion } = useProfile();
   const { temperatureUnit, toggleTemperatureUnit } = usePreferences();
   
@@ -38,34 +36,27 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
 
 
   useEffect(() => {
-    if (isOpen) loadProfile();
+    if (isOpen) {
+      refreshProfileData();
+    }
     setActiveTab(initialTab);
   }, [isOpen, initialTab]);
 
-  const loadProfile = async () => {
-    try {
-      const data = await fetchUserProfile();
-      setUserData(data);
-      setError('');
-    } catch (error) {
-      setError('Failed to load profile');
-    }
-  };
+  useEffect(() => {
+    setUserData(contextProfileData);
+  }, [contextProfileData]);
+
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-  
+
     try {
-      console.log('Uploading file:', file.name, file.size, file.type); 
       await uploadProfilePicture(file);
-      triggerProfileUpdate();
-      await loadProfile();
+      await refreshProfileData(); // Use the context refresh function
       setSuccess('Profile picture updated');
       setError('');
-      refreshProfile();
     } catch (error) {
-      console.error('Upload error:', error); 
       setError('Failed to upload image');
     }
   };
@@ -74,19 +65,13 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
   const handleRemovePicture = async () => {
     try {
       await removeProfilePicture();
-      triggerProfileUpdate(); 
-      await loadProfile();
+      await refreshProfileData(); // Use the context refresh function
       setSuccess('Profile picture removed successfully');
       setError('');
-      refreshProfile(); 
     } catch (error) {
-      setError(error instanceof Error ? 
-        error.message : 
-        'Failed to remove profile picture'
-      );
+      setError(error instanceof Error ? error.message : 'Failed to remove profile picture');
     }
   };
-
   useEffect(() => {
     let timer: NodeJS.Timeout;
     
@@ -133,7 +118,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
   
       await updateUserProfile(updateData);
       setSuccess('Profile updated successfully');
-      await loadProfile();
+      await refreshProfileData();
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to update profile');

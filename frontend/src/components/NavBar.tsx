@@ -385,19 +385,6 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
       </div>
 
       <div className="search-container">
-        <div className="temperature-toggle">
-          <span className="unit">°C</span>
-          <button
-            type="button"
-            className={`toggle-button ${temperatureUnit === 'F' ? 'active' : ''}`}
-            onClick={toggleTemperatureUnit}
-          >
-            <div className="toggle-switch">
-              <div className="toggle-knob" />
-            </div>
-          </button>
-          <span className="unit">°F</span>
-        </div>
         <div className="input-with-add">
           <div className="search-input-container" ref={searchInputRef}>
             <button onClick={handleSearch} className="search-button-inside">
@@ -568,19 +555,21 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
               </div>
               <div className="dropdown-content">
                 <div className="dropdown-item">
-                  <div className="temperature-toggle">
-                    <span className="unit">°C</span>
-                    <button
-                      type="button"
-                      className={`toggle-button ${temperatureUnit === 'F' ? 'active' : ''}`}
-                      onClick={toggleTemperatureUnit}
-                    >
-                      <div className="toggle-switch">
-                        <div className="toggle-knob" />
-                      </div>
-                    </button>
-                    <span className="unit">°F</span>
-                  </div>
+                    <div className="switch-container">
+                      <span className="switch-label">Unit:</span>
+                      <label className="switch">
+                        <input 
+                          type="checkbox" 
+                          id="unitToggleSettings" 
+                          checked={temperatureUnit === 'F'}
+                          onChange={toggleTemperatureUnit}
+                        />
+                        <span className="slider">
+                          <span className="unit-text left">°C</span>
+                          <span className="unit-text right">°F</span>
+                        </span>
+                      </label>
+                    </div>
                 </div>
               </div>
             </div>

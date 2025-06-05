@@ -11,7 +11,7 @@
   align-items: center;
   padding: 10px 20px;
   background: rgb(50 50 50 / 85%);
-  border-radius: 25px;
+  border-radius: 0 0 25px 25px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: fixed; 
   top: 0px; 
@@ -235,33 +235,61 @@
   justify-content: center;
 }
 
+/* Update these styles in your NavBar.css */
 
-.settings-dropdown .temperature-toggle {
+.settings-dropdown .slider {
+  position: relative;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  padding: 5px 0;
+  width: 100%;
+  height: 100%;
+  background-color: #666;
+  border-radius: 8px;
+  padding: 5px;
+  font-size: 0.7rem;
+  box-sizing: border-box;
+  cursor: pointer;
+  overflow: hidden; /* Add this to contain the pseudo-element */
 }
 
-.settings-dropdown .toggle-switch {
-  width: 40px;
-  height: 22px;
+.settings-dropdown .slider::before {
+  content: "";
+  position: absolute;
+  width: 50%; /* Half the width of the slider */
+  height: calc(100% - 6px); /* Full height minus padding */
+  left: 3px;
+  bottom: 3px;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  transition: transform 0.4s ease;
+  z-index: 1; /* Behind the text */
 }
 
-.settings-dropdown .toggle-knob {
-  width: 17px;
-  height: 17px;
-  top: 2px;
-  left: -2px;
+.settings-dropdown .unit-text {
+  position: relative;
+  z-index: 2; /* Above the sliding background */
+  width: 50%;
+  text-align: center;
+  font-weight: bold;
+  color: #999;
+  transition: color 0.3s;
+  user-select: none;
 }
 
-.settings-dropdown .toggle-button.active .toggle-knob {
-  transform: translateX(20px);
-}
-
-.settings-dropdown .unit {
-  font-size: 13px;
+/* Active text color switching */
+.settings-dropdown input:not(:checked) + .slider .left {
   color: white;
+}
+
+.settings-dropdown input:checked + .slider .right {
+  color: white;
+}
+
+/* Remove these if they exist as they're redundant now */
+.settings-dropdown input:not(:checked) + .slider .right,
+.settings-dropdown input:checked + .slider .left {
+  color: #999;
 }
 
 
@@ -322,60 +350,99 @@
 }
 
 
-.temperature-toggle {
+
+/* New Temperature Toggle Styles */
+.switch-container {
   display: flex;
   align-items: center;
-  margin: 0 15px;
+  font-family: Arial, sans-serif;
+  gap: 10px;
 }
 
-.toggle-button {
+.switch-label {
+  font-weight: bold;
+  font-size: 1rem;
+  color: white;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 73px;
+  height: 30px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: relative;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  background: none;
-  border: none;
-  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  background-color: #ccc;
+  border-radius: 10px;
   padding: 5px;
-  position: relative;
+  font-size: 0.7rem;
+  box-sizing: border-box;
+  top: -15px;
 }
 
-.toggle-switch {
-  width: 50px;
-  height: 24px;
-  background-color: #d1d1d1;
-  border-radius: 12px;
-  margin: 0 8px;
-  position: relative;
-  transition: background-color 0.3s;
-}
-
-.toggle-knob {
+.slider::before {
+  content: "";
   position: absolute;
-  width: 20px;
-  height: 20px;
-  background-color: #303030;
-  border-radius: 50%;
-  top: 2px;
-  left: 2px;
-  transition: transform 0.3s;
+  width: 24px;
+  height: 24px;
+  left: 3px;
+  bottom: 3px;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: white;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  transition: transform 0.4s, background-color 0.4s;
+  z-index: 2;
 }
 
-.toggle-button.active .toggle-knob {
-  transform: translateX(26px);
+input:checked + .slider::before {
+  transform: translateX(30px);
+  background-color: #4CAF50;
 }
 
-.toggle-button.active .toggle-switch {
-  background-color: #d1d1d1;
-}
-
-.unit {
-  font-size: 14px;
-  font-weight: 500;
-  color: #303030;
-  min-width: 20px;
+.unit-text {
+  position: relative;
+  z-index: 1;
+  width: 50%;
   text-align: center;
+  font-weight: bold;
+  color: #999;
+  transition: color 0.3s;
 }
 
+/* Active text color switching */
+input:not(:checked) + .slider .left {
+  color: white;
+}
 
+input:not(:checked) + .slider .right {
+  color: #999;
+}
+
+input:checked + .slider .left {
+  color: #999;
+}
+
+input:checked + .slider .right {
+  color: white;
+}
 
 
 .icon-button {

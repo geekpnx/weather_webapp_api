@@ -277,23 +277,20 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
 
         {activeTab === 'settings' && userData && (
           <div className="settings-content">
-            {/* Temperature Unit Row */}
             <div className="preference-row">
-              <label className="preference-label">Preferred Unit</label>
-              <div className="toggle-container">
-                <div className="temperature-toggle">
-                  <span className={`unit ${temperatureUnit === 'C' ? 'active' : ''}`}>°C</span>
-                  <button
-                    type="button"
-                    className={`toggle-button ${temperatureUnit === 'F' ? 'active' : ''}`}
-                    onClick={toggleTemperatureUnit}
-                  >
-                    <div className="toggle-switch">
-                      <div className="toggle-knob" />
-                    </div>
-                  </button>
-                  <span className={`unit ${temperatureUnit === 'F' ? 'active' : ''}`}>°F</span>
-                </div>
+              <div className="switch-container">
+                <span className="switch-label">Preferred Unit:</span>
+                <label className="switch">
+                  <input 
+                    type="checkbox" 
+                    checked={temperatureUnit === 'F'}
+                    onChange={toggleTemperatureUnit}
+                  />
+                  <span className="slider">
+                    <span className="unit-text left">°C</span>
+                    <span className="unit-text right">°F</span>
+                  </span>
+                </label>
               </div>
             </div>
           </div>

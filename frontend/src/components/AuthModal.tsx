@@ -195,19 +195,19 @@ const AuthModal: React.FC<AuthModalProps> = ({
               </div>
               <div className="form-group">
                 <div className="temperature-control">
-                  <label>Preferred Unit</label>
-                  <div className="temperature-toggle">
-                    <span className="unit">°C</span>
-                    <button
-                      type="button"
-                      className={`toggle-button ${preferredTemperatureUnit === 'F' ? 'active' : ''}`}
-                      onClick={() => setPreferredTemperatureUnit(prev => prev === 'C' ? 'F' : 'C')}
-                    >
-                      <div className="toggle-switch">
-                        <div className="toggle-knob-auth" />
-                      </div>
-                    </button>
-                    <span className="unit">°F</span>
+                 <div className="switch-container">
+                  <span className="switch-label">Preffered Unit:</span>
+                    <label className="switch">
+                      <input 
+                        type="checkbox" 
+                        checked={preferredTemperatureUnit === 'F'}
+                        onChange={() => setPreferredTemperatureUnit(prev => prev === 'C' ? 'F' : 'C')}
+                      />
+                      <span className="slider">
+                        <span className="unit-text left">°C</span>
+                        <span className="unit-text right">°F</span>
+                      </span>
+                    </label>
                   </div>
                 </div>
               </div>

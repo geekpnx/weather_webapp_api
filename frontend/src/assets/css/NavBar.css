@@ -235,7 +235,6 @@
   justify-content: center;
 }
 
-/* Update these styles in your NavBar.css */
 
 .settings-dropdown .slider {
   position: relative;
@@ -250,25 +249,25 @@
   font-size: 0.7rem;
   box-sizing: border-box;
   cursor: pointer;
-  overflow: hidden; /* Add this to contain the pseudo-element */
+  overflow: hidden;
 }
 
 .settings-dropdown .slider::before {
   content: "";
   position: absolute;
-  width: 50%; /* Half the width of the slider */
-  height: calc(100% - 6px); /* Full height minus padding */
+  width: 50%; 
+  height: calc(100% - 6px); 
   left: 3px;
   bottom: 3px;
   border-radius: 5px;
   background-color: #4CAF50;
   transition: transform 0.4s ease;
-  z-index: 1; /* Behind the text */
+  z-index: 1;
 }
 
 .settings-dropdown .unit-text {
   position: relative;
-  z-index: 2; /* Above the sliding background */
+  z-index: 2;
   width: 50%;
   text-align: center;
   font-weight: bold;
@@ -277,7 +276,7 @@
   user-select: none;
 }
 
-/* Active text color switching */
+
 .settings-dropdown input:not(:checked) + .slider .left {
   color: white;
 }
@@ -286,7 +285,7 @@
   color: white;
 }
 
-/* Remove these if they exist as they're redundant now */
+
 .settings-dropdown input:not(:checked) + .slider .right,
 .settings-dropdown input:checked + .slider .left {
   color: #999;
@@ -351,7 +350,6 @@
 
 
 
-/* New Temperature Toggle Styles */
 .switch-container {
   display: flex;
   align-items: center;

@@ -279,7 +279,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, initialTab
           <div className="settings-content">
             <div className="preference-row">
               <div className="switch-container">
-                <span className="switch-label">Preferred Unit:</span>
+                <span className="switch-label">Temp. Unit:</span>
                 <label className="switch">
                   <input 
                     type="checkbox" 

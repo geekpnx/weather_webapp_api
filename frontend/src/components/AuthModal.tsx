@@ -196,7 +196,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
               <div className="form-group">
                 <div className="temperature-control">
                  <div className="switch-container">
-                  <span className="switch-label">Preffered Unit:</span>
+                  <span className="switch-label">Temp. Unit:</span>
                     <label className="switch">
                       <input 
                         type="checkbox" 

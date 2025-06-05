@@ -160,7 +160,7 @@ const HomePage = () => {
   // useEffect(() => {
   //   // If no location is set after component mounts, show default location
   //   if (!location && !isFetchingLocation) {
-  //     handleSearch('New York'); // or any other default city
+  //     handleSearch('Berlin'); // or any other default city
   //   }
   // }, []);
 

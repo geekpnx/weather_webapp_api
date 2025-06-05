@@ -556,7 +556,7 @@ const NavBar: React.FC<NavBarProps> = ({ onSearch, onLogin, onRegister }) => {
               <div className="dropdown-content">
                 <div className="dropdown-item">
                     <div className="switch-container">
-                      <span className="switch-label">Unit:</span>
+                      <span className="switch-label">Temp. Unit:</span>
                       <label className="switch">
                         <input 
                           type="checkbox" 

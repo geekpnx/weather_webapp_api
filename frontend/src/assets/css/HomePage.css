@@ -16,6 +16,7 @@
   --input-bg: lemonchiffon;
   --primary-color: #303030;
   --secondary-color: #6e6e6e;
+  --navbar-height: 60px;
 }
 
 /* [data-theme="dark"] {
@@ -37,20 +38,6 @@
 /* [data-theme="dark"] .video-overlay {
   background-color: rgba(0, 0, 0, 0.5); 
 } */
-
-
-
-.card {
-  background-color: var(--card-bg);
-  box-shadow: var(--card-shadow);
-  color: var(--text-color);
-}
-
-.search-input {
-  background-color: var(--input-bg);
-  color: var(--text-color);
-}
-
 
 
 * {

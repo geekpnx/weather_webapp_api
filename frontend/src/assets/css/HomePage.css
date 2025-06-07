@@ -59,14 +59,6 @@ body, html, #root {
 }
 
 
-/* html, body {
-  overflow-x: hidden;
-  height: 100%;
-  width: 100%;
-  padding-top: 0; 
-} */
-
-
 
 .video-background {
   position: fixed;

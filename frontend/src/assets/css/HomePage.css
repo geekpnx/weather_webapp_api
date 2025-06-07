@@ -59,12 +59,12 @@ body, html, #root {
 }
 
 
-html, body {
+/* html, body {
   overflow-x: hidden;
   height: 100%;
   width: 100%;
   padding-top: 0; 
-}
+} */
 
 
 
